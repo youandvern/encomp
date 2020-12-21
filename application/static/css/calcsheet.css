@@ -1,22 +1,37 @@
 body {
         counter-reset: h2counter;
     }
-    h1 {
-        counter-reset: h2counter;
-    }
-    h2 {
-        counter-reset: h3counter;
-        counter-increment: h2counter;
-    }
-    h3 {
-        counter-increment: h3counter;
-    }
-    h2:before {
-        content: counter(h2counter) ".\0000a0\0000a0";
-    }
-    h3:before {
-        content: counter(h2counter) "." counter(h3counter) ".\0000a0\0000a0";
-    }
+  h1 {
+      counter-reset: h2counter;
+
+  }
+  h2 {
+      counter-reset: h3counter;
+      counter-increment: h2counter;
+
+  }
+  h3 {
+      counter-increment: h3counter;
+  }
+  h2:before {
+      content: counter(h2counter) ".\0000a0\0000a0";
+  }
+  h3:before {
+      content: counter(h2counter) "." counter(h3counter) ".\0000a0\0000a0";
+  }
+
+
+.inner-calc-container > h2.h2-header {
+  break-before: avoid-page;
+}
+
+.inner-calc-container > h2.h2-header ~ h2.h2-header {
+  break-before: page;
+}
+.calc-header-break {
+  break-before: page;
+}
+
 
 .calc-page-container {
   max-width: 8.5in;

@@ -8,7 +8,7 @@
       };
     </script>
     <script type="text/javascript" id="MathJax-script" async  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/calcsheet.css', version='47')}}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/calcsheet.css', version='51')}}"/>
     {% block content%}
 
     {% endblock %}
@@ -60,10 +60,12 @@
 
             <div class="calc-container">
 
-            <h1 class="small-h1">Calculation</h1>
+            <h1 class="small-h1 calc-header-break">Calculation</h1>
+            <div class="inner-calc-container">
+
             {% for item in calcstrings %}
             {% if item[0] == 'BodyHeader' %}
-                <h{{ item[3] }}> {{ item[1] }} <span class="right-align"> {{ item[2] }} </span></h{{ item[3] }}>
+                <h{{ item[3] }} class="h2-header"> {{ item[1] }} <span class="right-align"> {{ item[2] }} </span></h{{ item[3] }}>
             {% elif item[0] == 'BodyText' %}
                 <p>{{ item[1] }} <span class="right-align"> {{ item[2] }} </span></p>
             {% elif item[0] == 'CheckVariable' %}
@@ -86,6 +88,7 @@
                 {% endif %}
             {% endif %}
             {% endfor %}
+            </div>
             </div>
 
           </div>
