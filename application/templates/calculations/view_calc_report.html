@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{calc_title}}</title>
+    <script>
+      MathJax = {
+        loader: {load: ['input/asciimath', 'output/chtml', 'ui/menu']},
+      };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/calcsheet.css', version='47')}}"/>
+    {% block content%}
+
+    {% endblock %}
+</head>
+<body>
+
+      <div class="calcs">
+
+        <header class="fixed-header" id="pageHeaderCenter">
+          <table id="tableHeader">
+            <tr>
+              <th>{{ left_header|safe }}</th>
+              <th>{{ center_header|safe }}</th>
+              <th>{{ right_header|safe }}</th>
+            </tr>
+          </table>
+        </header>
+
+          <div class="calc-page-container">
+
+            {% for calcitem in headstrings %}
+                {% if calcitem[0] == 'CalculationTitle' %}
+                    <h1> {{ calcitem[1] }} </h1>
+                {% else %}
+                    <p> {{ calcitem[1] }} </p>
+                {% endif %}
+            {% endfor %}
+
+
+            {% if assum_length > 0 %}
+                <h1 class="small-h1">Assumptions:</h1>
+                <ul>
+                  {% for item in assumstrings %}
+                  <li> {{ item[1] }} </li>
+                  {% endfor %}
+                </ul>
+            {% endif %}
+
+
+            <h1 class="small-h1">Input Variables: </h1>
+            <table class="input-variables">
+              {% for item in setupstrings %}
+              <tr>
+                <td class="input-description"> {{ item[1] }};  </td>
+                <td class="input-definition"> \(  {{ item[2] }} \)</td>
+              </tr>
+              {% endfor %}
+            </table>
+
+            <div class="calc-container">
+
+            <h1 class="small-h1">Calculation</h1>
+            {% for item in calcstrings %}
+            {% if item[0] == 'BodyHeader' %}
+                <h{{ item[3] }}> {{ item[1] }} <span class="right-align"> {{ item[2] }} </span></h{{ item[3] }}>
+            {% elif item[0] == 'BodyText' %}
+                <p>{{ item[1] }} <span class="right-align"> {{ item[2] }} </span></p>
+            {% elif item[0] == 'CheckVariable' %}
+                <p class="long-calc">\[ \begin{align} {{ item[4] }} \ \ \ \ \ \ {{ item[5] }} \\[4pt]  {{ item[6] }} \\[4pt] & \therefore {{ item[7] }} \end{align} \] <span class="right-align"> {{ item[2] }} </span></p>
+                <br>
+            {% elif item[0] == 'CheckVariablesText' %}
+                <p class="long-calc">\[ \rightarrow {{ item[5] }} \] <span class="right-align"> {{ item[2] }} </span></p>
+            {% else %}
+                {% if item[1] %}
+                  <p>{{ item[1] }}:</p>
+                {% endif %}
+                {% if item[3] == 'Float' %}
+                  <p class="float-calc">\[ {{ item[4] }} {{ item[7] }} \] <span class="right-align"> {{ item[2] }} </span></p>
+                {% elif item[3] == 'Short' %}
+                  <p class="short-calc">\[ \begin{align} {{ item[4] }} & {{ item[5] }} {{ item[6] }} \\[4pt] & \therefore {{ item[4] }} {{ item[7] }} \end{align} \] <span class="right-align"> {{ item[2] }} </span></p>
+                  <br>
+                {% else %}
+                  <p class="long-calc">\[ \begin{align} {{ item[4] }} & {{ item[5] }} \\[4pt] & {{ item[6] }} \\[4pt] & \therefore {{ item[4] }} {{ item[7] }} \end{align} \] <span class="right-align"> {{ item[2] }} </span></p>
+                  <br>
+                {% endif %}
+            {% endif %}
+            {% endfor %}
+            </div>
+
+          </div>
+
+      </div>
+
+
+
+</body>
+</html>

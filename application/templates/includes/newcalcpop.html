@@ -1,0 +1,35 @@
+<div class="form-popup" id="addCalcForm">
+        <div class="form-popup-header" id="addCalcFormHeader">Add New Calculation</div>
+        <div class="form-container">
+        <form class="" name="addcalc" action="" method="post" novalidate>
+          <fieldset class="form-group">
+            {{ cform.hidden_tag() }}
+            <p>
+              {{ cform.calc_name.label }}<br>
+              {{ cform.calc_name(size=35) }}
+              {% for error in cform.calc_name.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </p>
+            <p>
+              {{ cform.description.label }}<br>
+              {{ cform.description(size=20) }}
+              {% for error in cform.description.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </p>
+            <div class = "select-type" style="width:100%; height = 100%;">
+              {{ cform.calc_type.label }}
+              {{ cform.calc_type }}
+              {% for error in cform.calc_type.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <p class="buttons">
+              {{ cform.submit(class="btn submit") }}
+            </p>
+            </fieldset>
+        </form>
+        <button class="btn cancel" onclick="closeCalcForm()">Close</button>
+        </div>
+    </div>

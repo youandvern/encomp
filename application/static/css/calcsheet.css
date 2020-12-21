@@ -1,0 +1,80 @@
+body {
+        counter-reset: h2counter;
+    }
+    h1 {
+        counter-reset: h2counter;
+    }
+    h2 {
+        counter-reset: h3counter;
+        counter-increment: h2counter;
+    }
+    h3 {
+        counter-increment: h3counter;
+    }
+    h2:before {
+        content: counter(h2counter) ".\0000a0\0000a0";
+    }
+    h3:before {
+        content: counter(h2counter) "." counter(h3counter) ".\0000a0\0000a0";
+    }
+
+.calc-page-container {
+  max-width: 8.5in;
+  /* border: 2px solid gray;
+  border-radius: 10px; */
+  padding: 5px;
+}
+
+h1.small-h1 {
+  font-size: 24px;
+  text-decoration: underline;
+}
+
+.centered {
+  margin:auto;
+}
+
+.right-align {
+  float: right;
+  margin-right: 0.25in
+
+}
+
+.calc-container p {
+  margin-top: 8px;
+  margin-bottom: 5px;
+  margin-left: 2em;
+}
+
+.input-definition {
+  padding-left: 1em
+}
+
+.result-indent {
+  padding-left: 2em
+}
+
+
+/* Force "display" equations to show inline without shrinking fractions to fit the standard line height */
+mjx-container[jax="CHTML"][display="true"][role="presentation"] {
+  margin-top: 0;
+  margin-bottom: 0;
+  text-align: left;
+  display: inline;
+}
+
+
+
+#tableHeader {
+  width: 100%;
+  height: 100%;
+  border: 1px solid black;
+}
+
+#tableHeader  th{
+  width: 33.33%;
+  text-align: center;
+  border: 1px solid black;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+}
