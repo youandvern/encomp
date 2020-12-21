@@ -1,0 +1,14 @@
+<div class="form-popup" id="deleteCalcForm">
+    <div class="form-popup-header" id="deleteCalcFormHeader">Delete Calculation</div>
+    <div class="form-container">
+
+      <p>Do you want to delete <b>{{ calculation_name }}</b>?</p>
+
+      <form action="" method="post">
+        <input type="hidden" name="delete_current_calculation" value="True">
+        <button  class="btn delete" title="Delete current calculation">Delete <b>{{ calculation_name }}</b></button>
+      </form>
+
+    <button class="btn cancel" onclick="closeDeleteCalcForm()">Cancel</button>
+    </div>
+</div>

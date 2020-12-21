@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12 text-center">
+
+          <div class="container-fluid text-center" id="title-container">
+            <div class="beside-logo">
+            </div>
+
+            <div class="logo-container">
+              <h2> <button id="calc_name_btn" type="button" onclick="openCalcChangeForm()" name="calc_name_btn">{{ calculation_name }} </button> </h2>
+            </div>
+
+            <div class="beside-logo">
+                <h2><button class="image-only-btn" onclick="openDeleteCalcForm()" title="Delete current calculation"><img id = "delete_current_calculation" src="{{ url_for('static', filename='images/delete_symbol.png')}}"></button></h2>
+            </div>
+          </div>
+
+            <p> {{ calculation_description }} </p>
+            <p> {{ debug_text }}</p>
+
+            <div class="horizontal-container">
+
+            <div class="design-input-container">
+              <h3>Calculation Inputs</h3>
+              <form class="design-input-form" action="" method="post">
+
+              <table class="design-input-table">
+                <tr>
+                  <th>Name</th>
+                  <th>Value</th>
+                  <th>Units</th>
+                </tr>
+
+                  {% for item in calc_inputs %}
+                  <tr>
+                    <td class="design-input-name" title = "{{ item.description }}"> \( {{ item.name }} \) </td>
+                    <td class="design-input-value">
+                      {% if item.input_type == "number" %}
+                      <input class="design-input-input" type="number" name="{{ item.name }}" step = "{{ item.num_step }}" min = "{{ item.min_value }}" max = "{{ item.max_value }}" value={{ item.strResult() }} required>
+                      {% elif item.input_type == "select" %}
+                      <select class="design-input-input" name="{{ item.name }}">
+                        {% for option in item.input_options %}
+                          {% if option.strip() == item.strResult().strip() %}
+                            <option selected> {{ option }} </option>
+                          {% else %}
+                            <option> {{ option }} </option>
+                          {% endif %}
+                        {% endfor %}
+                      </select>
+                      {% else %}
+                      <input class="design-input-input" type="text" name="{{ item.name }}" value="{{ item.strResult() }}" required>
+                      {% endif %}
+                    </td>
+                    <td class="design-input-unit"> \(  {{ item.unit }} \) </td>
+                  </tr>
+                  {% endfor %}
+              </table>
+
+              <button class="project-bullet design-btn" name="submit-design-inputs">Update Results</button>
+
+              </form>
+
+            </div>
+
+            <div class="design-verification-container">
+              <h3>Design Verification</h3>
+              <table class="design-verification-table">
+                <tr>
+                  <th>Name</th>
+                  <th>Result</th>
+                  <th>Units</th>
+                </tr>
+
+                  {% for item in calc_results %}
+                    {% if item.__class__.__name__ =='CheckVariable' %}
+                      <tr>
+                        <td class="design-input-name" title = "{{ item.description }}"> \( {{ item.strSymbolic().replace("&","") }} \) </td>
+                        <td class="design-input-value"> \( {{ item.strSubstituted().replace("&","") }} \)</td>
+                        <td class="design-input-unit {{item.passfail}}">  {{ item.result() }} </td>
+                      </tr>
+                    {% else %}
+                      <tr>
+                        <td class="design-input-name" title = "{{ item.description }}"> \( {{ item.name }} \) </td>
+                        <td class="design-input-value"> {{ item.strResult() }} </td>
+                        <td class="design-input-unit"> \(  {{ item.unit }} \) </td>
+                      </tr>
+                    {% endif %}
+                  {% endfor %}
+              </table>
+              <form action="" method="post">
+                <input type="hidden" name="show_report" value="True">
+                <button class="project-bullet design-btn" formtarget="_blank" title="Display calculation report in a new tab">Show Report</button><br>
+              </form>
+              <form action="" method="post">
+                <input type="hidden" name="print_report" value="True">
+                <button class="project-bullet design-btn" formtarget="_blank" title="Display calculation report in a new tab">Print Report</button><br>
+              </form>
+
+            </div>
+
+            </div>
+
+
+            </div>
+    </div>
+
+    <!----------------- UPDATE CALC POPUP----------------->
+    {% include "includes/changecalcnamepop.html" %}
+
+    <!----------------- DELETE CALC POPUP----------------->
+    {% include "includes/deletecalcpop.html" %}
+
+{% endblock %}

@@ -1,0 +1,33 @@
+<div class="form-popup" id="changeProjectNameForm">
+    <div class="form-popup-header" id="changeProjectNameFormHeader">Change Project Name</div>
+    <div class="form-container">
+    <form class="" name="changeprojectname" action="" method="post" novalidate>
+      <fieldset class="form-group">
+        {{ pnameform.hidden_tag() }}
+        <p>
+          {{ pnameform.new_project_name.label }}<br>
+          {{ pnameform.new_project_name(size=35, value=current_p_name) }}
+          {% for error in pnameform.new_project_name.errors %}
+            <span class="error-message">{{ error }}</span>
+          {% endfor %}
+        </p>
+        <p>
+          {{ pnameform.new_description.label }}<br>
+          {{ pnameform.new_description(size=20, value=current_p_description) }}
+          {% for error in pnameform.new_description.errors %}
+            <span class="error-message">{{ error }}</span>
+          {% endfor %}
+        </p>
+
+        <p class="buttons">
+          {{ pnameform.submit(class="btn submit") }}
+        </p>
+        </fieldset>
+    </form>
+    <form action="" method="post">
+      <input type="hidden" name="delete_current_project" value="True">
+      <button  class="btn delete" onclick="deletedProject()" title="Delete current project">Delete: <b>{{current_p_name}}</b></button>
+    </form>
+    <button class="btn cancel" onclick="closeProjectChangeForm()">Close</button>
+    </div>
+</div>

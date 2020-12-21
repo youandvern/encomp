@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12 text-center flex">
+            <h3> Here are your saved calculations: </h3> <br>
+            <div id="landing-container" class="container">
+            <div class="project-container" >
+              <h4 class="bold-font" >Projects:</h4>
+              {% if not my_projects %}
+              <h4 >You don't have any projects yet.</h4>
+
+              {% else %}
+              <div class="project-list" id="project-list">
+
+                {% for project in my_projects %}
+                <form action="" method="post">
+                  <input type="hidden" name="selected_project_id" value="{{ project.r1['_id'] }}">
+                  <button id = "{{ project.r1['_id'] }}" class="project-bullet" onclick="set_project_id(this.id)" oncontextmenu="openProjectChangeForm()" title="{{ project.r1['description'] }}">{{ project.r1['project_name'] }}</button><br>
+                </form>
+                {% endfor %}
+
+              </div>
+
+              {% endif %}
+
+              <button type="button" class="addbtn add-project" onclick="openProjectForm()">+ Add Project</button>
+            </div>
+
+            <div class="calc-list-container" >
+              <h4 class="bold-font" >Calculations:</h4>
+              {% if select_comment %}
+
+              <p><i>Select a project.</i></p>
+
+              {% else %}
+              <div class="calc-list" id="calc-list">
+                {% if not project_calcs %}
+                <p><i>You don't have any calculations saved under this project.</i></p>
+
+                {% else %}
+
+                  {% for calc in project_calcs %}
+                  <form action="" method="post">
+                    <input type="hidden" name="selected_calc_id" value="{{ calc.rcalc['_id'] }}">
+                    <button id = "{{ calc.rcalc['_id'] }}" class="project-bullet calculation-bullet" title="{{ calc.rcalc['description'] }}">{{ calc.rcalc['calc_name'] }}</button><br>
+                  </form>
+
+                  <!-- <button type="button" class="project-bullet calculation-bullet" title="{{ calc.rcalc['description'] }}">{{ calc.rcalc['calc_name'] }}</button><br> -->
+                  {% endfor %}
+
+                  {% endif %}
+
+                </div>
+
+                <button type="button" class="addbtn add-calc" onclick="openCalcForm()">+ Add Calculation</button>
+                {% endif %}
+
+
+
+            </div>
+            </div>
+            </div>
+    </div>
+
+
+    <!----------------- PROJECT FORM POPUP----------------->
+    {% include "includes/newprojectpop.html" %}
+
+    <!----------------- UPDATE PROJECT POPUP----------------->
+    {% include "includes/changepnamepop.html" %}
+
+
+    <!----------------- CalcInput FORM POPUP----------------->
+    {% include "includes/newcalcpop.html" %}
+
+
+{% endblock %}
