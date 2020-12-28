@@ -88,7 +88,7 @@ def landing():
             flash(f"You have saved {calc_name}", "success")
             return redirect(url_for('landing'))
 
-        # Delete calculation
+        # Delete project
         delete_project_trigger = request.form.get('delete_current_project')
         if delete_project_trigger:
             deleteProject(session.get('current_project_id'))
