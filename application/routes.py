@@ -21,6 +21,13 @@ def landing():
     if not session.get('username'):
         return redirect(url_for('index'))
     else:
+
+        typestest = CalcType.objects().all()
+        namestest = []
+        for type in typestest:
+            namestest.append(type.type_name)
+        flash("Calc types = " + str(namestest))
+
         my_projects = getUserProjects(session.get('user_id'))
 
         selected_project_id = request.form.get('selected_project_id')
