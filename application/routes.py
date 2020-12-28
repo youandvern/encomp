@@ -26,7 +26,8 @@ def landing():
         namestest = []
         for type in typestest:
             namestest.append(type.type_name)
-        flash("Calc types = " + str(namestest))
+        flash("is flashing working", "success")
+        flash("Calc types = " + str(namestest), "success")
 
         my_projects = getUserProjects(session.get('user_id'))
 
