@@ -16,10 +16,23 @@
   color: white;
 }
 
+fieldset {
+  border: none;
+  padding: 0px;
+}
+
+form.popup {
+  display: table-caption;
+}
+
+/* form.popup input, form.popup textarea {
+  min-width: 250px;
+} */
 
 /* Add styles to the form container */
 .form-container {
-  max-width: 300px;
+  /* max-width: 300px; */
+  min-width: 250px;
   padding: 10px;
   padding-bottom: 0;
   background-color: white;
@@ -37,8 +50,8 @@
 /* Full-width input fields */
 .form-container input[type=text], .form-container input[type=password] {
   width: 100%;
-  padding: 15px;
-  margin: 5px 0 22px 0;
+  padding: 10px;
+  margin: 5px 0 5px 0;
   border: none;
   background: #f1f1f1;
 }
@@ -61,6 +74,8 @@ button {
   max-width: 100%;
 }
 
+
+
 /* Set a style for the submit/login button */
 .form-container .btn, .form-popup .btn {
   background-color: #4CAF50;
@@ -71,6 +86,10 @@ button {
   width: 100%;
   margin-bottom:10px;
   opacity: 0.8;
+}
+
+div.select-type {
+  margin-bottom: 1rem;
 }
 
 /* Add a red background color to the cancel button */
