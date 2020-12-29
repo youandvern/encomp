@@ -1,7 +1,7 @@
 <div class="form-popup" id="addCalcForm">
         <div class="form-popup-header" id="addCalcFormHeader">Add New Calculation</div>
         <div class="form-container">
-        <form class="" name="addcalc" action="" method="post" novalidate>
+        <form class="popup" name="addcalc" action="" method="post" novalidate>
           <fieldset class="form-group">
             {{ cform.hidden_tag() }}
             <p>
@@ -19,11 +19,13 @@
               {% endfor %}
             </p>
             <div class = "select-type" style="width:100%; height = 100%;">
-              {{ cform.calc_type.label }}
-              {{ cform.calc_type }}
+              {{ cform.calc_type.label }}<br>
+              {{ cform.calc_type }} <br>
+              <!-- <p>
               {% for error in cform.calc_type.errors %}
                 <span class="error-message">{{ error }}</span>
               {% endfor %}
+              </p> -->
             </div>
             <p class="buttons">
               {{ cform.submit(class="btn submit") }}
