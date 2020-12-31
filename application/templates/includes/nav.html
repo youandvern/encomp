@@ -13,10 +13,10 @@
                 {% endif %}
 
                 {% if session.get('current_c_name') %}
-                <li class="nav-item"><a href="{{ url_for('design_dashboard') }}" class="nav-link {% if design %}active{% endif %}">{{ session.get('current_c_name')}}</a></li>
+                <li class="nav-item nav-project"><a href="{{ url_for('design_dashboard') }}" class="nav-link {% if design %}active{% endif %}">{{ session.get('current_c_name')}}</a></li>
                 {% endif %}
 
             </ul>
         </nav>
-  
+
     </header>

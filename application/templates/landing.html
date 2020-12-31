@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container">
     <div class="row">
         <div class="col-md-12 text-center flex">
             <h3> Here are your saved calculations: </h3> <br>
@@ -16,7 +17,7 @@
                 {% for project in my_projects %}
                 <form action="" method="post">
                   <input type="hidden" name="selected_project_id" value="{{ project.r1['_id'] }}">
-                  <button id = "{{ project.r1['_id'] }}" class="project-bullet" onclick="set_project_id(this.id)" oncontextmenu="openProjectChangeForm()" title="{{ project.r1['description'] }}">{{ project.r1['project_name'] }}</button><br>
+                  <button id = "{{ project.r1['_id'] }}" class="project-bullet" onclick="set_project_id(this.id)" oncontextmenu="openProjectChangeForm(this.id)" title="{{ project.r1['description'] }}">{{ project.r1['project_name'] }}</button><br>
                 </form>
                 {% endfor %}
 
@@ -62,6 +63,7 @@
             </div>
             </div>
     </div>
+  </div>
 
 
     <!----------------- PROJECT FORM POPUP----------------->
