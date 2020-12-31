@@ -15,12 +15,15 @@ function closeProjectForm() {
   document.getElementById("addProjectForm").style.display = "none";
 }
 
-function openProjectChangeForm() {
+function openProjectChangeForm(clicked_ID) {
   var btnid = window.localStorage.getItem('current_project')
+
   if(btnid) {
-    event.preventDefault();
-    document.getElementById("changeProjectNameForm").style.display = "block";
-    return false;
+    if(btnid == clicked_ID){
+      event.preventDefault();
+      document.getElementById("changeProjectNameForm").style.display = "block";
+      return false;
+    }
   }
 }
 
