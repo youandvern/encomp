@@ -10,23 +10,23 @@
                 <legend>{{title}}</legend>
                 {{ form.hidden_tag() }}
 
-                <p>
-                  {{ form.email.label }}<br>
+                <div>
+                  <p>  {{ form.email.label }}</p>
                   {{ form.email(size=35) }}
                   {% for error in form.email.errors %}
                     <span class="error-message">{{ error }}</span>
                   {% endfor %}
-                </p>
-                <p>
-                  {{ form.password.label }}<br>
+                </div>
+                <div>
+                  <p>{{ form.password.label }}</p>
                   {{ form.password(size=20) }}
                   {% for error in form.password.errors %}
                     <span class="error-message">{{ error }}</span>
                   {% endfor %}
-                </p>
-                <p>
+                </div>
+                <div>
                   {{ form.submit(onclick="clearProjectStorage()") }}
-                </p>
+                </div>
                 </fieldset>
             </form>
         </div>
