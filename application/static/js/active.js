@@ -86,7 +86,13 @@ function dragElement(elmnt) {
     document.getElementById(elmnt.id + "Header").onmousedown = dragMouseDown;
   } else {
     // otherwise, move the DIV from anywhere inside the DIV:
-    elmnt.onmousedown = dragMouseDown;
+    var moveables = elmnt.querySelectorAll(':not(select):not(form):not(fieldset):not(div):not(input):not(button):not(textarea)');
+    var numelmnt = moveables.length;
+    for (var i = 0; i < numelmnt; i++) {
+      moveables[i].onmousedown = dragMouseDown;
+      //Do something
+    }
+    // elmnt.onmousedown = dragMouseDown;
   }
 
   function dragMouseDown(e) {

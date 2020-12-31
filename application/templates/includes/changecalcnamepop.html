@@ -1,20 +1,20 @@
 <div class="form-popup" id="changeCalcNameForm">
-    <div class="form-popup-header" id="changeCalcNameFormHeader">Change Calculation Name</div>
+    <!-- <div class="form-popup-header" id="changeCalcNameFormHeader">Change Calculation Name</div> -->
     <div class="form-container horizontal-form-container">
     <form class="popup" name="changecalcname" action="" method="post" novalidate>
       <fieldset class="form-group">
         {{ calcnameform.hidden_tag() }}
         <div class="form-horizontal">
           <div>
-            {{ calcnameform.new_calc_name.label }}<br>
-            {{ calcnameform.new_calc_name(size=35, value=calculation_name) }}
+            <p>{{ calcnameform.new_calc_name.label }}</p>
+            {{ calcnameform.new_calc_name(size=40, value=calculation_name) }}
             {% for error in calcnameform.new_calc_name.errors %}
               <span class="error-message">{{ error }}</span>
             {% endfor %}
           </div>
           <div>
-            {{ calcnameform.new_description.label }}<br>
-            {{ calcnameform.new_description(rows='2',cols='35') }}
+            <p>{{ calcnameform.new_description.label }}</p>
+            {{ calcnameform.new_description(rows='2',cols='40') }}
             {% for error in calcnameform.new_description.errors %}
               <span class="error-message">{{ error }}</span>
             {% endfor %}
@@ -23,21 +23,21 @@
 
         <div class="form-horizontal">
           <div>
-            {{ calcnameform.new_left_header.label }}<br>
+            <p>{{ calcnameform.new_left_header.label }}</p>
             {{ calcnameform.new_left_header() }}
             {% for error in calcnameform.new_left_header.errors %}
               <span class="error-message">{{ error }}</span>
             {% endfor %}
           </div>
           <div>
-            {{ calcnameform.new_center_header.label }}<br>
+            <p>{{ calcnameform.new_center_header.label }}</p>
             {{ calcnameform.new_center_header() }}
             {% for error in calcnameform.new_center_header.errors %}
               <span class="error-message">{{ error }}</span>
             {% endfor %}
           </div>
           <div>
-            {{ calcnameform.new_right_header.label }}<br>
+            <p>{{ calcnameform.new_right_header.label }}</p>
             {{ calcnameform.new_right_header() }}
             {% for error in calcnameform.new_right_header.errors %}
               <span class="error-message">{{ error }}</span>
@@ -46,11 +46,12 @@
         </div>
 
 
-        <div class="buttons">
+        <div class="buttons form-horizontal">
           {{ calcnameform.submit(class="btn submit") }}
+          <button type="button" class="btn cancel" onclick="closeCalcChangeForm()">Close</button>
         </div>
         </fieldset>
     </form>
-    <button class="btn cancel" onclick="closeCalcChangeForm()">Close</button>
+
     </div>
 </div>
