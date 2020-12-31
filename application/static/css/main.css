@@ -156,6 +156,13 @@ form legend {
   margin-bottom: 0.5em;
 }
 
+form.user-form div{
+  margin-bottom: 1em;
+}
+form.user-form button{
+  margin-top: 0.7em;
+}
+
 
 input[type=text], input[type=password] {
     width: 50%;
