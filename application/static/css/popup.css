@@ -2,11 +2,14 @@
 .form-popup {
   display: none;
   position: absolute;
-  top: 20%;
+  top: 28%;
   left: 40%;
   border: 3px solid #f1f1f1;
   z-index: 9;
   background-color: white;
+}
+#changeCalcNameForm {
+  left: 20%;
 }
 
 .form-popup-header {
@@ -45,19 +48,20 @@ form.popup {
 .form-horizontal {
   display: flex;
   flex-direction: row;
+  justify-content: space-around;
 }
 
 /* Full-width input fields */
 .form-container input[type=text], .form-container input[type=password] {
   width: 100%;
   padding: 10px;
-  margin: 5px 0 5px 0;
+  margin: 5px 0 1em 0;
   border: none;
   background: #f1f1f1;
 }
 
 .form-container .form-horizontal input[type=text], .form-container .form-horizontal input[type=password] {
-  width: 275px;
+  /* width: 275px; */
   padding: 15px;
   margin: 5px 0 22px 0;
   border: none;
@@ -125,4 +129,5 @@ fieldset textarea {
     overflow: auto;
     resize: both;
     width: 100%;
+    margin-top: 5px;
 }

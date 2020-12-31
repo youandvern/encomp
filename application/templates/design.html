@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-md-12 text-center">
+    <div class="row centerdiv">
+        <div class="trash-div"> </div>
+        <div class="col-md-12 text-center container">
 
           <div class="container-fluid text-center" id="title-container">
             <div class="beside-logo">
@@ -13,14 +14,14 @@
             </div>
 
             <div class="beside-logo">
-                <h2><button class="image-only-btn" onclick="openDeleteCalcForm()" title="Delete current calculation"><img id = "delete_current_calculation" src="{{ url_for('static', filename='images/delete_symbol.png')}}"></button></h2>
+
             </div>
           </div>
 
             <p> {{ calculation_description }} </p>
             <p> {{ debug_text }}</p>
 
-            <div class="horizontal-container">
+            <div class="horizontal-container design-dashboard-container">
 
             <div class="design-input-container">
               <h3>Calculation Inputs</h3>
@@ -102,6 +103,10 @@
 
             </div>
 
+
+            </div>
+            <div class="trash-div">
+              <h2><button class="image-only-btn fixed-btn" onclick="openDeleteCalcForm()" title="Delete current calculation"><img id = "delete_current_calculation" src="{{ url_for('static', filename='images/delete_symbol.png')}}"></button></h2>
 
             </div>
     </div>
