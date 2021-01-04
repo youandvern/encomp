@@ -1,7 +1,12 @@
 :root {
   --brandGrey: #d7dae0;
+  --brandDark: #212529;
   --brandBlue: #004aad;
   --brandYellow: #faa92f;
+  --brandLightGreen: #D2FFC8;
+  --brandGreen: #00AF54;
+  --brandLightRed: #ffc8cb;
+  --brandRed: #bf211e;
 }
 
 * {
@@ -129,9 +134,9 @@ body {
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5;
-    color: #212529;
+    color: var(--brandDark);
     text-align: left;
-    background-color: #fff;
+    background-color: white;
 }
 
 
@@ -149,7 +154,6 @@ li {
     color: blue;
 } */
 
-a:hover { color : red;}
 
 form legend {
   font-size: 1.75rem;
@@ -159,7 +163,7 @@ form legend {
 form.user-form div{
   margin-bottom: 1em;
 }
-form.user-form button{
+form.user-form input#submit{
   margin-top: 0.7em;
 }
 
@@ -174,7 +178,7 @@ input[type=text], input[type=password] {
 }
 
 input[type=text]:focus, input[type=password]:focus {
-    background-color: #ddd;
+    background-color: var(--brandGrey);
     outline: none;
 }
 
@@ -219,13 +223,13 @@ footer p {
 }
 
 .btn-submit {
-    background-color: cornflowerblue;
+    background-color: var(--brandBlue);
     color: white;
     padding: 16px 20px;
     margin: 8px 0;
     border: none;
     cursor: pointer;
-    width: 100%;
+    /* width: 100%; */
     opacity: 0.9;
 }
 .btn-submit:hover {
@@ -244,29 +248,12 @@ footer p {
   opacity: 1;
 }
 .addbtn:hover {
-  color: black;
+  color: var(--brandDark);
   background-color: var(--brandGrey);
 }
 
-#index-logout {
-  cursor:pointer;
-  border-radius: 0;
-  background-color: white;
-  color: black;
-  border: 2px solid  var(--brandBlue);
-  transition-duration: 0.3s;
-  padding: 0.4em;
-  padding-left: 0.8em;
-  padding-right: 0.8em;
-  width: 100%
-}
-#index-logout:hover {
-  color: white;
-  background-color:  var(--brandBlue);
-}
-
 .error-message {
-    color : #dc3545;
+    color : var(--brandRed);
 }
 
 .user_welcome {
@@ -300,7 +287,7 @@ footer p {
 .project-bullet {
   border-radius: 0;
   background-color: white;
-  color: black;
+  color: var(--brandDark);
   border: 2px solid  var(--brandBlue);
   transition-duration: 0.3s;
   margin: -1px;
@@ -335,8 +322,8 @@ footer p {
 .design-input-table tr:nth-child(even){background-color: #f2f2f2;}
 .design-verification-table tr:nth-child(even){background-color: #f2f2f2;}
 
-.design-input-table tr:hover {background-color: #ddd;}
-.design-verification-table tr:hover {background-color: #ddd;}
+.design-input-table tr:hover {background-color: var(--brandGrey);}
+.design-verification-table tr:hover {background-color: var(--brandGrey);}
 
 .design-input-table th, .design-verification-table th {
   padding-top: 12px;
@@ -347,13 +334,13 @@ footer p {
 }
 
 table.design-verification-table td.pass {
-  background-color: #63BB66;
-  color: #28502E;
+  background-color: var(--brandLightGreen);
+  color: var(--brandGreen);
 }
 
 table.design-verification-table td.fail {
-  background-color: #DB606D;
-  color: #8F0002;
+  background-color: var(--brandLightRed);
+  color: var(--brandRed);
 }
 
 .horizontal-container {
@@ -389,7 +376,7 @@ table.design-verification-table td.fail {
 }
 
 #calc_name_btn:hover {
-  background-color: rgb(204, 204, 204);
+  background-color: var(--brandGrey);
 }
 
  #logo-container, #title-container, div.centerdiv {
@@ -408,7 +395,7 @@ table.design-verification-table td.fail {
  }
 
  button.image-only-btn {
-   background-color: #ffffff00;
+   background-color: white;
    border: none;
    padding: 0;
    opacity: 0.8;
@@ -429,6 +416,25 @@ table.design-verification-table td.fail {
      padding-left: 15px;
      margin-right: auto;
      margin-left: auto;
+ }
+
+ /* Flashed Messages */
+ div.alert {
+   min-height: 3em;
+   border-radius: 5px;
+   background-color: var(--brandLightRed);
+   color: var(--brandRed);
+   opacity: 0.85;
+ }
+
+ div.alert-success {
+   background-color: var(--brandLightGreen);
+   color: var(--brandGreen);
+ }
+
+ div.alert p {
+   position: sticky;
+   top: 50%;
  }
 
  @media (min-width: 576px) {
