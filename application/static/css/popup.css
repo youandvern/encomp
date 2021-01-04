@@ -1,3 +1,14 @@
+:root {
+  --brandGrey: #d7dae0;
+  --brandDark: #212529;
+  --brandBlue: #004aad;
+  --brandYellow: #faa92f;
+  --brandLightGreen: #D2FFC8;
+  --brandGreen: #00AF54;
+  --brandLightRed: #ffc8cb;
+  --brandRed: #bf211e;
+}
+
 /* The popup form - hidden by default */
 .form-popup {
   display: none;
@@ -15,7 +26,7 @@
 .form-popup-header {
   padding: 10px;
   z-index: 10;
-  background-color: #007bff;
+  background-color: var(--brandBlue);
   color: white;
 }
 
@@ -70,7 +81,7 @@ form.popup {
 
 /* When the inputs get focus, do something */
 .form-container input[type=text]:focus, .form-container input[type=password]:focus {
-  background-color: #ddd;
+  background-color: var(--brandGrey);
   outline: none;
 }
 
@@ -82,7 +93,7 @@ button {
 
 /* Set a style for the submit/login button */
 .form-container .btn, .form-popup .btn {
-  background-color: #4CAF50;
+  background-color: var(--brandGreen);
   color: white;
   padding: 16px 20px;
   border: none;
@@ -98,13 +109,13 @@ div.select-type {
 
 /* Add a red background color to the cancel button */
 .form-popup .cancel {
-  background-color: red;
+  background-color: var(--brandRed);
   /* margin: 10px; */
   margin-bottom: 10px;
 }
 
 .form-popup .delete {
-  background-color: orange;
+  background-color: var(--brandYellow);
   /* margin: 10px; */
   margin-bottom: 10px;
 }
