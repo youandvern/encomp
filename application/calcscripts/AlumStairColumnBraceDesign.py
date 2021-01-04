@@ -26,6 +26,7 @@ def create_calculation(updated_input={}):
     ##
 
     Assumption("Seismic loads and load combinations are in accordance with ASCE 7-16")
+    Assumption("Requirements of OSHA 1910.25 and ANSI 1264.1 are met")
     Assumption("Aluminum members are designed in accordance with the Aluminum Design Manual (ADM) 2015 edition")
     Assumption("Stainless steel bolts are designed in accordance with AISC Design Guide 27 2013 edition")
     Assumption("Four columns are equally loaded below a generally square platform")
@@ -97,10 +98,11 @@ def create_calculation(updated_input={}):
 
 
     BodyHeader('Load demands on members', head_level=1)
+    Fosha = CalcVariable(r'\beta_{osha}', 5, '', 'Design for 5 times the service loads for OSHA compliance')
     Bu = CalcVariable('B_{u}', Vs/2 * SQRT(wp**2 + hp**2)/wp*k_to_lb, 'lbs', 'Tensile demands of each brace element due to seismic forces' )
 
     Pu1 = CalcVariable('P_{u1}', 1.4*Wd/4*k_to_lb, 'lbs', 'Compression demand on each column due to dead load', code_ref='ASCE 2.3.1(1)' )
-    Pu2 = CalcVariable('P_{u2}', BRACKETS(1.2*Wd/4+1.6*Wl/4)*k_to_lb, 'lbs', 'Compression demand on each column due to dead and live load', code_ref='ASCE 2.3.1(2)' )
+    Pu2 = CalcVariable('P_{u2}', BRACKETS(Wd/4+Fosha*Wl/4)*k_to_lb, 'lbs', 'Compression demand on each column due to dead and live load', code_ref='OSHA 19.25(b)(6)' )
     Pu6 = CalcVariable('P_{u6}', BRACKETS(1.2*Wd/4+Wl/4 + Vv/4 + Vs*(hp/wp)/4)*k_to_lb, 'lbs', 'Compression demand on each column due to dead, live, and seismic load', code_ref='ASCE 2.3.6(6)')
 
     Pu = CalcVariable('P_{u}', MAX(Pu1, Pu2, Pu6), 'lbs', 'Design compression demand on column elements')
