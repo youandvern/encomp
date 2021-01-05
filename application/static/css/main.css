@@ -25,7 +25,7 @@
 
 nav a {
   text-transform: uppercase;
-  color: black;
+  color: var(--brandDark);
   text-decoration: none;
 }
 nav a:hover {
@@ -68,7 +68,7 @@ nav li {
     font-family: inherit;
     font-weight: 500;
     line-height: 1.2;
-    color: inherit;
+    color: var(--brandDark);
     margin-top: 0;
     margin-bottom: .5rem;
 }
@@ -85,6 +85,7 @@ nav li {
 p {
     margin-top: 0;
     margin-bottom: 1rem;
+    color: var(--brandDark)
 }
 
 fieldset p {
@@ -111,6 +112,7 @@ p.buttons {
 
 button, input {
     overflow: visible;
+    color: var(--brandDark);
 }
 
 button, input, optgroup, select, textarea {
@@ -220,6 +222,7 @@ footer {
 }
 footer p {
     margin-bottom: 0rem;
+    color: white;
 }
 
 .btn-submit {
@@ -390,7 +393,7 @@ table.design-verification-table td.fail {
    padding-left: 3rem;
  }
 
- #delete_current_calculation {
+ #delete_current_calculation, #export_current_calculation {
    height: 1em;
  }
 
@@ -435,6 +438,8 @@ table.design-verification-table td.fail {
  div.alert p {
    position: sticky;
    top: 50%;
+   padding-left: 1em;
+   margin-bottom: 0.5em;
  }
 
  @media (min-width: 576px) {
