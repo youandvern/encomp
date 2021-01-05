@@ -1,11 +1,13 @@
 from application import application, db
-from flask import render_template, request, json, jsonify, Response, redirect, flash, url_for, session
+from flask import render_template, request, json, jsonify, Response, redirect, flash, url_for, session, send_file
 # from flask_weasyprint import HTML, render_pdf
 from application.models import User, Project, CalcInput, CalcType
 from application.forms import LoginForm, RegisterForm, ProjectForm, CalcForm, CalcTypeForm, ChangeProjectForm, ChangeCalcForm
 # from bson.objectid import ObjectId
 from application.mongo_query import getUserProjects, getProjCalcs, deleteCalculation, deleteProject
 from application.calcscripts.process.compilecalc import compile_calculation
+import shutil
+import os
 
 
 
@@ -135,6 +137,13 @@ def login():
 
 @application.route("/logout")
 def logout():
+    current_user_id = session.get('user_id')
+    dir_path = f"C:/Users/ayoung/encomp/application/static/jsonfiles/{current_user_id}"
+    if os.path.exists(dir_path):
+        try:
+            shutil.rmtree(dir_path)
+        except OSError as e:
+            flash("Error: %s : %s" % (dir_path, e.strerror))
     [session.pop(key) for key in list(session.keys())]
     flash("You have been logged out.", "success")
     return redirect(url_for('index'))
@@ -234,8 +243,11 @@ def design_dashboard():
     form_submit_dict = request.form
     print_report = form_submit_dict.get('print_report')
     show_report = form_submit_dict.get('show_report')
+    export_calculation = form_submit_dict.get('export_calculation')
     if show_report and session.get('current_calc_id'):
         return redirect(url_for('calcreport'))
+    elif export_calculation:
+        return export_calc()
     elif print_report and session.get('current_calc_id'):
         return redirect(url_for('calcreport_print'))
     elif print_report or show_report:
@@ -375,3 +387,24 @@ def calcreport_print():
     calcstrings = stringsdict['calc']
 
     return render_template("calculations/print_calc_report.html", calc_title = calc_name, headstrings = headstrings, assumstrings = assumstrings, assum_length=assum_length, setupstrings=setupstrings, calcstrings=calcstrings, left_header=left_header, center_header=center_header, right_header=right_header )
+
+@application.route("/exportcalculation")
+def export_calc():
+    if session.get('user_id') and session.get('current_calc_id'):
+        current_user_id = session.get('user_id')
+        current_calc = CalcInput.objects( _id = session['current_calc_id'] ).first()
+        if current_calc:
+            calc_file_name =  current_calc.calc_name.replace(" ", "_")
+            calc_export_dict = {'calc_name': current_calc.calc_name, 'description': current_calc.description, 'calc_type_id': str(current_calc.calc_type_id), 'calc_input_dict': current_calc.calc_input_dict, 'left_header': current_calc.left_header, 'center_header': current_calc.center_header, 'right_header': current_calc.right_header}
+            file_path = f"C:/Users/ayoung/encomp/application/static/jsonfiles/{current_user_id}/{calc_file_name}.json"
+            dir_path = f"C:/Users/ayoung/encomp/application/static/jsonfiles/{current_user_id}"
+
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path)
+            with open(file_path,"w") as file:
+                json.dump(calc_export_dict,file)
+            return send_file(file_path, as_attachment=True, attachment_filename=f"{calc_file_name}_export.json")
+        else:
+            flash("Current calculation not found.", "danger")
+    else:
+        return redirect(url_for('index'))

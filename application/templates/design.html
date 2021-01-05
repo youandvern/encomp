@@ -106,7 +106,12 @@
 
             </div>
             <div class="trash-div">
-              <h2><button class="image-only-btn fixed-btn" onclick="openDeleteCalcForm()" title="Delete current calculation"><img id = "delete_current_calculation" src="{{ url_for('static', filename='images/delete_symbol.png')}}"></button></h2>
+              <h2><button type="button" class="image-only-btn fixed-btn" onclick="openDeleteCalcForm()" title="Delete current calculation"><img id = "delete_current_calculation" src="{{ url_for('static', filename='images/delete_symbol.png')}}"></button></h2>
+              <br><br>
+              <form action="" method="post">
+                <input type="hidden" name="export_calculation" value="True">
+                <h2><button class="image-only-btn fixed-btn"  title="Export current calculation"><img id = "export_current_calculation" src="{{ url_for('static', filename='images/export_symbol.png')}}"></button></h2>
+              </form>
 
             </div>
     </div>
