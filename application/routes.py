@@ -138,7 +138,8 @@ def login():
 @application.route("/logout")
 def logout():
     current_user_id = session.get('user_id')
-    dir_path = f"C:/Users/ayoung/encomp/application/static/jsonfiles/{current_user_id}"
+    # dir_path = f"C:/Users/ayoung/encomp/application/static/jsonfiles/{current_user_id}"
+    dir_path = f"~/encomp/application/static/jsonfiles/{current_user_id}"
     if os.path.exists(dir_path):
         try:
             shutil.rmtree(dir_path)
@@ -396,9 +397,10 @@ def export_calc():
         if current_calc:
             calc_file_name =  current_calc.calc_name.replace(" ", "_")
             calc_export_dict = {'calc_name': current_calc.calc_name, 'description': current_calc.description, 'calc_type_id': str(current_calc.calc_type_id), 'calc_input_dict': current_calc.calc_input_dict, 'left_header': current_calc.left_header, 'center_header': current_calc.center_header, 'right_header': current_calc.right_header}
-            file_path = f"C:/Users/ayoung/encomp/application/static/jsonfiles/{current_user_id}/{calc_file_name}.json"
-            dir_path = f"C:/Users/ayoung/encomp/application/static/jsonfiles/{current_user_id}"
-
+            # file_path = f"C:/Users/ayoung/encomp/application/static/jsonfiles/{current_user_id}/{calc_file_name}.json"
+            file_path = f"~/encomp/application/static/jsonfiles/{current_user_id}/{calc_file_name}.json"
+            # dir_path = f"C:/Users/ayoung/encomp/application/static/jsonfiles/{current_user_id}"
+            dir_path = f"~/encomp/application/static/jsonfiles/{current_user_id}"
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
             with open(file_path,"w") as file:
