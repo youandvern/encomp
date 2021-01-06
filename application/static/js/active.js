@@ -1,3 +1,4 @@
+// WINDOW.FOCUS()
 
 function projCalcDisplay(){
   //show calcs associated with given projects
