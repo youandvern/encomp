@@ -233,7 +233,7 @@ footer p {
     border: none;
     cursor: pointer;
     /* width: 100%; */
-    opacity: 0.9;
+    opacity: 0.8;
 }
 .btn-submit:hover {
     opacity: 1;
@@ -401,7 +401,7 @@ table.design-verification-table td.fail {
    background-color: white;
    border: none;
    padding: 0;
-   opacity: 0.8;
+   opacity: 0.75;
  }
 
  button.image-only-btn:hover {
