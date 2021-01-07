@@ -246,11 +246,11 @@ def design_dashboard():
     show_report = form_submit_dict.get('show_report')
     export_calculation = form_submit_dict.get('export_calculation')
     if show_report and session.get('current_calc_id'):
-        return redirect(url_for('calcreport'))
+        return redirect(url_for('calcreport', print_report="view"))
     elif export_calculation:
         return export_calc()
     elif print_report and session.get('current_calc_id'):
-        return redirect(url_for('calcreport_print'))
+        return redirect(url_for('calcreport', print_report="print"))
     elif print_report or show_report:
         flash("failed to collect current calculation", "danger")
     elif len(form_submit_dict)>0:
@@ -347,8 +347,8 @@ def design_dashboard():
     return render_template("design.html", debug_text=debug_text, calculation_name= calculation_name,calculation_description=calculation_description, calc_inputs=calc_inputs, calc_results=calc_results, calcnameform=calcnameform,  design=True)
 
 
-@application.route("/calcreport", methods=['GET', 'POST'])
-def calcreport():
+@application.route("/calcreport<print_report>", methods=['GET', 'POST'])
+def calcreport(print_report):
     current_calc = CalcInput.objects( _id = session['current_calc_id'] ).first()
     current_calc_type = CalcType.objects( _id = current_calc.calc_type_id ).first()
     calc_name = current_calc_type.type_name
@@ -366,28 +366,8 @@ def calcreport():
     setupstrings = stringsdict['setup']
     calcstrings = stringsdict['calc']
 
-    return render_template("calculations/view_calc_report.html", calc_title = calc_name, headstrings = headstrings, assumstrings = assumstrings, assum_length=assum_length, setupstrings=setupstrings, calcstrings=calcstrings, left_header=left_header, center_header=center_header, right_header=right_header )
+    return render_template("calculations/view_calc_report.html", print_report=print_report, calc_title = calc_name, headstrings = headstrings, assumstrings = assumstrings, assum_length=assum_length, setupstrings=setupstrings, calcstrings=calcstrings, left_header=left_header, center_header=center_header, right_header=right_header )
 
-@application.route("/calcreport_print", methods=['GET', 'POST'])
-def calcreport_print():
-    current_calc = CalcInput.objects( _id = session['current_calc_id'] ).first()
-    current_calc_type = CalcType.objects( _id = current_calc.calc_type_id ).first()
-    calc_name = current_calc_type.type_name
-
-    left_header = current_calc.left_header
-    center_header = current_calc.center_header
-    right_header = current_calc.right_header
-
-    stringsdict = session.get('stringsdict')
-
-
-    headstrings = stringsdict['head']
-    assumstrings = stringsdict['assum']
-    assum_length = len(assumstrings)
-    setupstrings = stringsdict['setup']
-    calcstrings = stringsdict['calc']
-
-    return render_template("calculations/print_calc_report.html", calc_title = calc_name, headstrings = headstrings, assumstrings = assumstrings, assum_length=assum_length, setupstrings=setupstrings, calcstrings=calcstrings, left_header=left_header, center_header=center_header, right_header=right_header )
 
 @application.route("/exportcalculation")
 def export_calc():
