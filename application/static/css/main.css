@@ -439,7 +439,7 @@ table.design-verification-table td.fail {
    position: sticky;
    top: 50%;
    padding-left: 1em;
-   margin-bottom: 0.5em;
+   margin-bottom: 0em;
  }
 
  @media (min-width: 576px) {
