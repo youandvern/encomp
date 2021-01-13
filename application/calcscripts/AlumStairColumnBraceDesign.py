@@ -66,8 +66,9 @@ def create_calculation(updated_input={}):
     G = DeclareVariable('G', 3800, 'ksi', 'Shear modulus of elasticity', code_ref='ADM Table A.3.1')
 
     Pc  = DeclareVariable('\phi_c', 0.9, '', 'Resistance factor for compression', code_ref='ADM E.1')
-    Pty = DeclareVariable('\phi_{by}', 0.9, '', 'Resistance factor for tensile yielding', code_ref='ADM D.1')
-    Ptr = DeclareVariable('\phi_{br}', 0.75, '', 'Resistance factor for tensile rupture', code_ref='ADM D.1')
+    Pty = DeclareVariable('\phi_{ty}', 0.9, '', 'Resistance factor for tensile yielding', code_ref='ADM D.1')
+    Ptr = DeclareVariable('\phi_{tr}', 0.75, '', 'Resistance factor for tensile rupture', code_ref='ADM D.1')
+    Pbs = DeclareVariable('\phi_{bs}', 0.75, '', 'Resistance factor for block shear', code_ref='ADM J.7.3')
     Pb  = DeclareVariable('\phi_b', 0.75, '', 'Resistance factor for bolt strength', code_ref='DG27 9.3.4')
 
 
@@ -82,8 +83,8 @@ def create_calculation(updated_input={}):
 
     ###   DEFINE CALCULATION, BODY HEADER, AND BODY TEXT   ###
 
-    k_to_lb = Variable('1000lbs/kip', 1000, 'lbs/kip')
-    ft_to_in = Variable('12in/ft', 12, 'in/ft')
+    k_to_lb = Variable('1000 \ \mathrm{lbs/kip}', 1000, 'lbs/kip')
+    ft_to_in = Variable('12 \ \mathrm{in/ft}', 12, 'in/ft')
 
     BodyHeader('Buckling Constants (ADM Table B.4.2)', head_level=1) ######################################################################################
     kap = CalcVariable('\kappa', 1.0, 'ksi')
@@ -154,7 +155,7 @@ def create_calculation(updated_input={}):
     y1e = CalcVariable('\lambda_{1e}', (Bp-Fcy)/Dp, '')
     y2e = CalcVariable('\lambda_{2e}', k1c*Bp/Dp, '')
     Fee = CalcVariable('F_{ee}', PI**2*E/(5*BRACKETS((bc-twc)/2-Rc)/tfc)**2, 'ksi', code_ref='ADM Table B.5.1')
-    yeq = CalcVariable('\lambda_{eq}', PI*SQRT(E/Fee), '', code_ref='B.5-11')
+    yeq = CalcVariable('\lambda_{eq}', PI*SQRT(E/Fee), '', code_ref='ADM B.5-11')
 
     if yeq.result() <= y1e.result():
         CheckVariablesText(yeq, '<=', y1e)
@@ -250,7 +251,7 @@ def create_calculation(updated_input={}):
     BodyHeader('Local Buckling (ADM E.3)')
     bbmax = CalcVariable('b_{bmax}', MAX(bb,db), 'in')
     Feeb = CalcVariable('F_{eeb}', PI**2*E/(5*BRACKETS(bbmax-tb-Rb)/tb)**2, 'ksi', code_ref='ADM Table B.5.1')
-    yeqb = CalcVariable('\lambda_{eqb}', PI*SQRT(E/Feeb), '', code_ref='B.5-11')
+    yeqb = CalcVariable('\lambda_{eqb}', PI*SQRT(E/Feeb), '', code_ref='ADM B.5-11')
 
     if yeqb.result() <= y1e.result():
         CheckVariablesText(yeqb, '<=', y1e)
@@ -270,11 +271,32 @@ def create_calculation(updated_input={}):
     CheckVariable( Bu, '<=', PPnb, truestate="OK", falsestate="ERROR", result_check=True)
 
 
-    BodyHeader('Brace Connection Design (ADM Section J.3.6)', head_level=2) ######################################################################################
+    BodyHeader('Brace Connection Design (ADM Chapter J)', head_level=2) ######################################################################################
+
+    BodyHeader('Bearing Strength (ADM Section J.3.6)')
     Rn1 = CalcVariable('R_{n1}', de*tb*Ftu*k_to_lb, 'lbs', '')
     Rn2 = CalcVariable('R_{n2}', 2*Dbb*tb*Ftu*k_to_lb, 'lbs', '')
     PRnb = CalcVariable('\phi R_{nb}', Pb*MIN(Rn1, Rn2), 'lbs', 'Bolt bearing strength', code_ref='ADM J.3-4')
     CheckVariable( Bu, '<=', PRnb, truestate="OK", falsestate="ERROR", result_check=True)
+
+    BodyHeader('Block Shear Strength (ADM Section J.7.3)')
+    Agt = CalcVariable('A_{gt}', bbmin/2*tb , 'in^2', 'Gross tensile area of brace connection' )
+    Agv = CalcVariable('A_{gv}', de*tb , 'in^2', 'Gross shear area of brace connection' )
+    Ant = CalcVariable('A_{nt}', Agt - Dbh*tb/2, 'in^2')
+    Anv = CalcVariable('A_{nv}', Agv - Dbh*tb/2, 'in^2')
+    Fsy = CalcVariable('F_{sy}', 0.6*Fty, 'ksi', code_ref='ADM Table A.3.1')
+    Fsu = CalcVariable('F_{su}', 0.6*Ftu, 'ksi', code_ref='ADM Table A.3.1')
+
+    Anv6 = CalcVariable('0.6 \ A_{nv}', 0.6*Anv, 'in^2')
+
+    if Ant.result() >= 0.6 * Anv.result():
+        CheckVariablesText(Ant, '>=', Anv6)
+        Rns = CalcVariable('R_{ns}', Fsy*Agv + Ftu*Ant/kt , 'kips', code_ref='ADM J.7-1')
+    else:
+        CheckVariablesText(Ant, '<', Anv6)
+        Rns = CalcVariable('R_{ns}', Fsu*Anv/kt + Fty*Agt, 'kips', code_ref='ADM J.7-2')
+    PRns = CalcVariable('\phi R_{ns}', Pbs*Rns * k_to_lb, 'lbs', 'Block shear strength' )
+    CheckVariable( Bu, '<=', PRns, truestate="OK", falsestate="ERROR", result_check=True)
 
 
     BodyHeader('Bolt Strength Design (DG27 Chapter 9)', head_level=2) ######################################################################################
