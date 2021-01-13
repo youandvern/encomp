@@ -423,7 +423,6 @@ table.design-verification-table td.fail {
 
  /* Flashed Messages */
  div.alert {
-   min-height: 3em;
    border-radius: 5px;
    background-color: var(--brandLightRed);
    color: var(--brandRed);
@@ -436,10 +435,10 @@ table.design-verification-table td.fail {
  }
 
  div.alert p {
-   position: sticky;
-   top: 50%;
    padding-left: 1em;
-   margin-bottom: 0.5em;
+   padding-top: 0.75em;
+   padding-bottom: 0.75em;
+   margin-bottom: 0em;
  }
 
  @media (min-width: 576px) {
