@@ -73,8 +73,8 @@ def create_calculation(updated_input={}):
     ###   DEFINE CALCULATION, BODY HEADER, AND BODY TEXT   ###
 
 
-    k_to_lb = Variable('1000lbs/kip', 1000, 'lbs/kip')
-    ft_to_in = Variable('12in/ft', 12, 'in/ft')
+    k_to_lb = Variable('1000 \ \mathrm{lbs/kip}', 1000, 'lbs/kip')
+    ft_to_in = Variable('12 \ \mathrm{in/ft}', 12, 'in/ft')
 
 
     BodyHeader('Buckling Constants (ADM Table B.4.2)', head_level=1) ######################################################################################
