@@ -73,8 +73,8 @@ def create_calculation(updated_input={}):
     ###   DEFINE CALCULATION, BODY HEADER, AND BODY TEXT   ###
 
 
-    k_to_lb = Variable('1000lbs/kip', 1000, 'lbs/kip')
-    ft_to_in = Variable('12in/ft', 12, 'in/ft')
+    k_to_lb = Variable('1000 \ \mathrm{lbs/kip}', 1000, 'lbs/kip')
+    ft_to_in = Variable('12 \ \mathrm{in/ft}', 12, 'in/ft')
 
 
     BodyHeader('Buckling Constants (ADM Table B.4.2)', head_level=1) ######################################################################################
@@ -420,7 +420,7 @@ def create_calculation(updated_input={}):
     BodyText('Member sizes on the mid-height platform are identical to those of the top platform. As the spans and loaded area are less than the top platform, the members can be assumed to pass all design checks.')
 
 
-    Wdtp = CalcVariable('W_{d,p}', Wtp*Ltp*DL + 2*wswpr*Ltp + 2*wswpc*Wtp* 4*wdsc*Lsc/2, 'lbs', 'Total tributary dead load associated with each platform (conservative)', result_check=True)
+    Wdtp = CalcVariable('W_{d,p}', Wtp*Ltp*DL + 2*wswpr*Ltp + 2*wswpc*Wtp+ 4*wdsc*Lsc/2, 'lbs', 'Total tributary dead load associated with each platform (conservative)', result_check=True)
     Wltp = CalcVariable('W_{l,p}', Wtp*Ltp*LL + 2*LL*Wtr*Lsc/2, 'lbs', 'Total tributary live load associated with each platform (conservative)', result_check=True)
     # Wdmp = CalcVariable('W_{d,mp}', Wtp*Ltp*DL + 2*wswpr*Ltp + 2*wswpc*Wtp* 4*wdsc*Lsc/2, 'lbs', 'Total tributary dead load associated with the mid platform (conservative)')
     # Wlmp = CalcVariable('W_{l,mp}', Wtp*Ltp*LL + 2*LL*Wtr*Lsc/2, 'lbs', 'Total tributary live load associated with the mid platform (conservative)')
