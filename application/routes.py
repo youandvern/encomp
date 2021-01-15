@@ -1,10 +1,9 @@
 from application import application, db
 from flask import render_template, request, json, jsonify, Response, redirect, flash, url_for, session, send_file
-# from flask_weasyprint import HTML, render_pdf
+from werkzeug.utils import secure_filename
 from application.models import User, Project, CalcInput, CalcType
 from application.forms import LoginForm, RegisterForm, ProjectForm, CalcForm, CalcTypeForm, ChangeProjectForm, ChangeCalcForm
-# from bson.objectid import ObjectId
-from application.mongo_query import getUserProjects, getProjCalcs, deleteCalculation, deleteProject
+from application.mongo_query import getUserProjects, getProjCalcs, removeCalculationFromDB, deleteProject
 from application.calcscripts.process.compilecalc import compile_calculation
 import shutil
 import os
@@ -38,6 +37,20 @@ def landing():
         else:
             select_comment = True
             project_calcs = False
+
+        ###### Import Calculation  #####
+        if request.method == 'POST':
+            file = request.files.get('upload_calc')
+            if file and file.filename == '':
+                flash("No file has been selected")
+            elif file and session.get('current_project_id'):
+                filename = secure_filename(file.filename)
+                upload_content = file.read()
+                calc_import_dict = json.loads(upload_content)
+                new_calc_from_import = CalcInput(calc_name = calc_import_dict['calc_name'], description = calc_import_dict['description'],calc_type_id= calc_import_dict['calc_type_id'], project_id = session.get('current_project_id'), calc_input_dict=calc_import_dict['calc_input_dict'], left_header=calc_import_dict['left_header'], center_header=calc_import_dict['center_header'],right_header=calc_import_dict['right_header'])
+                new_calc_from_import.save()
+                flash(f"You have uploaded {filename} successfully as: {calc_import_dict['calc_name']}", "success")
+                return redirect(url_for('landing'))
 
         selected_calc_id = request.form.get('selected_calc_id')
         if selected_calc_id:
@@ -232,38 +245,18 @@ def addtype():
 
 @application.route("/design_dashboard", methods=['GET', 'POST'])
 def design_dashboard():
-    # get current calculation info from db object
-    debug_text=''
+
+    if not session.get('current_calc_id'):
+        return redirect(url_for('index'))
+
+    ############------------GET CURRENT CALCULATION INFO AND DB OBJECTS-----------##############
     current_calc = CalcInput.objects( _id = session['current_calc_id'] ).first()
     current_calc_type = CalcType.objects( _id = current_calc.calc_type_id ).first()
     calc_file_name = current_calc_type.file_name
     if not current_calc:
         return render_template("design.html", calculation_name= "No calc found for id:",calculation_description=session['current_calc_id'])
 
-    # update input data from input form or open calc report depending on which button is pressed
-    form_submit_dict = request.form
-    print_report = form_submit_dict.get('print_report')
-    show_report = form_submit_dict.get('show_report')
-    export_calculation = form_submit_dict.get('export_calculation')
-    if show_report and session.get('current_calc_id'):
-        return redirect(url_for('calcreport', print_report="view"))
-    elif export_calculation:
-        return export_calc()
-    elif print_report and session.get('current_calc_id'):
-        return redirect(url_for('calcreport', print_report="print"))
-    elif print_report or show_report:
-        flash("failed to collect current calculation", "danger")
-    elif len(form_submit_dict)>0:
-        current_calc.calc_input_dict = form_submit_dict
-        current_calc.save()
-
-
-    # set current calculation in session, get calc name and description
-    calculation_name = current_calc.calc_name
-    # session['selected_calculation'] = calculation_name
-    calculation_description = current_calc.description
-
-    # run calculation to create and get calculation input objects
+    ############------------GET CALCULATION INPUT OBJECTS BY RUNNING CALC -----------##############
     calculation_path = f'application.calcscripts.{calc_file_name}.create_calculation'
     calc_items = compile_calculation(compile_calc_path=calculation_path)['all_items']
     setup_items = calc_items['setup']
@@ -272,6 +265,81 @@ def design_dashboard():
         if item.__class__.__name__ == 'DeclareVariable':
             calc_inputs.append(item)
 
+
+    ############------------POPULATE CHANGE CALC NAME FORM DATA -----------##############
+    calcnameform = ChangeCalcForm()
+    left_header=current_calc.left_header
+    center_header=current_calc.center_header
+    right_header=current_calc.right_header
+    # if request.method == 'GET':
+    calcnameform.new_description.data = current_calc.description
+    calcnameform.new_left_header.data = left_header
+    calcnameform.new_center_header.data = center_header
+    calcnameform.new_right_header.data = right_header
+
+
+    ############------------CHANGE CALCULATION NAME FORM-----------##############
+    def change_calculation_name(posted_dict):
+        if calcnameform.validate_on_submit():
+            new_calc_name = posted_dict.get('new_calc_name')
+            new_description = posted_dict.get('new_description')
+            new_left_header = posted_dict.get('new_left_header')
+            new_center_header = posted_dict.get('new_center_header')
+            new_right_header = posted_dict.get('new_right_header')
+
+            current_calc.calc_name = new_calc_name
+            current_calc.description = new_description
+            current_calc.left_header = new_left_header
+            current_calc.center_header = new_center_header
+            current_calc.right_header = new_right_header
+            current_calc.save()
+
+            flash(f"You have updated {new_calc_name}", "success")
+            return redirect(url_for('design_dashboard'))
+        else:
+            flash("Error in text submitted")
+            return None
+
+    ############------------DELETE CALCULATION FORM-----------##############
+    def delete_current_calculation():
+        removeCalculationFromDB(session['current_calc_id'])
+        deleted_calc_name = session.get('current_c_name')
+        session.pop('current_calc_id')
+        session.pop('current_c_name')
+        session.pop('current_c_description')
+        flash(f"You have deleted {deleted_calc_name}", "success")
+        return redirect(url_for('landing'))
+
+
+    ############------------WHEN FORM IS SUBMITTED-----------##############
+    if request.method == 'POST':
+        form_submit_dict = request.form
+        # flash(f"posted:  {form_submit_dict}")
+        submitted_form = form_submit_dict.get('submit')
+        # flash(f"submitted form: {submitted_form}")
+        update_results     = submitted_form=='update_results_submitted'
+        show_report        = submitted_form=='show_calc_report'
+        print_report       = submitted_form=='print_calc_report'
+        change_calc_name   = submitted_form=='change_calc_name'
+        delete_calc        = 'delete_current_calc' in form_submit_dict
+        export_calc        = 'export_calc' in form_submit_dict
+
+        if update_results:
+            current_calc.calc_input_dict = form_submit_dict
+            current_calc.save()
+        elif show_report:
+            return redirect(url_for('calcreport', print_report="view"))
+        elif print_report:
+            return redirect(url_for('calcreport', print_report="print"))
+        elif change_calc_name:
+            return change_calculation_name(form_submit_dict)
+        elif delete_calc:
+            return delete_current_calculation()
+        elif export_calc:
+            return export_calculation()
+
+
+    ############------------RENDER INPUT AND OUTPUT VALUES-----------##############
     # update input variables
     calc_saved_input = current_calc.calc_input_dict
     if isinstance(calc_saved_input, dict):
@@ -300,51 +368,11 @@ def design_dashboard():
             if item.result_check:
                 calc_results.append(item)
 
+    # SAVE HTML STRINGS FOR CALC REPORT
     stringsdict = calc_items_and_strings['html_strings']
     session['stringsdict'] = stringsdict
-    left_header=current_calc.left_header
-    center_header=current_calc.center_header
-    right_header=current_calc.right_header
 
-    ############------------CHANGE CALCULATION NAME FORM-----------##############
-    calcnameform = ChangeCalcForm()
-    if request.method == 'GET':
-        calcnameform.new_description.data = calculation_description
-        calcnameform.new_left_header.data = left_header
-        calcnameform.new_center_header.data = center_header
-        calcnameform.new_right_header.data = right_header
-
-    if calcnameform.validate_on_submit():
-        new_calc_name = calcnameform.new_calc_name.data
-        new_description = calcnameform.new_description.data
-        new_left_header = calcnameform.new_left_header.data
-        new_center_header = calcnameform.new_center_header.data
-        new_right_header = calcnameform.new_right_header.data
-
-        calculation = CalcInput.objects( _id = session['current_calc_id'] ).first()
-        calculation.calc_name = new_calc_name
-        calculation.description = new_description
-        calculation.left_header = new_left_header
-        calculation.center_header = new_center_header
-        calculation.right_header = new_right_header
-        calculation.save()
-
-        flash(f"You have updated {new_calc_name}", "success")
-        return redirect(url_for('design_dashboard'))
-
-    # Delete calculation
-    delete_calc_trigger = request.form.get('delete_current_calculation')
-    if delete_calc_trigger:
-        deleteCalculation(session['current_calc_id'])
-        deleted_calc_name = session.get('current_c_name')
-        session.pop('current_calc_id')
-        session.pop('current_c_name')
-        # session.pop('selected_calculation')
-        session.pop('current_c_description')
-        flash(f"You have deleted {deleted_calc_name}", "success")
-        return redirect(url_for('landing'))
-
-    return render_template("design.html", debug_text=debug_text, calculation_name= calculation_name,calculation_description=calculation_description, calc_inputs=calc_inputs, calc_results=calc_results, calcnameform=calcnameform,  design=True)
+    return render_template("design.html", calculation_name= current_calc.calc_name,calculation_description=current_calc.description, calc_inputs=calc_inputs, calc_results=calc_results, calcnameform=calcnameform,  design=True)
 
 
 @application.route("/calcreport<print_report>", methods=['GET', 'POST'])
@@ -370,7 +398,7 @@ def calcreport(print_report):
 
 
 @application.route("/exportcalculation")
-def export_calc():
+def export_calculation():
     if session.get('user_id') and session.get('current_calc_id'):
         current_user_id = session.get('user_id')
         current_calc = CalcInput.objects( _id = session['current_calc_id'] ).first()
