@@ -55,6 +55,13 @@
                 </div>
 
                 <button type="button" class="addbtn add-calc" onclick="openCalcForm()">+ Add Calculation</button>
+
+                <form action="" method="post" enctype=multipart/form-data>
+                  <input type="button" id="load_file_click_button"  class="addbtn" value='Import Calculation' onclick="document.getElementById('load_file_hidden_button').click();" title="Import Calculation File">
+                  <input type="file" id="load_file_hidden_button" style="display:none;" name="upload_calc" onchange='this.form.submit()' accept=".json, .txt" >
+                  <!-- <input type="file" id="load_file_hidden_button"  name="file"  > -->
+                  <!-- <input type="submit" value="Upload"> -->
+                </form>
                 {% endif %}
 
 
