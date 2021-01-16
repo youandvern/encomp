@@ -315,12 +315,12 @@ def design_dashboard():
     if request.method == 'POST':
         form_submit_dict = request.form
         # flash(f"posted:  {form_submit_dict}")
-        submitted_form = form_submit_dict.get('submit')
+        # submitted_form = form_submit_dict.get('submit')
         # flash(f"submitted form: {submitted_form}")
-        update_results     = submitted_form=='update_results_submitted'
-        show_report        = submitted_form=='show_calc_report'
-        print_report       = submitted_form=='print_calc_report'
-        change_calc_name   = submitted_form=='change_calc_name'
+        update_results     = 'update_results_submitted' in form_submit_dict
+        show_report        = 'show_calc_report' in form_submit_dict
+        print_report       = 'print_calc_report' in form_submit_dict
+        change_calc_name   = 'change_calc_name' in form_submit_dict
         delete_calc        = 'delete_current_calc' in form_submit_dict
         export_calc        = 'export_calc' in form_submit_dict
 

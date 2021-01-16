@@ -51,7 +51,7 @@ class ChangeCalcForm(FlaskForm):
     new_left_header = TextAreaField("Left Header")
     new_center_header = TextAreaField("Center Header")
     new_right_header = TextAreaField("Right Header")
-    submit = SubmitField("Update Calculation Name")
+    change_calc_name = SubmitField("Update Calculation Name") # submit button
 
 
 class CalcTypeForm(FlaskForm):
