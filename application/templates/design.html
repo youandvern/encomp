@@ -19,7 +19,6 @@
           </div>
 
             <p> {{ calculation_description }} </p>
-            <p> {{ debug_text }}</p>
 
             <div class="horizontal-container design-dashboard-container">
 
@@ -59,7 +58,7 @@
                   {% endfor %}
               </table>
 
-              <button class="project-bullet design-btn" name="submit-design-inputs">Update Results</button>
+              <button class="project-bullet design-btn" name="submit" value="update_results_submitted">Update Results</button>
 
               </form>
 
@@ -92,11 +91,11 @@
               </table>
               <form action="" method="post">
                 <input type="hidden" name="show_report" value="True">
-                <button class="project-bullet design-btn" formtarget="_blank" title="Display calculation report in a new tab">Show Report</button><br>
+                <button class="project-bullet design-btn" formtarget="_blank" title="Display calculation report in a new tab" value="show_calc_report">Show Report</button><br>
               </form>
               <form action="" method="post">
                 <input type="hidden" name="print_report" value="True">
-                <button class="project-bullet design-btn" formtarget="_blank" title="Display calculation report in a new tab">Print Report</button><br>
+                <button class="project-bullet design-btn" formtarget="_blank" title="Display calculation report in a new tab" value="print_calc_report">Print Report</button><br>
               </form>
 
             </div>
@@ -109,8 +108,8 @@
               <h2><button type="button" class="image-only-btn fixed-btn" onclick="openDeleteCalcForm()" title="Delete current calculation"><img id = "delete_current_calculation" src="{{ url_for('static', filename='images/delete_symbol.png')}}"></button></h2>
               <br><br>
               <form action="" method="post">
-                <input type="hidden" name="export_calculation" value="True">
-                <h2><button class="image-only-btn fixed-btn"  title="Export current calculation"><img id = "export_current_calculation" src="{{ url_for('static', filename='images/export_symbol.png')}}"></button></h2>
+                <input type="hidden" name="export_calc" value="True">
+                <h2><button class="image-only-btn fixed-btn"  title="Export current calculation" value="export_calc"><img id = "export_current_calculation" src="{{ url_for('static', filename='images/export_symbol.png')}}"></button></h2>
               </form>
 
             </div>
