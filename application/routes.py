@@ -258,7 +258,8 @@ def design_dashboard():
 
     ############------------GET CALCULATION INPUT OBJECTS BY RUNNING CALC -----------##############
     calculation_path = f'application.calcscripts.{calc_file_name}.create_calculation'
-    calc_items = compile_calculation(compile_calc_path=calculation_path)['all_items']
+    calc_items_and_strings, calc_errors = compile_calculation(compile_calc_path=calculation_path)
+    calc_items = calc_items_and_strings['all_items']
     setup_items = calc_items['setup']
     calc_inputs = []
     for item in setup_items:
@@ -359,7 +360,9 @@ def design_dashboard():
         current_calc.save()
 
     #  get calculation output objects
-    calc_items_and_strings = compile_calculation(compile_calc_path=calculation_path, compile_update_vals=True, compile_updated_items=calc_inputs)
+    calc_items_and_strings, calc_errors = compile_calculation(compile_calc_path=calculation_path, compile_update_vals=True, compile_updated_items=calc_inputs)
+    if calc_errors:
+        flash(calc_errors)
     calc_items = calc_items_and_strings['all_items']
     result_items = calc_items['calc']
     calc_results = []
