@@ -48,7 +48,7 @@ def getProjCalcs(project_id):
 ]))
     return calcs
 
-def deleteCalculation(calc_id, new_project_id = False):
+def removeCalculationFromDB(calc_id, new_project_id = False):
     calculation = CalcInput.objects(_id = calc_id).first()
     if calculation:
         if new_project_id:
