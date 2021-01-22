@@ -90,6 +90,7 @@ class DeclareVariable(Variable, SetupCollection):
                 self.num_step = "any"
             except ValueError:
                 self.input_type = "text"
+                # self.value = f"\mathrm{{{v}}}"
 
 
 class CalcVariable(Expression, CalcCollection):
