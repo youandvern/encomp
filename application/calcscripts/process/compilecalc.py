@@ -27,7 +27,11 @@ def compile_calculation(compile_calc_path, compile_update_vals=False, compile_up
             html_strings['assum'].append([item.__class__.__name__, str(item)])
     if setuplist:
         for item in setuplist:
-            html_strings['setup'].append([item.__class__.__name__, item.description, str(item)])
+            if item.__class__.__name__ == 'DeclareVariable' and item.input_type != "number":
+                declare_string = fr"\mathrm{{{item.name}}} = \mathrm{{{item.value}}} \ {item.unit}"
+            else:
+                declare_string = str(item)
+            html_strings['setup'].append([item.__class__.__name__, item.description, declare_string])
     if calclist:
         length_guess = None
         calc_type = 'Long'
