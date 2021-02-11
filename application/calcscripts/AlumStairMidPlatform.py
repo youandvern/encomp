@@ -116,20 +116,21 @@ def create_calculation(updated_input={}):
 
 
     BodyHeader('Stair Stringer Load Demands', head_level=2) ######################################################################################
+    asc_R = CalcVariable(r'\alpha _{sc.rad}', asc*PI/180, 'radians')
     Fosha = CalcVariable(r'\beta_{osha}', 5, '', 'Design for 5 times the service loads for OSHA compliance')
     wdsc = CalcVariable('w_{dsc}', DL*Wtr/2+wswsc,'lsb/ft', 'Distributed dead load on stringer')
     wsc = CalcVariable('w_{sc}', LL*Wtr/2+wdsc,'lbs/ft', 'Distributed dead and live load on stringer')
 
-    Mdsc = CalcVariable('M_{dsc}', Fosha*wsc*Lsc**2*COS(asc)/8, 'lbs-ft', 'Factored moment due to uniform live load')
-    Mcsc = CalcVariable('M_{csc}', Fosha*BRACKETS(wdsc*Lsc**2*COS(asc)/8 + LC*Lsc/4), 'lbs-ft', 'Factored moment due to concentrated live load' )
+    Mdsc = CalcVariable('M_{dsc}', Fosha*wsc*Lsc**2*COS(asc_R)/8, 'lbs-ft', 'Factored moment due to uniform live load')
+    Mcsc = CalcVariable('M_{csc}', Fosha*BRACKETS(wdsc*Lsc**2*COS(asc_R)/8 + LC*Lsc/4), 'lbs-ft', 'Factored moment due to concentrated live load' )
     Musc = CalcVariable('M_{usc}', MAX(Mdsc, Mcsc), 'lbs-ft', 'Factored design moment on stringer')
 
-    Pdsc = CalcVariable('P_{dsc}', Fosha*wsc*Lsc*COS(asc), 'lbs', 'Factored axial load due to uniform live load')
-    Pcsc = CalcVariable('P_{csc}', Fosha*BRACKETS(wdsc*Lsc*COS(asc)*SIN(asc) + LC), 'lbs', 'Factored axial load due to concentrated live load' ) #Fosha*BRACKETS(wdsc*Lsc*COS(asc) + LC)
+    Pdsc = CalcVariable('P_{dsc}', Fosha*wsc*Lsc*COS(asc_R), 'lbs', 'Factored axial load due to uniform live load')
+    Pcsc = CalcVariable('P_{csc}', Fosha*BRACKETS(wdsc*Lsc*COS(asc_R)*SIN(asc_R) + LC), 'lbs', 'Factored axial load due to concentrated live load' ) #Fosha*BRACKETS(wdsc*Lsc*COS(asc) + LC)
     Pusc = CalcVariable('P_{usc}', MAX(Pdsc, Pcsc), 'lbs', 'Factored design axial load on stringer')
 
-    Rusc = CalcVariable('R_{usc}', wsc*COS(asc)*Lsc/2, 'lbs', 'End reaction due to stringer dead and uniform live load')
-    Rcsc = CalcVariable('R_{csc}', wdsc*COS(asc)*Lsc/2 + LC, 'lbs', 'End reaction due to stringer dead and concentrated live load (at end)')
+    Rusc = CalcVariable('R_{usc}', wsc*COS(asc_R)*Lsc/2, 'lbs', 'End reaction due to stringer dead and uniform live load')
+    Rcsc = CalcVariable('R_{csc}', wdsc*COS(asc_R)*Lsc/2 + LC, 'lbs', 'End reaction due to stringer dead and concentrated live load (at end)')
     Resc = CalcVariable('R_{esc}', MAX(Rusc, Rcsc), 'lbs', 'Unfactored stringer end reaction')
 
 

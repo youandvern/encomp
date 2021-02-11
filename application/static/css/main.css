@@ -419,6 +419,11 @@ table.design-verification-table td.fail {
      margin-left: auto;
  }
 
+ #about-content {
+   padding-left: 10%;
+   padding-right: 10%;
+ }
+
  /* Flashed Messages */
  div.alert {
    border-radius: 5px;
