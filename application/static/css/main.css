@@ -1,5 +1,6 @@
 :root {
   --brandGrey: #d7dae0;
+  --brandGreyTrans: rgba(215, 218, 224, 0.4);
   --brandDark: #212529;
   --brandBlue: #004aad;
   --brandYellow: #faa92f;
@@ -442,6 +443,38 @@ table.design-verification-table td.fail {
    padding-top: 0.75em;
    padding-bottom: 0.75em;
    margin-bottom: 0em;
+ }
+
+div.index-video-pane  {
+  position: relative;
+}
+ .index-video-pane video.index-pane {
+   width: 100%;
+ }
+
+ .index-video-pane .text-overlay-box {
+   display: grid;
+   grid-template-rows: 1fr auto 1fr;
+
+   position: absolute;
+   font-weight: bold;
+   width: 30%;
+   height: 100%;
+   /* top: 30%; */
+   left: 5%;
+
+   /* BORDER-RADIUS: 10PX; */
+   background-color: var(--brandGreyTrans);
+   padding: 0.5em;
+   /* opacity: 30%; */
+ }
+
+ /* .index-pane-text {
+   opacity: 100%;
+ } */
+
+ #index-pane-txt1 {
+   color: var(--brandYellow);
  }
 
  @media (min-width: 576px) {
