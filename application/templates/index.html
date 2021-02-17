@@ -12,14 +12,28 @@
             <br>
             <!-- <a class="logout-button" id="index-logout" href="{{url_for('logout') }}">Logout</a> -->
             {% else %}
-            <h2> Welcome! Let's get started. </h2>
+            <h2> Welcome to <span class="blue-text"><b>EnComp</b></span>! Let's get started. </h2>
             <br>
-            <p>Already registered? <a href="{{url_for('login') }}">Login</a></p>
-            <p>First time here? <a href="{{url_for('register') }}">Create a free account</a> </p>
+            <!-- <p>Already registered? <a href="{{url_for('login') }}">Login</a></p>
+            <p>First time here? <a href="{{url_for('register') }}">Create a free account</a> </p> -->
             {% endif %}
             </div>
-
     </div>
+</div>
 
+<div class="index-video-pane">
+  
+  <div class="text-overlay-box">
+    <div class="empty"></div>
+    <div class="text">
+      <h4 class="index-pane-text" id="index-pane-txt1">POWERFUL AND CLEAN <br> DESIGN INTERFACE</h4>
+    </div>
+    <div class="empty"></div>
+  </div>
+
+  <video class="index-pane" autoplay loop muted>
+    <source src="{{ url_for('static', filename='videos/EncompDesignInterfaceEdited.mp4', version='3')}}" type="video/mp4">
+      Video showing design interface.
+  </video>
 </div>
 {% endblock %}
