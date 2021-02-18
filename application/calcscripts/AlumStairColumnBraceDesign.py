@@ -305,6 +305,12 @@ def create_calculation(updated_input={}):
     CheckVariable( Bu, '<=', PRn, truestate="OK", falsestate="ERROR", result_check=True)
 
 
+    BodyHeader('Seismic Overturning Stability Check', head_level=1)
+    OM = CalcVariable('OM', Vs*hp, 'kip-ft', 'Overturning moment due to seismic loading')
+    RM = CalcVariable('RM', 0.9 * Wd * wp/2, 'kip-ft', 'Restoring moment due to reduced dead load')
+    CheckVariable(OM, '<=', RM, truestate="OK", falsestate="ERROR", result_check=True)
+
+
 
     calculation_sum = {'head':HeadCollection.head_instances, 'assum': AssumCollection.assum_instances, 'setup':SetupCollection.setup_instances, 'calc':CalcCollection.calc_instances, 'foot':FootCollection.foot_instances}
     return calculation_sum
