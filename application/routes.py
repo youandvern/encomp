@@ -129,7 +129,7 @@ def about():
 def login():
     if session.get('username'):
         flash(f"You are already logged in, {session.get('username')}")
-        return redirect(url_for('index'))
+        return redirect(url_for('landing'))
     form = LoginForm()
     if form.validate_on_submit():
         email       = form.email.data  # request.form.get("email")
@@ -141,7 +141,7 @@ def login():
             session['user_id'] = str(user._id)
             session['username'] = user.first_name
             session['current_project_id'] = ""
-            return redirect(url_for('index'))
+            return redirect(url_for('landing'))
         elif user:
             flash("Password is incorrect.", "danger")
         else:

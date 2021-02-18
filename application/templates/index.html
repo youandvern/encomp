@@ -22,18 +22,34 @@
 </div>
 
 <div class="index-video-pane">
-  
+
   <div class="text-overlay-box">
     <div class="empty"></div>
     <div class="text">
-      <h4 class="index-pane-text" id="index-pane-txt1">POWERFUL AND CLEAN <br> DESIGN INTERFACE</h4>
+      <h3 class="index-pane-text bold-font" id="index-pane-txt1">POWERFUL AND CLEAN DESIGN INTERFACE</h3>
     </div>
     <div class="empty"></div>
   </div>
 
   <video class="index-pane" autoplay loop muted>
-    <source src="{{ url_for('static', filename='videos/EncompDesignInterfaceEdited.mp4', version='3')}}" type="video/mp4">
+    <source src="{{ url_for('static', filename='videos/EncompDesignInterfaceEdited.mp4', version='4')}}" type="video/mp4">
       Video showing design interface.
   </video>
+</div>
+
+<div class="index-video-pane">
+
+  <video class="index-pane" autoplay loop muted>
+    <source src="{{ url_for('static', filename='videos/EncompCalcReportEdited.mp4', version='1')}}" type="video/mp4">
+      Video showing design interface.
+  </video>
+
+  <div class="text-overlay-box">
+    <div class="empty"></div>
+    <div class="text">
+      <h3 class="index-pane-text bold-font" id="index-pane-txt2">DETAILED CALCULATION REPORTS</h3>
+    </div>
+    <div class="empty"></div>
+  </div>
 </div>
 {% endblock %}
