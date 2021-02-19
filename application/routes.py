@@ -1,8 +1,9 @@
-from application import application, db
+from application import application, db, mail
 from flask import render_template, request, json, jsonify, Response, redirect, flash, url_for, session, send_file
+from flask_mail import Message, Mail
 from werkzeug.utils import secure_filename
 from application.models import User, Project, CalcInput, CalcType
-from application.forms import LoginForm, RegisterForm, ProjectForm, CalcForm, CalcTypeForm, ChangeProjectForm, ChangeCalcForm
+from application.forms import LoginForm, RegisterForm, ProjectForm, CalcForm, CalcTypeForm, ChangeProjectForm, ChangeCalcForm, ContactForm
 from application.mongo_query import getUserProjects, getProjCalcs, removeCalculationFromDB, deleteProject
 from application.calcscripts.process.compilecalc import compile_calculation
 import shutil
@@ -123,6 +124,23 @@ def landing():
 @application.route("/about")
 def about():
     return render_template('about.html', about = True)
+
+@application.route("/contact", methods=['GET', 'POST'])
+def contact():
+    form = ContactForm()
+    if form.validate_on_submit():
+        subject = form.subject.data
+        msg = Message(form.subject.data, sender='team@encompapp.com', recipients=['team@encompapp.com'])
+        msg.body = """
+        From: %s <%s>
+        %s
+        """ % (form.name.data, form.email.data, form.message.data)
+        mail.send(msg)
+        flash(f"Thank you for contacting us. We will reach out to you as soon as possible.", "success")
+        return redirect(url_for('index'))
+    # else:
+    #     flash("All fields required")
+    return render_template('contact.html', contact = True, form = form)
 
 
 @application.route("/login", methods=['GET', 'POST'])

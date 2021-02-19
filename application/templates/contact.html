@@ -1,0 +1,52 @@
+
+    {% extends "base.html" %}
+
+    {% block content %}
+<div class="container">
+    <div class="container centerdiv">
+      <div class="sidecontainer"></div>
+      <div class="col-md-6 offset-md-3">
+        <form class="user-form" name="contact" action="" method="post" novalidate>
+          <fieldset class="form-group">
+            <legend>Contact</legend>
+            {{ form.hidden_tag() }}
+
+            <div>
+              <p>{{ form.name.label }}</p>
+              {{ form.name(size=25) }}
+              {% for error in form.name.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div>
+              <p>{{ form.email.label }}</p>
+              {{ form.email(size=35) }}
+              {% for error in form.email.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div>
+              <p>{{ form.subject.label }}</p>
+              {{ form.subject(size=50) }}
+              {% for error in form.subject.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div>
+              <p>{{ form.message.label }}</p>
+              {{ form.message }}
+              {% for error in form.message.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
+
+            <div>
+              {{ form.submit(class="btn-submit") }}
+            </div>
+            </fieldset>
+        </form>
+      </div>
+      <div class="sidecontainer"></div>
+    </div>
+</div>
+    {% endblock %}
