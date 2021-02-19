@@ -256,18 +256,18 @@ def create_calculation(updated_input={}):
 
     BodyHeader("Torsional Properties")
     KT = CalcVariable('K_T', 2*(bsc*tfsc)**3/3 + BRACKETS(dsc-2*tfsc)*twsc**3/3, 'in^4', 'Torsional Constant', code_ref='DG9 3.4' )
-    BT = CalcVariable(r'\beta_{T}', SQRT(KT*G/(Cwsc*E)), 'in^-1', code_ref="Roark's Table 10.3" )
+    BT = CalcVariable(r'\beta_{T}', SQRT(KT*G/(Cwsc*E)), 'in^{-1}', code_ref="Roark's Table 10.3" )
 
     BodyHeader("Elastic Deformations due to Torsion (Roark's Table 10.3.1g)")
-    Opmax = CalcVariable(r"\theta'_{max)}", Tusc/(2*Cwsc*E*k_to_lb*BT**2)*BRACKETS(1-1/(COSH((BT*Lusc*ft_to_in)/4))), '1/in')
-    # Oppmax = CalcVariable(r"\theta''_{max)}", Tusc/(2*Cwsc*E*k_to_lb*BT)*TANH((BT*Lusc*ft_to_in)/2), 'in^{-2}')
-    Opppmax = CalcVariable(r"\theta'''_{max)}", Tusc/(2*Cwsc*E*k_to_lb), 'in^{-3}')
+    Opmax = CalcVariable(r"\theta'_{max}", Tusc/(2*Cwsc*E*k_to_lb*BT**2)*BRACKETS(1-ONE/(COSH((BT*Lsc*ft_to_in)/4))), 'in^{-1}')
+    # Oppmax = CalcVariable(r"\theta''_{max)}", Tusc/(2*Cwsc*E*k_to_lb*BT)*TANH((BT*Lsc*ft_to_in)/2), 'in^{-2}')
+    Opppmax = CalcVariable(r"\theta'''_{max}", Tusc/(2*Cwsc*E*k_to_lb), 'in^{-3}')
     BodyHeader("Torsional Shear Stresses (Roark's Table 10.2.1)")
     tT = CalcVariable('t_T', MAX(twsc, tfsc), 'in')
     bT = CalcVariable('b_T', bsc-twsc/2, 'in')
     hT = CalcVariable('h_T', dsc - tfsc, 'in')
     Ttmax = CalcVariable(r"\tau_{Tmax}", tT*G*Opmax, 'ksi' )
-    Twmax = CalcVariable(r"\tau_{Wmax}", (hT*bT**2)/4 * ((hT+3bT)/(hT+6bT))**2 * E * Opppmax, 'ksi')
+    Twmax = CalcVariable(r"\tau_{Wmax}", (hT*bT**2)/4 * ((hT+3*bT)/(hT+6*bT))**2 * E * Opppmax, 'ksi')
     BodyText('The torsional and warping stresses reach maximum values at different points along the beam. The total maximum shear stress due to torsion is conservatively calculated as the sum of torsion and warping.')
     Ttw = CalcVariable(R"\tau_{TW}", Ttmax + Twmax, 'ksi')
 
