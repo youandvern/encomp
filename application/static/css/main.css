@@ -497,7 +497,7 @@ div.index-video-pane  {
    opacity: 100%;
  } */
 
- #index-pane-txt1 {
+ #index-pane-txt1, #index-pane-txt3 {
    color: var(--brandYellow);
  }
 

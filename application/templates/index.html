@@ -41,7 +41,7 @@
 
   <video class="index-pane" autoplay loop muted>
     <source src="{{ url_for('static', filename='videos/EncompCalcReportEdited.mp4', version='1')}}" type="video/mp4">
-      Video showing design interface.
+      Video showing calculation reports.
   </video>
 
   <div class="text-overlay-box">
@@ -51,5 +51,21 @@
     </div>
     <div class="empty"></div>
   </div>
+</div>
+
+<div class="index-video-pane">
+
+  <div class="text-overlay-box">
+    <div class="empty"></div>
+    <div class="text">
+      <h3 class="index-pane-text bold-font" id="index-pane-txt3">EASILY MANAGE YOUR PROJECTS</h3>
+    </div>
+    <div class="empty"></div>
+  </div>
+
+  <video class="index-pane" autoplay loop muted>
+    <source src="{{ url_for('static', filename='videos/EncompProjectsEdited.mp4', version='1')}}" type="video/mp4">
+      Video showing project page interface.
+  </video>
 </div>
 {% endblock %}
