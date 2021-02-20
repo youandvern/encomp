@@ -1,6 +1,7 @@
 
 from flask import Flask
 from config import Config
+from private import p_mail_config
 from flask_mongoengine import MongoEngine
 from flask_mail import Mail
 # import redis
@@ -15,11 +16,11 @@ application = Flask(__name__)
 application.config.from_object(Config)
 KVSessionExtension(store, application) # overrides flask session to use simplekv storage (increase size)
 
-application.config["MAIL_SERVER"] = 'smtp.zoho.com'
-application.config["MAIL_PORT"] = 465
-application.config["MAIL_USE_SSL"] = True
-application.config["MAIL_USERNAME"] = 'team@encompapp.com'
-application.config["MAIL_PASSWORD"] = os.environ.get("ZOHO_EMAIL_PASSWORD")
+application.config["MAIL_SERVER"] = p_mail_config.get("MAIL_SERVER")
+application.config["MAIL_PORT"] = p_mail_config.get("MAIL_PORT")
+application.config["MAIL_USE_SSL"] = p_mail_config.get("MAIL_USE_SSL")
+application.config["MAIL_USERNAME"] = p_mail_config.get("MAIL_USERNAME")
+application.config["MAIL_PASSWORD"] = p_mail_config.get("MAIL_PASSWORD")
 
 mail = Mail(application)
 
