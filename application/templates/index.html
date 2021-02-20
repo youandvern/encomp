@@ -1,20 +1,89 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container">
+
     <div class="row">
         <div class="col-md-12 text-center">
 
             {% if session.get('username') %}
             <h2>Let's get started.</h2>
-            <h4>Welcome back, {{ session.get('username') }}</h4>
+            <h4>Welcome back, <span class="blue-text"> <b>{{ session.get('username') }}.</b></span></h4>
             <br>
-            <a class="logout-button" id="index-logout" href="{{url_for('logout') }}">Logout</a>
+            <!-- <a class="logout-button" id="index-logout" href="{{url_for('logout') }}">Logout</a> -->
             {% else %}
-            <h2> Welcome! Let's get started. </h2>
+            <h2> Welcome to <span class="blue-text"><b>EnComp</b></span>! Let's get started. </h2>
             <br>
-            <p>Already registered? <a href="{{url_for('login') }}">Login</a></p>
-            <p>First time here? <a href="{{url_for('register') }}">Create a free account</a> </p>
+            <!-- <p>Already registered? <a href="{{url_for('login') }}">Login</a></p>
+            <p>First time here? <a href="{{url_for('register') }}">Create a free account</a> </p> -->
             {% endif %}
             </div>
     </div>
+</div>
+
+<div class="index-video-pane">
+
+  <div class="text-overlay-box">
+    <div class="empty"></div>
+    <div class="text">
+      <h3 class="index-pane-text bold-font" id="index-pane-txt1">POWERFUL AND CLEAN DESIGN INTERFACE</h3>
+    </div>
+    <div class="empty"></div>
+  </div>
+
+  <video class="index-pane" autoplay loop muted playsinline>
+    <source src="{{ url_for('static', filename='videos/EncompDesignInterfaceEdited.mp4', version='4')}}" type="video/mp4">
+      Video showing design interface.
+  </video>
+</div>
+
+<div class="index-video-pane">
+
+  <video class="index-pane" autoplay loop muted playsinline>
+    <source src="{{ url_for('static', filename='videos/EncompCalcReportEdited.mp4', version='1')}}" type="video/mp4">
+      Video showing calculation reports.
+  </video>
+
+  <div class="text-overlay-box">
+    <div class="empty"></div>
+    <div class="text">
+      <h3 class="index-pane-text bold-font" id="index-pane-txt2">DETAILED CALCULATION REPORTS</h3>
+    </div>
+    <div class="empty"></div>
+  </div>
+</div>
+
+<div class="index-video-pane">
+
+  <div class="text-overlay-box">
+    <div class="empty"></div>
+    <div class="text">
+      <h3 class="index-pane-text bold-font" id="index-pane-txt3">EASILY MANAGE YOUR PROJECTS</h3>
+    </div>
+    <div class="empty"></div>
+  </div>
+
+  <video class="index-pane" autoplay loop muted playsinline>
+    <source src="{{ url_for('static', filename='videos/EncompProjectsEdited.mp4', version='1')}}" type="video/mp4">
+      Video showing project page interface.
+  </video>
+</div>
+
+
+<div class="index-video-pane">
+
+  <video class="index-pane" autoplay loop muted playsinline>
+    <source src="{{ url_for('static', filename='videos/EncompBuildCalcsEdited.mp4', version='1')}}" type="video/mp4">
+      Video showing calculation coding.
+  </video>
+
+  <div class="text-overlay-box">
+    <div class="empty"></div>
+    <div class="text">
+      <h3 class="index-pane-text bold-font" id="index-pane-txt4">CREATE THE CALCULATIONS YOU NEED</h3>
+    </div>
+    <div class="empty"></div>
+  </div>
+</div>
+
 {% endblock %}

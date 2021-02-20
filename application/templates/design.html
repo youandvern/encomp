@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-md-12 text-center">
+    <div class="row centerdiv">
+        <div class="trash-div"> </div>
+        <div class="col-md-12 text-center container">
 
           <div class="container-fluid text-center" id="title-container">
             <div class="beside-logo">
@@ -13,14 +14,13 @@
             </div>
 
             <div class="beside-logo">
-                <h2><button class="image-only-btn" onclick="openDeleteCalcForm()" title="Delete current calculation"><img id = "delete_current_calculation" src="{{ url_for('static', filename='images/delete_symbol.png')}}"></button></h2>
+
             </div>
           </div>
 
             <p> {{ calculation_description }} </p>
-            <p> {{ debug_text }}</p>
 
-            <div class="horizontal-container">
+            <div class="horizontal-container design-dashboard-container">
 
             <div class="design-input-container">
               <h3>Calculation Inputs</h3>
@@ -28,6 +28,7 @@
 
               <table class="design-input-table">
                 <tr>
+                  <th>Description</th>
                   <th>Name</th>
                   <th>Value</th>
                   <th>Units</th>
@@ -35,6 +36,7 @@
 
                   {% for item in calc_inputs %}
                   <tr>
+                    <td class="design-input-description" > {{ item.description }} </td>
                     <td class="design-input-name" title = "{{ item.description }}"> \( {{ item.name }} \) </td>
                     <td class="design-input-value">
                       {% if item.input_type == "number" %}
@@ -58,15 +60,34 @@
                   {% endfor %}
               </table>
 
-              <button class="project-bullet design-btn" name="submit-design-inputs">Update Results</button>
+              <button class="project-bullet design-btn" name="update_results_submitted">Update Results</button>
 
               </form>
 
             </div>
 
+            <div class="design-spacer">
+
+            </div>
+
             <div class="design-verification-container">
               <h3>Design Verification</h3>
-              <table class="design-verification-table">
+
+              {% for item in calc_results %}
+
+                {% if item.description %}
+                <p class="description"> {{ item.description }}: </p>
+                {% endif %}
+
+                {% if item.__class__.__name__ =='CheckVariable' %}
+                  <p class="check {{ item.passfail }}" title = "{{ item.a.description }} {{ item.op }} {{ item.b.description }}"> \( {{ item.strSymbolic().replace("&","") }} \rightarrow \) {{ item.result() }}</p>
+                {% else %}
+                  <p class="result" title = "{{ item.description }}"> \( {{ item.name }} \) <b>= {{ item.strResult() }}</b> \(  {{ item.unit }} \) </p>
+                {% endif %}
+              {% endfor %}
+
+
+              <!-- <table class="design-verification-table">
                 <tr>
                   <th>Name</th>
                   <th>Result</th>
@@ -88,20 +109,29 @@
                       </tr>
                     {% endif %}
                   {% endfor %}
-              </table>
+              </table> -->
               <form action="" method="post">
-                <input type="hidden" name="show_report" value="True">
-                <button class="project-bullet design-btn" formtarget="_blank" title="Display calculation report in a new tab">Show Report</button><br>
+                <input type="hidden" name="show_calc_report" value="True">
+                <button class="project-bullet design-btn" formtarget="_blank" title="Display calculation report in a new tab" value="show_calc_report">Show Report</button><br>
               </form>
               <form action="" method="post">
-                <input type="hidden" name="print_report" value="True">
-                <button class="project-bullet design-btn" formtarget="_blank" title="Display calculation report in a new tab">Print Report</button><br>
+                <input type="hidden" name="print_calc_report" value="True">
+                <button class="project-bullet design-btn" formtarget="_blank" title="Display calculation report in a new tab" value="print_calc_report">Print Report</button><br>
               </form>
 
             </div>
 
             </div>
 
+
+            </div>
+            <div class="trash-div">
+              <h2><button type="button" class="image-only-btn fixed-btn" onclick="openDeleteCalcForm()" title="Delete current calculation"><img id = "delete_current_calculation" src="{{ url_for('static', filename='images/delete_symbol.png')}}"></button></h2>
+              <br><br>
+              <form action="" method="post">
+                <input type="hidden" name="export_calc" value="True">
+                <h2><button class="image-only-btn fixed-btn"  title="Export current calculation" value="export_calc"><img id = "export_current_calculation" src="{{ url_for('static', filename='images/export_symbol.png')}}"></button></h2>
+              </form>
 
             </div>
     </div>

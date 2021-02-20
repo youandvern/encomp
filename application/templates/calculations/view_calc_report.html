@@ -2,16 +2,31 @@
 <html>
 <head>
     <title>{{calc_title}}</title>
-    <script>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favEncomp2.png', version='1')}}" type="image/x-icon" />
+    <!-- <script class="mathjax-3">
       MathJax = {
         loader: {load: ['input/asciimath', 'output/chtml', 'ui/menu']},
       };
+    </script> -->
+    <script type="text/x-mathjax-config" class="mathjax-2">
+          MathJax.Hub.Config({
+            displayAlign: "left",
+            skipStartupTypeset: false,
+            "fast-preview": { disabled: true },
+            CommonHTML: {
+              linebreaks: {automatic: true}
+            }
+          });
     </script>
-    <script type="text/javascript" id="MathJax-script" async  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/calcsheet.css', version='51')}}"/>
-    {% block content%}
+    <!-- <script type="text/javascript" id="MathJax-script" async  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> -->
+    <!-- <script type="text/javascript" id="MathJax-script" async  src="https://cdn.jsdelivr.net/npm/mathjax@2.7.8/unpacked/MathJax.min.js"></script> -->
 
-    {% endblock %}
+    <script type="text/javascript" async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_CHTML">
+    </script>
+
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/calcsheet.css', version='59')}}"/>
 </head>
 <body>
 
@@ -27,7 +42,13 @@
           </table>
         </header>
 
+
+
           <div class="calc-page-container">
+
+            <div class="temp-button" id="print_button_section">
+              <button type="button"  onclick="click_print_report()" name="Print Report">Print Report</button>
+            </div>
 
             {% for calcitem in headstrings %}
                 {% if calcitem[0] == 'CalculationTitle' %}
@@ -96,6 +117,10 @@
       </div>
 
 
+  <script src = "static/js/calcsheet.js?v=84"></script>
+  {% if print_report == "print" %}
+    <script type="text/javascript"> auto_print_report(); </script>
+  {% endif %}
 
 </body>
 </html>

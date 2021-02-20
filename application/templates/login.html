@@ -1,33 +1,36 @@
 {% extends "base.html" %}
 
     {% block content %}
-
-    <div class="row">
+<div class="container">
+    <div class="row centerdiv">
+        <div class="sidecontainer"></div>
         <div class="col-md-6 offset-md-3">
-            <form name="login" action="" method="post" novalidate>
+            <form class="user-form" name="login" action="" method="post" novalidate>
               <fieldset class="form-group">
                 <legend>{{title}}</legend>
                 {{ form.hidden_tag() }}
 
-                <p>
-                  {{ form.email.label }}<br>
+                <div>
+                  <p>  {{ form.email.label }}</p>
                   {{ form.email(size=35) }}
                   {% for error in form.email.errors %}
                     <span class="error-message">{{ error }}</span>
                   {% endfor %}
-                </p>
-                <p>
-                  {{ form.password.label }}<br>
+                </div>
+                <div>
+                  <p>{{ form.password.label }}</p>
                   {{ form.password(size=20) }}
                   {% for error in form.password.errors %}
                     <span class="error-message">{{ error }}</span>
                   {% endfor %}
-                </p>
-                <p>
-                  {{ form.submit(onclick="clearProjectStorage()") }}
-                </p>
+                </div>
+                <div>
+                  {{ form.submit(class="btn-submit", onclick="clearProjectStorage()") }}
+                </div>
                 </fieldset>
             </form>
         </div>
+        <div class="sidecontainer"></div>
     </div>
+</div>
  {% endblock %}

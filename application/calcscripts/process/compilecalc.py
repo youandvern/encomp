@@ -1,6 +1,7 @@
 from pydoc import locate
 
 def compile_calculation(compile_calc_path, compile_update_vals=False, compile_updated_items=[]):
+    calc_errors = ''
     html_strings = {'head':[], 'assum': [], 'setup':[], 'calc':[], 'foot':[]}
 
     updated_input = {}
@@ -26,7 +27,11 @@ def compile_calculation(compile_calc_path, compile_update_vals=False, compile_up
             html_strings['assum'].append([item.__class__.__name__, str(item)])
     if setuplist:
         for item in setuplist:
-            html_strings['setup'].append([item.__class__.__name__, item.description, str(item)])
+            if item.__class__.__name__ == 'DeclareVariable' and item.input_type != "number":
+                declare_string = fr"\mathrm{{{item.name}}} = \mathrm{{{item.value}}} \ {item.unit}"
+            else:
+                declare_string = str(item)
+            html_strings['setup'].append([item.__class__.__name__, item.description, declare_string])
     if calclist:
         length_guess = None
         calc_type = 'Long'
@@ -46,13 +51,19 @@ def compile_calculation(compile_calc_path, compile_update_vals=False, compile_up
                 name_only = item.name
                 symbolic_string = fr"= {item.operation.strSymbolic()}"
                 substituted_string = fr"= {item.operation.strSubstituted()}"
-                result_unit = fr"= {item.strResultWithUnit()}"
-                if item.unformat_operation_sym().strip() == item.unformat_operation_sub().strip(): # use unformat_operation_sym() and unformat_operation_sub() instead
-                    calc_type = 'Float'
-                elif length_guess <= 50:
-                    calc_type = 'Short'
-                else:
-                    calc_type = 'Long'
+                try:
+                    result_unit = fr"= {item.strResultWithUnit()}"
+                    if item.unformat_operation_sym().strip() == item.unformat_operation_sub().strip(): # use unformat_operation_sym() and unformat_operation_sub() instead
+                        calc_type = 'Float'
+                    elif length_guess <= 50:
+                        calc_type = 'Short'
+                    else:
+                        calc_type = 'Long'
+                except ValueError:
+                    result_unit = r"= 0"
+                    item.operation = 0
+                    calc_errors += fr"Variable \( {name_only} \) could not be calculated. There has been a math domain error. Please review and change input variables to an acceptable domain."
+
             elif item.__class__.__name__ =='CheckVariable':
                 name_only = "Check  "
                 symbolic_string = item.strSymbolic()
@@ -64,4 +75,4 @@ def compile_calculation(compile_calc_path, compile_update_vals=False, compile_up
 
 
             html_strings['calc'].append([item.__class__.__name__, description_text, code_ref, calc_type, name_only, symbolic_string, substituted_string, result_unit])
-    return {"html_strings": html_strings, 'all_items':totallist}
+    return {"html_strings": html_strings, 'all_items':totallist}, calc_errors

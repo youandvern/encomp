@@ -6,11 +6,19 @@
     <div class="container centerdiv">
       <div class="sidecontainer"></div>
       <div class="col-md-6 offset-md-3">
-        <form class="user-form" name="register" action="" method="post" novalidate>
+        <p>Feel free to contact us at team@encompapp.com or via the contact form provided below. </p>
+        <form class="user-form" name="contact" action="" method="post" novalidate>
           <fieldset class="form-group">
-            <legend>{{ title }}</legend>
+            <legend>Contact</legend>
             {{ form.hidden_tag() }}
 
+            <div>
+              <p>{{ form.name.label }}</p>
+              {{ form.name(size=25) }}
+              {% for error in form.name.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            </div>
             <div>
               <p>{{ form.email.label }}</p>
               {{ form.email(size=35) }}
@@ -19,38 +27,31 @@
               {% endfor %}
             </div>
             <div>
-              <p>{{ form.password.label }}</p>
-              {{ form.password(size=25) }}
-              {% for error in form.password.errors %}
+              <p>{{ form.subject.label }}</p>
+              {{ form.subject(size=50) }}
+              {% for error in form.subject.errors %}
                 <span class="error-message">{{ error }}</span>
               {% endfor %}
             </div>
             <div>
-              <p>{{ form.password_confirm.label }}</p>
-              {{ form.password_confirm(size=25) }}
-              {% for error in form.password_confirm.errors %}
+              <p>{{ form.message.label }}</p>
+              {{ form.message }}
+              {% for error in form.message.errors %}
                 <span class="error-message">{{ error }}</span>
               {% endfor %}
             </div>
-            <div>
-              <p>{{ form.first_name.label }}</p>
-              {{ form.first_name(size=25) }}
-              {% for error in form.first_name.errors %}
-                <span class="error-message">{{ error }}</span>
-              {% endfor %}
-            </div>
-            <div>
-              <p>{{ form.last_name.label }}</p>
-              {{ form.last_name(size=25) }}
-              {% for error in form.last_name.errors %}
-                <span class="error-message">{{ error }}</span>
-              {% endfor %}
-            </div>
+
             <div>
               {{ form.submit(class="btn-submit") }}
             </div>
             </fieldset>
         </form>
+
+        <br><br>
+        <h2>The Team</h2>
+        <p>Andrew Young (Founder and Lead Dev)</p>
+        <p>Samar Kenkre (Product and UI/UX)</p>
+        <p>Soo Jeon (Graphics and UI)</p><br>
       </div>
       <div class="sidecontainer"></div>
     </div>
