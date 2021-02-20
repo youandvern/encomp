@@ -19,7 +19,7 @@ application.config["MAIL_SERVER"] = 'smtp.zoho.com'
 application.config["MAIL_PORT"] = 465
 application.config["MAIL_USE_SSL"] = True
 application.config["MAIL_USERNAME"] = 'team@encompapp.com'
-application.config["MAIL_PASSWORD"] = os.environ['ZOHO_EMAIL_PASSWORD']
+application.config["MAIL_PASSWORD"] = os.environ.get("ZOHO_EMAIL_PASSWORD")
 
 mail = Mail(application)
 
