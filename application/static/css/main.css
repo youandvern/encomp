@@ -1,5 +1,6 @@
 :root {
   --brandGrey: #d7dae0;
+  --brandGreyTrans: rgba(215, 218, 224, 0.6);
   --brandDark: #212529;
   --brandBlue: #004aad;
   --brandYellow: #faa92f;
@@ -269,6 +270,20 @@ footer p {
 .padded {
   padding: 0.5em;
 }
+
+form textarea#message {
+  width: 500px;
+  height: 100px;
+  /* background-color: #fafafa; */
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+          border-radius: 3px;
+  /* border: 1px solid #cccccc; */
+  margin-bottom: 10px;
+  padding: 5px;
+  /* font-size: 1.1em; */
+}
+
 #landing-container {
   display: flex;
   justify-content: center;
@@ -310,6 +325,9 @@ footer p {
   background-color:  var(--brandBlue);
 }
 
+.design-spacer {
+  min-width: 3%;
+}
 .design-input-table, .design-verification-table {
   border-collapse: collapse;
   width: 100%
@@ -320,11 +338,19 @@ footer p {
   padding: 8px;
 }
 
+.design-input-table td.design-input-description {
+  font-size: 0.75rem;
+  max-width: 350px;
+  min-width: 100px;
+  text-align: left;
+}
+
+
 .design-input-table tr:nth-child(even){background-color: #f2f2f2;}
 .design-verification-table tr:nth-child(even){background-color: #f2f2f2;}
 
 .design-input-table tr:hover {background-color: var(--brandGrey);}
-.design-verification-table tr:hover {background-color: var(--brandGrey);}
+.design-verification-container p:hover {background-color: var(--brandGrey);}
 
 .design-input-table th, .design-verification-table th {
   padding-top: 12px;
@@ -333,15 +359,22 @@ footer p {
   background-color: var(--brandBlue);
   color: white;
 }
-
-table.design-verification-table td.pass {
+.design-verification-container p.description {
+  margin: 0;
+  text-align: left;
+}
+.design-verification-container p.pass {
   background-color: var(--brandLightGreen);
-  color: var(--brandGreen);
+  border-color: var(--brandGreen);
+  border-radius: 10px;
+  border-style: solid;
 }
 
-table.design-verification-table td.fail {
+.design-verification-container p.fail {
   background-color: var(--brandLightRed);
-  color: var(--brandRed);
+  border-color: var(--brandRed);
+  border-radius: 10px;
+  border-style: solid;
 }
 
 .horizontal-container {
@@ -353,7 +386,8 @@ table.design-verification-table td.fail {
 }
  .design-input-container, .design-verification-container {
    margin-left: 10px;
-   margin-right: 10px
+   margin-right: 10px;
+   min-width: 17rem;
  }
  .design-btn {
    margin-top: 10px;
@@ -444,9 +478,171 @@ table.design-verification-table td.fail {
    margin-bottom: 0em;
  }
 
+div.index-video-pane  {
+  /* position: relative; */
+  border: var(--brandDark);
+  border-top-style: solid;
+  border-bottom-style: solid;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  margin-bottom: 2rem;
+  /* background-color: var(--brandGrey); */
+}
+ .index-video-pane video.index-pane {
+   width: 70%;
+ }
+
+ video.index2-video {
+   width: 100%;
+   box-shadow: inset 0 0 2rem var(--brandGrey);
+ }
+
+ .index-video-pane .text-overlay-box {
+   font-weight: bold;
+   width: 30%;
+   /* height: 100%; */
+   display: grid;
+   grid-template-rows: 1fr auto 1fr;
+   /* position: absolute;
+   left: 5%; */
+   /* BORDER-RADIUS: 10PX; */
+   background-color: var(--brandGrey);
+   padding: 2%;
+   /* opacity: 30%; */
+ }
+
+ /* .index-pane-text {
+   opacity: 100%;
+ } */
+
+ #index-pane-txt1, #index-pane-txt3 {
+   color: var(--brandYellow);
+ }
+
+/* https://www.w3schools.com/howto/howto_js_slideshow.asp */
+ /* Slideshow container */
+.slideshow-container {
+  /* max-width: 1440px; */
+  position: relative;
+  margin: auto;
+  border-top: solid var(brandDark);
+  border-bottom: solid var(brandDark);
+  /* box-shadow: inset 0rem 0rem 2rem 0rem var(--brandDark); */
+}
+/* Hide the images by default */
+.mySlides {
+  display: none;
+}
+/* Next & previous buttons */
+.prev, .next {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  width: auto;
+  margin-top: -22px;
+  padding: 16px;
+  color: var(--brandDark);
+  font-weight: bold;
+  font-size: 3rem;
+  transition: 0.6s ease;
+  border-radius: 0 3px 3px 0;
+  user-select: none;
+}
+/* Position the "next button" to the right */
+.next {
+  right: 0;
+  border-radius: 3px 0 0 3px;
+}
+/* On hover, add a black background color with a little bit see-through */
+.prev:hover, .next:hover {
+  background-color: var(--brandGreyTrans);
+}
+/* Caption text */
+.slideshow-text {
+  color: var(--brandDark);
+  font-family: 'Josefin Sans', sans-serif;
+  font-weight: bold;
+  font-size: 2.25rem;
+  padding: 4px 12px;
+  position: absolute;
+  bottom: 2rem;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  /* text-shadow: 0 0 2rem var(--brandDark); */
+  /* background-color: var(--brandGreyTrans); */
+}
+.slideshow-text .center-text{
+  background-color: var(--brandGreyTrans);
+  margin: 0;
+  border-radius: 1.25rem;
+  padding-top: 5px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+/* The dots/bullets/indicators */
+.dot {
+  cursor: pointer;
+  height: 15px;
+  width: 15px;
+  margin: 0 2px;
+  background-color: var(--brandGrey);
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.6s ease;
+}
+.slide-active, .dot:hover {
+  background-color: var(--brandDark);
+}
+
+.select-dots-container {
+  position: absolute;
+  width: 100%;
+  bottom: 0.75rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  /* background-color: var(--brandGreyTrans); */
+}
+
+
+/* Fading animation */
+.fade {
+  -webkit-animation-name: fade;
+  -webkit-animation-duration: 1.5s;
+  animation-name: fade;
+  animation-duration: 1.5s;
+}
+@-webkit-keyframes fade {
+  from {opacity: .4}
+  to {opacity: 1}
+}
+@keyframes fade {
+  from {opacity: .4}
+  to {opacity: 1}
+}
+
+
+
+ @media (min-width: 400px) {
+   .container {
+       max-width: 375px;
+   }
+   .text-overlay-box  .index-pane-text{
+     font-size: 1rem;
+     font-weight: 400;
+   }
+ }
  @media (min-width: 576px) {
    .container {
        max-width: 540px;
+   }
+   .text-overlay-box  .index-pane-text{
+     font-size: 1.2rem;
+     font-weight: 550;
    }
  }
 
@@ -463,14 +659,39 @@ table.design-verification-table td.fail {
        flex: 0 0 100%;
        max-width: 100%;
    }
+   .text-overlay-box  .index-pane-text{
+     font-size: 1.5rem;
+     font-weight: 650;
+   }
 }
 
 @media (min-width: 992px) {
   .container {
       max-width: 960px;
   }
+  .text-overlay-box  .index-pane-text{
+    font-size: 1.9rem;
+    font-weight: 750;
+  }
 }
-
+@media (min-width: 1250px) {
+  .container {
+      max-width: 1220px;
+  }
+  .text-overlay-box  .index-pane-text{
+    font-size: 2.2rem;
+    font-weight: 850;
+  }
+}
+@media (min-width: 1450px) {
+  .container {
+      max-width: 1425px;
+  }
+  .text-overlay-box  .index-pane-text{
+    font-size: 2.7rem;
+    font-weight: 850;
+  }
+}
 
 
 

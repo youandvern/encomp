@@ -1,8 +1,9 @@
-from application import application, db
+from application import application, db, mail
 from flask import render_template, request, json, jsonify, Response, redirect, flash, url_for, session, send_file
+from flask_mail import Message, Mail
 from werkzeug.utils import secure_filename
 from application.models import User, Project, CalcInput, CalcType
-from application.forms import LoginForm, RegisterForm, ProjectForm, CalcForm, CalcTypeForm, ChangeProjectForm, ChangeCalcForm
+from application.forms import LoginForm, RegisterForm, ProjectForm, CalcForm, CalcTypeForm, ChangeProjectForm, ChangeCalcForm, ContactForm
 from application.mongo_query import getUserProjects, getProjCalcs, removeCalculationFromDB, deleteProject
 from application.calcscripts.process.compilecalc import compile_calculation
 import shutil
@@ -16,6 +17,10 @@ import os
 @application.route("/home")
 def index():
     return render_template('index.html', index = True)
+
+@application.route("/index2")
+def index2():
+    return render_template('index2.html', index2 = True)
 
 @application.route("/myprojects", methods=['GET', 'POST'])
 def landing():
@@ -124,12 +129,29 @@ def landing():
 def about():
     return render_template('about.html', about = True)
 
+@application.route("/contact", methods=['GET', 'POST'])
+def contact():
+    form = ContactForm()
+    if form.validate_on_submit():
+        subject = form.subject.data
+        msg = Message(form.subject.data, sender='team@encompapp.com', recipients=['team@encompapp.com'])
+        msg.body = """
+        From: %s <%s>
+        %s
+        """ % (form.name.data, form.email.data, form.message.data)
+        mail.send(msg)
+        flash(f"Thank you for contacting us. We will reach out to you as soon as possible.", "success")
+        return redirect(url_for('index'))
+    # else:
+    #     flash("All fields required")
+    return render_template('contact.html', contact = True, form = form)
+
 
 @application.route("/login", methods=['GET', 'POST'])
 def login():
     if session.get('username'):
         flash(f"You are already logged in, {session.get('username')}")
-        return redirect(url_for('index'))
+        return redirect(url_for('landing'))
     form = LoginForm()
     if form.validate_on_submit():
         email       = form.email.data  # request.form.get("email")
@@ -141,7 +163,7 @@ def login():
             session['user_id'] = str(user._id)
             session['username'] = user.first_name
             session['current_project_id'] = ""
-            return redirect(url_for('index'))
+            return redirect(url_for('landing'))
         elif user:
             flash("Password is incorrect.", "danger")
         else:

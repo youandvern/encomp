@@ -58,3 +58,11 @@ class CalcTypeForm(FlaskForm):
     type_name = StringField("Calculation Name", validators=[DataRequired()])
     description = StringField("Calculation Description")
     submit = SubmitField("Add New Project")
+
+
+class ContactForm(FlaskForm):
+    name = StringField("Name",  validators=[DataRequired()])
+    email = StringField("Email",  validators=[DataRequired(), Email()])
+    subject = StringField("Subject",  validators=[DataRequired()])
+    message = TextAreaField("Message",  validators=[DataRequired()])
+    submit = SubmitField("Send")
