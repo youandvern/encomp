@@ -142,7 +142,7 @@ def create_calculation(updated_input={}):
     Resc = CalcVariable('R_{esc}', MAX(Rusc, Rcsc), 'lbs', 'Unfactored stringer end reaction')
 
     Vusc = CalcVariable('V_{usc}', Fosha*Resc, 'lbs', 'Factored maximum shear demand')
-    Tusc = CalcVariable('T_{usc}', Fosha*LLHR*HHR, 'lbs-in', 'Factored torsion demand due to handrail loading')
+    Tusc = CalcVariable('T_{usc}', LLHR*HHR, 'lbs-in', 'Torsion demand due to handrail loading')
 
 
     BodyHeader('Stair Stringer Deflections', head_level=2) ######################################################################################
@@ -255,7 +255,7 @@ def create_calculation(updated_input={}):
     BodyText("Member shear stresses due to torsion are calculated in accordance with AISC Design Guide 9 and Roark's Formulas for Stress and Strain, 7th ed.")
 
     BodyHeader("Torsional Properties")
-    KT = CalcVariable('K_T', 2*(bsc*tfsc)**3/3 + BRACKETS(dsc-2*tfsc)*twsc**3/3, 'in^4', 'Torsional Constant', code_ref='DG9 3.4' )
+    KT = CalcVariable('K_T', 2*(bsc*tfsc**3)/3 + BRACKETS(dsc-2*tfsc)*twsc**3/3, 'in^4', 'Torsional Constant', code_ref='DG9 3.4' )
     BT = CalcVariable(r'\beta_{T}', SQRT(KT*G/(Cwsc*E)), 'in^{-1}', code_ref="Roark's Table 10.3" )
 
     BodyHeader("Elastic Deformations due to Torsion (Roark's Table 10.3.1g)")
@@ -268,14 +268,14 @@ def create_calculation(updated_input={}):
     hT = CalcVariable('h_T', dsc - tfsc, 'in')
     Ttmax = CalcVariable(r"\tau_{Tmax}", tT*G*Opmax, 'ksi' )
     Twmax = CalcVariable(r"\tau_{Wmax}", (hT*bT**2)/4 * ((hT+3*bT)/(hT+6*bT))**2 * E * Opppmax, 'ksi')
-    BodyText('The torsional and warping stresses reach maximum values at different points along the beam. The total maximum shear stress due to torsion is conservatively calculated as the sum of torsion and warping.')
+    BodyText('The torsional and warping stresses reach maximum values at different points along the beam, however, the total maximum shear stress is conservatively calculated as the sum of the two.')
     Ttw = CalcVariable(R"\tau_{TW}", Ttmax + Twmax, 'ksi')
 
     Avsc = CalcVariable('A_{vsc}', dsc*twsc, 'in^2', code_ref='ADM G.2-3')
     Ttsc = CalcVariable(r"\tau_{usc}", Vusc/Avsc/k_to_lb + Ttw, 'ksi', 'Total shear stress demand on member')
 
     BodyHeader('Web Shear Capacity (ADM G.2)')
-    PVnu = CalcVariable('\phi V_{nu}', Pbr*Fsu/kt,'lbs-ft', 'Rupture limit state shear capacity',code_ref='ADM G.2-1')
+    PVnu = CalcVariable('\phi V_{nu}', Pbr*Fsu/kt,'ksi', 'Rupture limit state shear capacity',code_ref='ADM G.2-1')
 
     yv = CalcVariable('b/t', (dsc-2*tfsc)/twsc, '')
     y1v = CalcVariable('\lambda_{1v}', (Bs-Fsy)/(1.25*Ds), '')
@@ -292,14 +292,14 @@ def create_calculation(updated_input={}):
     else:
         CheckVariablesText(yv, '>=', y2v)
         BodyText('Elastic buckling controls')
-        Vny = CalcVariable('V_{ny}', (PI**2*E)/(1.25*yv), 'ksi')
+        Vny = CalcVariable('V_{ny}', (PI**2*E)/(1.25*yv)**2, 'ksi')
     PVny = CalcVariable('\phi V_{ny}', Pby*Vny, 'ksi', 'Yield or buckling limit state shear capacity')
 
     BodyHeader('Controlling Shear Strength')
     PVsc = CalcVariable('\phi V_{sc}', MIN(PVnu, PVny), 'ksi', 'Member shear strength')
     CheckVariable( Ttsc, '<=', PVsc, truestate="OK", falsestate="ERROR", result_check=True)
 
-    BodyHeader('Stair Stringer Combined Axial and Flexural Design', head_level=2) ######################################################################################
+    BodyHeader('Stair Stringer Combined Loading Design', head_level=2) ######################################################################################
     # dcrp = CalcVariable('DCR_P', Pusc/PPnsc, '', 'Demand-capacity-ratio for axial load design')
     # dcrm = CalcVariable('DCR_M', Musc/PMnsc, '', 'Demand-capacity-ratio for flexural design')
     dcrcom = CalcVariable('DCR_{PM}', Pusc/PPnsc + Musc/PMnsc, '', 'Combined axial and flexural demand-capacity-ratio for member design', code_ref='H.1-1')

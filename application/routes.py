@@ -18,6 +18,10 @@ import os
 def index():
     return render_template('index.html', index = True)
 
+@application.route("/index2")
+def index2():
+    return render_template('index2.html', index2 = True)
+
 @application.route("/myprojects", methods=['GET', 'POST'])
 def landing():
     if not session.get('username'):
