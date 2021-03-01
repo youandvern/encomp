@@ -41,6 +41,7 @@ nav .nav-project a.nav-link {
 nav ul {
   display: flex;
   justify-content: space-evenly;
+  padding-inline-start: 0;
 }
 nav {
   margin-bottom: 2.5em;
@@ -160,12 +161,7 @@ li {
 div.column-forms {
   display: flex;
   flex-direction: row;
-}
-
-div.split-form{
-  width: 50%;
-  /* margin-left: 10%; */
-  margin-right: 20%;
+  justify-content: space-evenly;
 }
 
 
