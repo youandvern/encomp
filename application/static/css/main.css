@@ -157,6 +157,17 @@ li {
     color: blue;
 } */
 
+div.column-forms {
+  display: flex;
+  flex-direction: row;
+}
+
+div.split-form{
+  width: 50%;
+  /* margin-left: 10%; */
+  margin-right: 20%;
+}
+
 
 form legend {
   font-size: 1.75rem;
