@@ -8,7 +8,7 @@ class LoginForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email()])
     password = PasswordField("Password", validators=[DataRequired(), Length(min=6, max=20)])
     remember_me = BooleanField("Remember Me")
-    submit = SubmitField("Login")
+    login_submit = SubmitField("Login")
 
 class RegisterForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email()])
@@ -16,7 +16,7 @@ class RegisterForm(FlaskForm):
     password_confirm = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo('password', message='Passwords do not match.')])
     first_name = StringField("First Name", validators=[DataRequired()])
     last_name = StringField("Last Name", validators=[DataRequired()])
-    submit = SubmitField("Create Account")
+    register_submit = SubmitField("Create Account")
 
     def validate_email(self, email):
         user = User.objects(email=email.data).first()  # finds first occurance of email in all db emails

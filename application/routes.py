@@ -153,22 +153,44 @@ def login():
         flash(f"You are already logged in, {session.get('username')}")
         return redirect(url_for('landing'))
     form = LoginForm()
-    if form.validate_on_submit():
-        email       = form.email.data  # request.form.get("email")
-        password    = form.password.data
+    formR = RegisterForm()
 
-        user = User.objects(email=email).first()  # gets first occurance not as array, could also do User.objects(email=email)[0]
-        if user and user.get_password(password):
-            flash(f"Welcome {user.first_name}, you are successfully logged in!", "success")
-            session['user_id'] = str(user._id)
-            session['username'] = user.first_name
-            session['current_project_id'] = ""
-            return redirect(url_for('landing'))
-        elif user:
-            flash("Password is incorrect.", "danger")
-        else:
-            flash("Sorry, email not found.", "danger")
-    return render_template("login.html", title="Login", login=True, form=form)
+    if request.method == 'POST':
+        form_submit_dict = request.form
+        login_attempt     = 'login_submit' in form_submit_dict
+        register_attempt  = 'register_submit' in form_submit_dict
+        if login_attempt:
+            if form.validate_on_submit():
+                email       = form.email.data  # request.form.get("email")
+                password    = form.password.data
+
+                user = User.objects(email=email).first()  # gets first occurance not as array, could also do User.objects(email=email)[0]
+                if user and user.get_password(password):
+                    flash(f"Welcome {user.first_name}, you are successfully logged in!", "success")
+                    session['user_id'] = str(user._id)
+                    session['username'] = user.first_name
+                    session['current_project_id'] = ""
+                    return redirect(url_for('landing'))
+                elif user:
+                    flash("Password is incorrect.", "danger")
+                else:
+                    flash("Sorry, email not found.", "danger")
+        elif register_attempt:
+            if formR.validate_on_submit():
+                emailR = formR.email.data
+                passwordR = formR.password.data
+                first_nameR = formR.first_name.data
+                last_nameR = formR.last_name.data
+
+                user = User( email=emailR, first_name=first_nameR, last_name=last_nameR) # user_id=ObjectId(),
+                user.set_password(passwordR)
+                user.save()
+
+                flash("You are successfully registered", "success")
+                return redirect(url_for('login'))
+
+    return render_template("login.html", login=True, form=form, formR=formR)
+
 
 @application.route("/logout")
 def logout():

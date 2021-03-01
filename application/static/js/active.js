@@ -1,5 +1,25 @@
 // WINDOW.FOCUS()
 
+function set_project_id(btnid) {
+  // '<%Session["UserName"] = "' + userName + '"; %>';
+  window.localStorage.setItem('current_project', btnid);
+}
+
+function highlight_project() {
+  var btnid = window.localStorage.getItem('current_project')
+  var select_btn = document.getElementById(btnid);
+  if(select_btn) {
+    var list = document.getElementsByClassName("project-bullet-selected");
+    if(list[0]){
+      for (var i=0, item; item = list[i]; i++) {
+        item.classList.remove("project-bullet-selected");
+      }
+    }
+    select_btn.classList.add("project-bullet-selected");
+  }
+}
+highlight_project();
+
 
 // https://www.w3schools.com/howto/howto_js_slideshow.asp
 var slideIndex = 1;
@@ -162,26 +182,6 @@ function dragElement(elmnt) {
     document.onmousemove = null;
   }
 }
-
-function set_project_id(btnid) {
-  // '<%Session["UserName"] = "' + userName + '"; %>';
-  window.localStorage.setItem('current_project', btnid);
-}
-
-function highlight_project() {
-  var btnid = window.localStorage.getItem('current_project')
-  var select_btn = document.getElementById(btnid);
-  if(select_btn) {
-    var list = document.getElementsByClassName("project-bullet-selected");
-    if(list[0]){
-      for (var i=0, item; item = list[i]; i++) {
-        item.classList.remove("project-bullet-selected");
-      }
-    }
-    select_btn.classList.add("project-bullet-selected");
-  }
-}
-highlight_project();
 
 
 

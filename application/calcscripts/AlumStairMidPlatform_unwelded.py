@@ -25,8 +25,8 @@ def create_calculation(updated_input={}):
 
     Assumption("Aluminum Design Manual (ADM) 2015 version controls member design")
     Assumption("All aluminum sections share the same mechanical properties")
-    Assumption("Temper or weld conditions of ADM Table B.4.1 are met")
-    Assumption("Cross sections are conservatively designed as fully welded")
+    Assumption("Temper requirements of ADM Table B.4.2 are met")
+    Assumption("Cross sections are all unwelded")
     Assumption("Requirements of OSHA 1910.25 and ANSI 1264.1 are met")
 
     LL = DeclareVariable('LL', 40, 'psf', 'Live load on stairs (ASCE 7-16 Table 4.3-1)')
@@ -38,9 +38,9 @@ def create_calculation(updated_input={}):
     Ltp = DeclareVariable('L_{tp}', 5.5, 'ft', 'Length of top platform (parallel to stringer)')
 
 
-    Ftu = DeclareVariable('F_{tuw}', 24, 'ksi', 'Tensile ultimate strength', code_ref='ADM Table A.3.3')
-    Fty = DeclareVariable('F_{tyw}', 15, 'ksi', 'Tensile yield strength', code_ref = 'ADM Table A.3.3')
-    Fcy = DeclareVariable('F_{cyw}', 15, 'ksi', 'Compressive yield strength', code_ref='ADM Table A.3.1')
+    Ftu = DeclareVariable('F_{tu}', 38, 'ksi', 'Tensile ultimate strength', code_ref='ADM Table A.3.3')
+    Fty = DeclareVariable('F_{ty}', 35, 'ksi', 'Tensile yield strength', code_ref = 'ADM Table A.3.3')
+    Fcy = DeclareVariable('F_{cy}', 35, 'ksi', 'Compressive yield strength', code_ref='ADM Table A.3.1')
     kt = DeclareVariable('k_t', 1, '', 'Tension coefficient', code_ref='ADM Table A.3.3')
     E = DeclareVariable('E', 10100, 'ksi', 'Modulus of Elasticity', code_ref='ADM Table A.3.1')
     G = DeclareVariable('G', 3800, 'ksi', 'Shear modulus of elasticity', code_ref='ADM Table A.3.1')
@@ -78,30 +78,25 @@ def create_calculation(updated_input={}):
     ft_to_in = Variable('12 \ \mathrm{in/ft}', 12, 'in/ft')
 
 
-    BodyHeader('Buckling Constants (ADM Table B.4.1)', head_level=1) ######################################################################################
+    BodyHeader('Buckling Constants (ADM Table B.4.2)', head_level=1) ######################################################################################
     kap = CalcVariable('\kappa', 1.0, 'ksi')
 
     BodyHeader('Member buckling (Intercept, Slope, and Intersection):')
-    Bc = CalcVariable('B_c', Fcy*BRACKETS(1+(Fcy/(1000*kap))**(1/2)), 'ksi')
-    Dc = CalcVariable('D_c', Bc/20*(6*Bc/E)**(1/2), 'ksi')
-    Cc = CalcVariable('C_c', 2*Bc/(3*Dc))
+    Bc = CalcVariable('B_c', Fcy*BRACKETS(1+(Fcy/(2250*kap))**(1/2)), 'ksi')
+    Dc = CalcVariable('D_c', Bc/10*(Bc/E)**(1/2), 'ksi')
+    Cc = CalcVariable('C_c', 0.41*Bc/Dc)
 
     BodyHeader('Uniform compression in flat elements (Intercept, Slope, and Intersection):')
-    Bp = CalcVariable('B_p', Fcy*BRACKETS(1+(Fcy/(440*kap))**(1/3)), 'ksi')
-    Dp = CalcVariable('D_p', Bp/20*(6*Bp/E)**(1/2), 'ksi')
-    Cp = CalcVariable('C_p', 2*Bp/(3*Dp))
-
-    BodyHeader('Flexural compression in flat elements (Intercept, Slope, and Intersection):')
-    Bbr = CalcVariable('B_{br}', 1.3*Fcy*BRACKETS(1+(Fcy/(340*kap))**(1/3)), 'ksi')
-    Dbr = CalcVariable('D_{br}', Bbr/20*(6*Bbr/E)**(1/2), 'ksi')
-    Cbr = CalcVariable('C_{br}', 2*Bbr/(3*Dbr))
+    Bp = CalcVariable('B_p', Fcy*BRACKETS(1+(Fcy/(1500*kap))**(1/3)), 'ksi')
+    Dp = CalcVariable('D_p', Bp/10*(Bp/E)**(1/2), 'ksi')
+    Cp = CalcVariable('C_p', 0.41*Bp/Dp)
 
     BodyHeader('Shear in flat elements (Intercept, Slope, and Intersection):')
-    Fsy = CalcVariable('F_{syw}', 0.6*Fty, 'ksi', code_ref="ADM Table A.3.1")
-    Fsu = CalcVariable('F_{suw}', 0.6*Ftu, 'ksi', code_ref="ADM Table A.3.1")
-    Bs = CalcVariable('B_s', Fsy*BRACKETS(1+(Fsy/(240*kap))**(1/3)), 'ksi')
-    Ds = CalcVariable('D_s', Bs/20*(6*Bs/E)**(1/2), 'ksi')
-    Cs = CalcVariable('C_s', 2*Bs/(3*Ds))
+    Fsy = CalcVariable('F_{sy}', 0.6*Fty, 'ksi', code_ref="ADM Table A.3.1")
+    Fsu = CalcVariable('F_{su}', 0.6*Ftu, 'ksi', code_ref="ADM Table A.3.1")
+    Bs = CalcVariable('B_s', Fsy*BRACKETS(1+(Fsy/(800*kap))**(1/3)), 'ksi')
+    Ds = CalcVariable('D_s', Bs/10*(Bs/E)**(1/2), 'ksi')
+    Cs = CalcVariable('C_s', 0.41*Bs/Ds)
 
 
     BodyHeader('Stair Stringer Design', head_level=1)
@@ -184,49 +179,27 @@ def create_calculation(updated_input={}):
         Fcsc = CalcVariable('F_{csc}', 0.85*PI**2*E/yc**2, 'ksi', code_ref='ADM E.2')
     PPncm = CalcVariable('\phi P_{ncm}', Pc*Fcsc*Asc*k_to_lb , 'lbs', 'Member buckling strength', code_ref='ADM E.2-1')
 
-    BodyHeader('Flange Local Buckling (ADM B.5.4.1)')
-    k1c = CalcVariable('k_{1c}', 0.5, '', code_ref='ADM Table B.4.3') # assume welded
-    k2c = CalcVariable('k_{2c}', 2.04, '', code_ref='ADM Table B.4.3')
-    Afl = CalcVariable('A_{fl}', BRACKETS(bsc-twsc-Rsc)*tfsc, "in^2", "Flange area for local buckling strength")
-    yf = CalcVariable('b_f/t_f', (bsc-twsc-Rsc)/tfsc, '')
-    y1ef = CalcVariable('\lambda_{1ef}', (Bp-Fcy)/(5*Dp), '')
-    y2ef = CalcVariable('\lambda_{2ef}', k2c*SQRT(Bp*E)/(5*Dp), '')
+    BodyHeader('Local Buckling (ADM E.3)')
+    k1c = CalcVariable('k_{1c}', 0.35, '', code_ref='ADM Table B.4.3') # assume temper T6
+    k2c = CalcVariable('k_{2c}', 2.27, '', code_ref='ADM Table B.4.3')
+    y1e = CalcVariable('\lambda_{1e}', (Bp-Fcy)/Dp, '')
+    y2e = CalcVariable('\lambda_{2e}', k1c*Bp/Dp, '')
+    Fee = CalcVariable('F_{ee}', PI**2*E/(5*BRACKETS(bsc-twsc-Rsc)/tfsc)**2, 'ksi', code_ref='ADM Table B.5.1')
+    yeq = CalcVariable('\lambda_{eq}', PI*SQRT(E/Fee), '', code_ref='B.5-11')
 
-    if yf.result() <= y1ef.result():
-        CheckVariablesText(yf, '<=', y1ef)
+    if yeq.result() <= y1e.result():
+        CheckVariablesText(yeq, '<=', y1e)
         BodyText('Member yielding controls')
-        Fcescf = CalcVariable('F_{cescf}', Fcy, 'ksi')
-    elif yf.result() < y2ef.result():
-        CheckVariablesText(y1ef, '<', yf, '<', y2ef)
+        Fcesc = CalcVariable('F_{cesc}', Fcy, 'ksi', code_ref='ADM B.5.4.6')
+    elif yeq.result() < y2e.result():
+        CheckVariablesText(y1e, '<=', yeq, '<', y2e)
         BodyText('Inelastic buckling controls')
-        Fcescf = CalcVariable('F_{cescf}', Bp-5*Dp*yf , 'ksi')
+        Fcesc = CalcVariable('F_{cesc}', Bp-Dp*yeq , 'ksi', code_ref='ADM B.5.4.6')
     else:
-        CheckVariablesText(yf, '>=', y2ef)
+        CheckVariablesText(yeq, '>=', y2e)
         BodyText('Elastic buckling controls')
-        Fcescf = CalcVariable('F_{cescf}', PI**2*E/(5*yf)**2, 'ksi')
-
-    BodyHeader('Web Local Buckling (ADM B.5.4.2)')
-    Awl = CalcVariable('A_{wl}', BRACKETS(dsc-2*tfsc-2*Rsc)*twsc, "in^2", "Web area for local buckling strength")
-    yw = CalcVariable('b_w/t_w', (dsc-2*tfsc-2*Rsc)/twsc, '')
-    y1cw = CalcVariable('\lambda_{1cw}', (Bp-Fcy)/(1.6*Dp), '')
-    y2cw = CalcVariable('\lambda_{2cw}', k1c*Bp/(1.6*Dp), '')
-
-    if yw.result() <= y1cw.result():
-        CheckVariablesText(yw, '<=', y1cw)
-        BodyText('Member yielding controls')
-        Fcescw = CalcVariable('F_{cescw}', Fcy, 'ksi')
-    elif yw.result() < y2cw.result():
-        CheckVariablesText(y1cw, '<', yw, '<', y2cw)
-        BodyText('Inelastic buckling controls')
-        Fcescw = CalcVariable('F_{cescw}', Bp-1.6*Dp*yw , 'ksi')
-    else:
-        CheckVariablesText(yw, '>=', y2cw)
-        BodyText('Post-buckling controls')
-        Fcescw = CalcVariable('F_{cescw}', k2c*SQRT(Bp*E)/(1.6*yw), 'ksi')
-
-    BodyHeader('Member Local Buckling (ADM E.3)')
-    Pnce = CalcVariable('P_{nce}', Fcescw*Awl + 2*Fcescf*Afl + Fcy*BRACKETS(Asc - Awl - 2*Afl), 'kips', 'Weighted average local buckling strength', code_ref='ADM E.3-1')
-    PPnce = CalcVariable('\phi P_{nce}', Pc*Pnce*k_to_lb , 'lbs', 'Member local buckling strength')
+        Fcesc = CalcVariable('F_{cesc}', k2c*SQRT(Bp*E)/yeq, 'ksi', code_ref='ADM B.5.4.6')
+    PPnce = CalcVariable('\phi P_{nce}', Pc*Fcesc*Asc*k_to_lb , 'lbs', 'Member local buckling strength', code_ref='ADM E.3-2')
 
     BodyHeader('Controlling Strength')
     PPnsc = CalcVariable('\phi P_{nsc}', MIN(PPncm, PPnce), 'lbs', 'Member compressive strength')
@@ -241,36 +214,22 @@ def create_calculation(updated_input={}):
     PMnp = CalcVariable('\phi M_{np}', Pby*Mnp,'lbs-ft')
     PMnu = CalcVariable('\phi M_{nu}', Pbr*Zsc*Ftu/kt*(k_to_lb/ft_to_in), 'lbs-ft', 'Rupture limit state moment capacity', code_ref='ADM F.2-1' )
 
-    BodyHeader('Web Local Flexural Strength (ADM B.5.5.1)')
-    mwb = CalcVariable('m', 0.65, '', 'Web symmetry factor' )
-    k1b = CalcVariable('k_{1b}', 0.5, '', code_ref='ADM Table B.4.3')
-    k2b = CalcVariable('k_{2b}', 2.04, '', code_ref='ADM Table B.4.3')
-    y1bw = CalcVariable('\lambda_{1bw}', (Bbr - 1.5*Fcy) / (mwb*Dbr), '')
-    y2bw = CalcVariable('\lambda_{2bw}', k1b*Bbr/(mwb*Dbr), '')
-
-    if yw.result() <= y1bw.result():
-        CheckVariablesText(yw, '<=', y1bw)
+    BodyHeader('Local Buckling (ADM F.3.2)')
+    k1b = CalcVariable('k_1b', 0.5, '', code_ref='ADM Table B.4.3')
+    k2b = CalcVariable('k_2b', 2.04, '', code_ref='ADM Table B.4.3')
+    if yeq.result() <= y1e.result():
+        CheckVariablesText(yeq, '<=', y1e)
         BodyText('Member yielding controls')
-        Fbescw = CalcVariable('F_{bescw}', 1.5*Fcy, 'ksi')
-    elif yw.result() < y2cw.result():
-        CheckVariablesText(y1bw, '<', yw, '<', y2bw)
+        Fbsc = CalcVariable('F_{bsc}', Mnp/Ssc*(ft_to_in/k_to_lb), 'ksi', code_ref='ADM B.5.5.5')
+    elif yeq.result() < Cp.result():
+        CheckVariablesText(y1e, '<', yeq, '<', Cp)
         BodyText('Inelastic buckling controls')
-        Fbescw = CalcVariable('F_{bescw}', Bbr-mwb*Dbr*yw , 'ksi')
+        Fbsc = CalcVariable('F_{bsc}', Mnp/Ssc*(ft_to_in/k_to_lb)-BRACKETS(Mnp/Ssc*(ft_to_in/k_to_lb)-PI**2*E/Cp**2)*(yeq-y1e)/(Cp-y1e) , 'ksi', code_ref='ADM B.5.5.5')
     else:
-        CheckVariablesText(yw, '>=', y2bw)
+        CheckVariablesText(yeq, '>=', Cp)
         BodyText('Post-buckling controls')
-        Fbescw = CalcVariable('F_{bescw}', k2b*SQRT(Bbr*E)/(mwb*yw), 'ksi')
-
-    BodyHeader('Member Local Buckling (ADM F.3.1)')
-    # Fee = CalcVariable('F_{ee}', PI**2*E/(5*BRACKETS(bsc-twsc-Rsc)/tfsc)**2, 'ksi', code_ref='ADM Table B.5.1') # for flanges
-    # yeq = CalcVariable('\lambda_{eq}', PI*SQRT(E/Fee), '', code_ref='B.5-11') # for flanges
-    ccf = CalcVariable('c_{cf}', (dsc-tfsc)/2, 'in', 'Distance from the centerline of the flange to the channel neutral axis')
-    ccw = CalcVariable('c_{cw}', dsc/2 - tfsc, 'in', 'Distance from the extreme flexural fiber of the web to the channel neutral axis')
-    Ifsc = CalcVariable('I_{fsc}', 2 * BRACKETS(bsc*tfsc**3/12 + (Asc - 2*ccw*twsc)/2 * ccf**2), 'in^4', 'Moment of inertia of the flanges about the channel neutral axis')
-    Iwsc = CalcVariable('I_{wsc}', twsc*(2*ccw)**3 / 12, 'in^4', 'Moment of inertia of the web about the channel neutral axis')
-    Mnlb = CalcVariable('M_{nlb}', Fcescf*Ifsc/ccf + Fbescw*Iwsc/ccw, 'kip-in', 'Weighted average local buckling strength', code_ref='ADM F.3-1')
-
-    PMnlb = CalcVariable('\phi M_{nlb}', Pby*Mnlb*(k_to_lb/ft_to_in), 'lbs-ft', 'Local buckling limit state moment capacity')
+        Fbsc = CalcVariable('F_{bsc}', k2b*SQRT(Bp*E)/yeq, 'ksi', code_ref='ADM B.5.5.5')
+    PMnlb = CalcVariable('\phi M_{nlb}', Pby*Fbsc*Ssc*(k_to_lb/ft_to_in), 'lbs-ft', 'Local buckling limit state moment capacity', code_ref='ADM F.3-2')
 
     BodyHeader('Lateral-Torsional Buckling (ADM F.4)')
     Cb = CalcVariable('C_b', 1.0, '', code_ref='ADM F.4.1(a)')
@@ -289,6 +248,7 @@ def create_calculation(updated_input={}):
     BodyHeader('Controlling Strength')
     PMnsc = CalcVariable('\phi M_{nsc}', MIN(PMnp, PMnu, PMnlb,  PMnmb), 'lbs-ft', 'Member moment strength')
     CheckVariable( Musc, '<=', PMnsc, truestate="OK", falsestate="ERROR", result_check=True)
+
 
 
     BodyHeader('Stair Stringer Shear and Torsion Design (ADM Chapter H.2)', head_level=2) ######################################################################################
@@ -347,10 +307,6 @@ def create_calculation(updated_input={}):
     dcrall = CalcVariable('DCR_{ALL}', Pusc/PPnsc + (Musc/PMnsc)**2 + (Ttsc/PVsc)**2, '', 'Combined axial, flexural, and shear/torsion demand-capacity-ratio for member design', code_ref='H.3-1')
     CheckVariable( dcrall, '<=', 1, truestate="OK", falsestate="ERROR", description="", code_ref="", result_check=True)
 
-
-#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
-
     # Platform rectangular member design       ###########################################################################################################
 
     BodyHeader('Platform rectangular main beam design (perpendicular to stringer)', head_level=1) # length = L_TP
@@ -396,7 +352,6 @@ def create_calculation(updated_input={}):
 
 
     BodyHeader('Local Buckling (ADM F.3.2)')
-    y1e = CalcVariable('\lambda_{1e}', (Bp-Fcy)/Dp, '')
     Feer = CalcVariable('F_{eer}', PI**2*E/(1.6*BRACKETS(bpr-2*tpr)/tpr)**2, 'ksi', code_ref='ADM Table B.5.1')
     yeqr = CalcVariable('\lambda_{eqr}', PI*SQRT(E/Feer), '', code_ref='B.5-15')
 
@@ -431,7 +386,6 @@ def create_calculation(updated_input={}):
     PMnpr = CalcVariable('\phi M_{npr}', MIN(PMnp, PMnu, PMnlb,  PMnmb), 'lbs-ft', 'Member moment strength')
     CheckVariable( Mupr, '<=', PMnpr, truestate="OK", falsestate="ERROR", result_check=True)
 
-#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 
     # Platform channel member design       ###########################################################################################################
@@ -486,50 +440,24 @@ def create_calculation(updated_input={}):
     PMnp = CalcVariable('\phi M_{np}', Pby*Mnp,'lbs-ft')
     PMnu = CalcVariable('\phi M_{nu}', Pbr*Zpc*Ftu/kt*(k_to_lb/ft_to_in), 'lbs-ft', 'Rupture limit state moment capacity', code_ref='ADM F.2-1' )
 
+    BodyHeader('Local Buckling (ADM F.3.2)')
 
-    BodyHeader('Flange Local Buckling (ADM B.5.4.1)')
-    yfp = CalcVariable('b_f/t_f', (bpc-twpc-Rpc)/tfpc, '')
+    Feec = CalcVariable('F_{eec}', PI**2*E/(5*BRACKETS(bpc-twpc-Rpc)/tfpc)**2, 'ksi', code_ref='ADM Table B.5.1')
+    yeqc = CalcVariable('\lambda_{eqc}', PI*SQRT(E/Feec), '', code_ref='B.5-11')
 
-    if yfp.result() <= y1ef.result():
-        CheckVariablesText(yfp, '<=', y1ef)
+    if yeqc.result() <= y1e.result():
+        CheckVariablesText(yeqc, '<=', y1e)
         BodyText('Member yielding controls')
-        Fcepcf = CalcVariable('F_{cepcf}', Fcy, 'ksi')
-    elif yfp.result() < y2ef.result():
-        CheckVariablesText(y1ef, '<', yfp, '<', y2ef)
+        Fbpc = CalcVariable('F_{bpc}', Mnp/Spc*(ft_to_in/k_to_lb), 'ksi', code_ref='ADM B.5.5.5')
+    elif yeqc.result() < Cp.result():
+        CheckVariablesText(y1e, '<', yeqc, '<', Cp)
         BodyText('Inelastic buckling controls')
-        Fcepcf = CalcVariable('F_{cepcf}', Bp-5*Dp*yfp , 'ksi')
+        Fbpc = CalcVariable('F_{bpc}', Mnp/Spc*(ft_to_in/k_to_lb)-BRACKETS(Mnp/Spc*(ft_to_in/k_to_lb)-PI**2*E/Cp**2)*(yeqc-y1e)/(Cp-y1e) , 'ksi', code_ref='ADM B.5.5.5')
     else:
-        CheckVariablesText(yfp, '>=', y2ef)
-        BodyText('Elastic buckling controls')
-        Fcepcf = CalcVariable('F_{cepcf}', PI**2*E/(5*yfp)**2, 'ksi')
-
-
-    BodyHeader('Web Local Flexural Strength (ADM B.5.5.1)')
-    ywpc = CalcVariable('b_w/t_w', (dpc-2*tfpc-2*Rpc)/twpc, '')
-
-    if ywpc.result() <= y1bw.result():
-        CheckVariablesText(ywpc, '<=', y1bw)
-        BodyText('Member yielding controls')
-        Fbepcw = CalcVariable('F_{bepcw}', 1.5*Fcy, 'ksi')
-    elif yw.result() < y2cw.result():
-        CheckVariablesText(y1bw, '<', ywpc, '<', y2bw)
-        BodyText('Inelastic buckling controls')
-        Fbepcw = CalcVariable('F_{bepcw}', Bbr-mwb*Dbr*ywpc , 'ksi')
-    else:
-        CheckVariablesText(ywpc, '>=', y2bw)
+        CheckVariablesText(yeqc, '>=', Cp)
         BodyText('Post-buckling controls')
-        Fbepcw = CalcVariable('F_{bepcw}', k2b*SQRT(Bbr*E)/(mwb*ywpc), 'ksi')
-
-
-    BodyHeader('Member Local Buckling (ADM F.3.1)')
-
-    ccfp = CalcVariable('c_{cf}', (dpc-tfpc)/2, 'in', 'Distance from the centerline of the flange to the channel neutral axis')
-    ccwp = CalcVariable('c_{cw}', dpc/2 - tfpc, 'in', 'Distance from the extreme flexural fiber of the web to the channel neutral axis')
-    Ifpc = CalcVariable('I_{fpc}', 2 * BRACKETS(bpc*tfpc**3/12 + (Apc - 2*ccwp*twpc)/2 * ccfp**2), 'in^4', 'Moment of inertia of the flanges about the channel neutral axis')
-    Iwpc = CalcVariable('I_{wpc}', twpc*(2*ccwp)**3 / 12, 'in^4', 'Moment of inertia of the web about the channel neutral axis')
-    Mnlbp = CalcVariable('M_{nlb}', Fcepcf*Ifpc/ccfp + Fbepcw*Iwpc/ccwp, 'kip-in', 'Weighted average local buckling strength', code_ref='ADM F.3-1')
-
-    PMnlbp = CalcVariable('\phi M_{nlb}', Pby*Mnlbp*(k_to_lb/ft_to_in), 'lbs-ft', 'Local buckling limit state moment capacity')
+        Fbpc = CalcVariable('F_{bpc}', k2b*SQRT(Bp*E)/yeqc, 'ksi', code_ref='ADM B.5.5.5')
+    PMnlb = CalcVariable('\phi M_{nlb}', Pby*Fbpc*Spc*(k_to_lb/ft_to_in), 'lbs-ft', 'Local buckling limit state moment capacity', code_ref='ADM F.3-2')
 
 
     BodyHeader('Lateral-Torsional Buckling (ADM F.4)')
@@ -546,11 +474,9 @@ def create_calculation(updated_input={}):
         BodyText('Elastic lateral torsional buckling controls')
         PMnmb = CalcVariable('\phi M_{nmb}', Pby*PI**2*E*Spc/ybpc**2*k_to_lb/ft_to_in, 'lbs-ft', 'Lateral torsional buckling moment capacity', code_ref='ADM F.4')
 
-
     BodyHeader('Controlling Strength')
-    PMnpc = CalcVariable('\phi M_{npc}', MIN(PMnp, PMnu, PMnlbp,  PMnmb), 'lbs-ft', 'Member moment strength')
+    PMnpc = CalcVariable('\phi M_{npc}', MIN(PMnp, PMnu, PMnlb,  PMnmb), 'lbs-ft', 'Member moment strength')
     CheckVariable( Mupc, '<=', PMnpc, truestate="OK", falsestate="ERROR", result_check=True)
-
 
     BodyHeader('Mid-Level Platform Design and Platform Tributary Weights', head_level=2)
 
