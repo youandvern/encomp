@@ -18,9 +18,32 @@ import os
 def index():
     return render_template('index.html', index = True)
 
-@application.route("/index2")
-def index2():
-    return render_template('index2.html', index2 = True)
+
+
+@application.route("/about")
+def about():
+    return render_template('about.html', about = True)
+
+
+
+@application.route("/contact", methods=['GET', 'POST'])
+def contact():
+    form = ContactForm()
+    if form.validate_on_submit():
+        subject = form.subject.data
+        msg = Message(form.subject.data, sender='team@encompapp.com', recipients=['team@encompapp.com'])
+        msg.body = """
+        From: %s <%s>
+        %s
+        """ % (form.name.data, form.email.data, form.message.data)
+        mail.send(msg)
+        flash(f"Thank you for contacting us. We will reach out to you as soon as possible.", "success")
+        return redirect(url_for('index'))
+    # else:
+    #     flash("All fields required")
+    return render_template('contact.html', contact = True, form = form)
+
+
 
 @application.route("/myprojects", methods=['GET', 'POST'])
 def landing():
@@ -125,26 +148,6 @@ def landing():
 
     return render_template('landing.html', my_projects=my_projects, project_calcs=project_calcs, select_comment=select_comment, pform = pform, cform=cform, pnameform = pnameform,current_p_description =session.get('current_p_description'), current_p_name = session.get('current_p_name'),  project=True)
 
-@application.route("/about")
-def about():
-    return render_template('about.html', about = True)
-
-@application.route("/contact", methods=['GET', 'POST'])
-def contact():
-    form = ContactForm()
-    if form.validate_on_submit():
-        subject = form.subject.data
-        msg = Message(form.subject.data, sender='team@encompapp.com', recipients=['team@encompapp.com'])
-        msg.body = """
-        From: %s <%s>
-        %s
-        """ % (form.name.data, form.email.data, form.message.data)
-        mail.send(msg)
-        flash(f"Thank you for contacting us. We will reach out to you as soon as possible.", "success")
-        return redirect(url_for('index'))
-    # else:
-    #     flash("All fields required")
-    return render_template('contact.html', contact = True, form = form)
 
 
 @application.route("/login", methods=['GET', 'POST'])
@@ -192,6 +195,8 @@ def login():
     return render_template("login.html", login=True, form=form, formR=formR)
 
 
+
+
 @application.route("/logout")
 def logout():
     current_user_id = session.get('user_id')
@@ -206,86 +211,8 @@ def logout():
     flash("You have been logged out.", "success")
     return redirect(url_for('index'))
 
-@application.route("/register", methods=['GET', 'POST'])
-def register():
-    if session.get('username'):
-        flash(f"You are already registered, {session.get('username')}")
-        return redirect(url_for('index'))
-    form = RegisterForm()
-    if form.validate_on_submit():
-        email = form.email.data
-        password = form.password.data
-        first_name = form.first_name.data
-        last_name = form.last_name.data
-
-        user = User( email=email, first_name=first_name, last_name=last_name) # user_id=ObjectId(),
-        user.set_password(password)
-        user.save()
-
-        flash("You are successfully registered", "success")
-        return redirect(url_for('index'))
-
-    return render_template("register.html", title="New User Registration", register=True, form=form)
 
 
-@application.route("/addproject", methods=['GET', 'POST'])
-def addproject():
-    if not session.get('username'):
-        flash("You are not logged in")
-        return redirect(url_for('index'))
-    form = ProjectForm()
-    if form.validate_on_submit():
-        project_name = form.project_name.data
-        description = form.description.data
-
-        project = Project( project_name=project_name, description=description, user_id=session.get('user_id')) # user_id=ObjectId(),
-        project.save()
-
-        flash(f"You have saved {project_name}", "success")
-        return redirect(url_for('landing'))
-
-    return render_template("addproject.html", title="New Project", project=True, form=form)
-
-@application.route("/addcalc", methods=['GET', 'POST'])
-def addcalc():
-    if not session.get('username'):
-        flash("You are not logged in")
-        return redirect(url_for('index'))
-    form = CalcForm()
-    if form.validate_on_submit():
-        calc_name = form.calc_name.data
-        description = form.description.data
-        calc_type = form.calc_type.data
-
-        calc_type_id = '5fa9c9b693dbf6a9101aae15'
-        project_id = '5fa9c9b693dbf6a9101aae15'
-        calc_input_dict = '{"a" : 3, "b" : 4}'
-
-        calc = CalcInput( calc_name=calc_name, description=description, calc_type_id=calc_type_id, project_id=project_id, calc_input_dict=calc_input_dict) # user_id=ObjectId(),
-        calc.save()
-
-        flash(f"You have saved {calc_name}", "success")
-        return redirect(url_for('landing'))
-
-    return render_template("addcalc.html", title="New Calculation", project=True, form=form)
-
-@application.route("/addtype", methods=['GET', 'POST'])
-def addtype():
-    if not session.get('username'):
-        flash("You are not logged in")
-        return redirect(url_for('index'))
-    form = CalcTypeForm()
-    if form.validate_on_submit():
-        type_name = form.type_name.data
-        description = form.description.data
-
-        calctype = CalcType( type_name=type_name, description=description)
-        calctype.save()
-
-        flash(f"You have saved {type_name}", "success")
-        return redirect(url_for('landing'))
-
-    return render_template("addtype.html", title="New Calculation Type", project=True, form=form)
 
 @application.route("/design_dashboard", methods=['GET', 'POST'])
 def design_dashboard():
@@ -422,6 +349,8 @@ def design_dashboard():
     return render_template("design.html", calculation_name= current_calc.calc_name,calculation_description=current_calc.description, calc_inputs=calc_inputs, calc_results=calc_results, calcnameform=calcnameform,  design=True)
 
 
+
+
 @application.route("/calcreport<print_report>", methods=['GET', 'POST'])
 def calcreport(print_report):
     current_calc = CalcInput.objects( _id = session['current_calc_id'] ).first()
@@ -442,6 +371,8 @@ def calcreport(print_report):
     calcstrings = stringsdict['calc']
 
     return render_template("calculations/view_calc_report.html", print_report=print_report, calc_title = calc_name, headstrings = headstrings, assumstrings = assumstrings, assum_length=assum_length, setupstrings=setupstrings, calcstrings=calcstrings, left_header=left_header, center_header=center_header, right_header=right_header )
+
+
 
 
 @application.route("/exportcalculation")

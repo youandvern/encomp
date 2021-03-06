@@ -2,10 +2,7 @@
 
     {% block content %}
 <div class="container">
-    <div class="row centerdiv">
-        <div class="sidecontainer"></div>
-        <div class="col-md-6 offset-md-3">
-          <div class="column-forms">
+    <div class="column-forms">
 
             <div class="split-form">
               <form class="user-form" name="register" action="" method="post" novalidate>
@@ -14,36 +11,36 @@
                   {{ formR.hidden_tag() }}
 
                   <div>
-                    <p>{{ formR.email.label }}</p>
-                    {{ formR.email(size=35) }}
-                    {% for error in formR.email.errors %}
+                    <p>{{ formR.emailR.label }}</p>
+                    {{ formR.emailR(size=35, autocomplete="email") }}
+                    {% for error in formR.emailR.errors %}
                       <span class="error-message">{{ error }}</span>
                     {% endfor %}
                   </div>
                   <div>
-                    <p>{{ formR.password.label }}</p>
-                    {{ formR.password(size=25) }}
-                    {% for error in formR.password.errors %}
+                    <p>{{ formR.passwordR.label }}</p>
+                    {{ formR.passwordR(size=20, autocomplete="new-password") }}
+                    {% for error in formR.passwordR.errors %}
                       <span class="error-message">{{ error }}</span>
                     {% endfor %}
                   </div>
                   <div>
                     <p>{{ formR.password_confirm.label }}</p>
-                    {{ formR.password_confirm(size=25) }}
+                    {{ formR.password_confirm(size=20, autocomplete="new-password") }}
                     {% for error in formR.password_confirm.errors %}
                       <span class="error-message">{{ error }}</span>
                     {% endfor %}
                   </div>
                   <div>
                     <p>{{ formR.first_name.label }}</p>
-                    {{ formR.first_name(size=25) }}
+                    {{ formR.first_name(size=25, autocomplete="given-name") }}
                     {% for error in formR.first_name.errors %}
                       <span class="error-message">{{ error }}</span>
                     {% endfor %}
                   </div>
                   <div>
                     <p>{{ formR.last_name.label }}</p>
-                    {{ formR.last_name(size=25) }}
+                    {{ formR.last_name(size=25, autocomplete="family-name") }}
                     {% for error in formR.last_name.errors %}
                       <span class="error-message">{{ error }}</span>
                     {% endfor %}
@@ -63,14 +60,14 @@
 
                   <div>
                     <p>  {{ form.email.label }}</p>
-                    {{ form.email(size=35) }}
+                    {{ form.email(size=35, autocomplete="username") }}
                     {% for error in form.email.errors %}
                       <span class="error-message">{{ error }}</span>
                     {% endfor %}
                   </div>
                   <div>
                     <p>{{ form.password.label }}</p>
-                    {{ form.password(size=20) }}
+                    {{ form.password(size=20, autocomplete="current-password") }}
                     {% for error in form.password.errors %}
                       <span class="error-message">{{ error }}</span>
                     {% endfor %}
@@ -82,9 +79,6 @@
               </form>
             </div>
 
-          </div>
-        </div>
-        <div class="sidecontainer"></div>
     </div>
 </div>
  {% endblock %}

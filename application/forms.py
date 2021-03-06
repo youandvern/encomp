@@ -11,15 +11,15 @@ class LoginForm(FlaskForm):
     login_submit = SubmitField("Login")
 
 class RegisterForm(FlaskForm):
-    email = StringField("Email", validators=[DataRequired(), Email()])
-    password = PasswordField("Password", validators=[DataRequired(), Length(min=6, max=20, message='Password must be 6-20 characters.')])
+    emailR = StringField("Email", validators=[DataRequired(), Email()])
+    passwordR = PasswordField("Password", validators=[DataRequired(), Length(min=6, max=20, message='Password must be 6-20 characters.')])
     password_confirm = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo('password', message='Passwords do not match.')])
     first_name = StringField("First Name", validators=[DataRequired()])
     last_name = StringField("Last Name", validators=[DataRequired()])
     register_submit = SubmitField("Create Account")
 
     def validate_email(self, email):
-        user = User.objects(email=email.data).first()  # finds first occurance of email in all db emails
+        user = User.objects(email=emailR.data).first()  # finds first occurance of email in all db emails
         if user:  #if email is found in db:
             raise ValidationError("Email is already registered.")
 
