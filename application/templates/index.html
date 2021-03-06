@@ -10,13 +10,11 @@
             <h2>Let's get started.</h2>
             <h4>Welcome back, <span class="blue-text"> <b>{{ session.get('username') }}.</b></span></h4>
             <br>
-            <!-- <a class="logout-button" id="index-logout" href="{{url_for('logout') }}">Logout</a> -->
             {% else %}
             <br>
             <h2> Welcome to <span class="blue-text"><b>EnComp</b></span>! Let's get started. </h2>
             <br><br>
-            <!-- <p>Already registered? <a href="{{url_for('login') }}">Login</a></p>
-            <p>First time here? <a href="{{url_for('register') }}">Create a free account</a> </p> -->
+
             {% endif %}
             </div>
     </div>
