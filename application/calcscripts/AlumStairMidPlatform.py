@@ -38,9 +38,9 @@ def create_calculation(updated_input={}):
     Ltp = DeclareVariable('L_{tp}', 5.5, 'ft', 'Length of top platform (parallel to stringer)')
 
 
-    Ftu = DeclareVariable('F_{tuw}', 24, 'ksi', 'Tensile ultimate strength', code_ref='ADM Table A.3.3')
-    Fty = DeclareVariable('F_{tyw}', 15, 'ksi', 'Tensile yield strength', code_ref = 'ADM Table A.3.3')
-    Fcy = DeclareVariable('F_{cyw}', 15, 'ksi', 'Compressive yield strength', code_ref='ADM Table A.3.1')
+    Ftu = DeclareVariable('F_{tuw}', 24, 'ksi', 'Tensile ultimate strength (welded)', code_ref='ADM Table A.3.3')
+    Fty = DeclareVariable('F_{tyw}', 15, 'ksi', 'Tensile yield strength (welded)', code_ref = 'ADM Table A.3.3')
+    Fcy = DeclareVariable('F_{cyw}', 15, 'ksi', 'Compressive yield strength (welded)', code_ref='ADM Table A.3.1')
     kt = DeclareVariable('k_t', 1, '', 'Tension coefficient', code_ref='ADM Table A.3.3')
     E = DeclareVariable('E', 10100, 'ksi', 'Modulus of Elasticity', code_ref='ADM Table A.3.1')
     G = DeclareVariable('G', 3800, 'ksi', 'Shear modulus of elasticity', code_ref='ADM Table A.3.1')
@@ -342,9 +342,9 @@ def create_calculation(updated_input={}):
     BodyHeader('Stair Stringer Combined Loading Design', head_level=2) ######################################################################################
     # dcrp = CalcVariable('DCR_P', Pusc/PPnsc, '', 'Demand-capacity-ratio for axial load design')
     # dcrm = CalcVariable('DCR_M', Musc/PMnsc, '', 'Demand-capacity-ratio for flexural design')
-    dcrcom = CalcVariable('DCR_{PM}', Pusc/PPnsc + Musc/PMnsc, '', 'Combined axial and flexural demand-capacity-ratio for member design', code_ref='H.1-1')
+    dcrcom = CalcVariable('DCR_{PM}', Pusc/PPnsc + Musc/PMnsc, '', 'Combined axial and flexural demand-capacity-ratio for member design', code_ref='ADM H.1-1')
     CheckVariable( dcrcom, '<=', 1, truestate="OK", falsestate="ERROR", description="", code_ref="", result_check=True)
-    dcrall = CalcVariable('DCR_{ALL}', Pusc/PPnsc + (Musc/PMnsc)**2 + (Ttsc/PVsc)**2, '', 'Combined axial, flexural, and shear/torsion demand-capacity-ratio for member design', code_ref='H.3-1')
+    dcrall = CalcVariable('DCR_{ALL}', Pusc/PPnsc + (Musc/PMnsc)**2 + (Ttsc/PVsc)**2, '', 'Combined axial, flexural, and shear/torsion demand-capacity-ratio for member design', code_ref='ADM H.3-1')
     CheckVariable( dcrall, '<=', 1, truestate="OK", falsestate="ERROR", description="", code_ref="", result_check=True)
 
 
@@ -370,7 +370,7 @@ def create_calculation(updated_input={}):
     BodyHeader('Platform Main Beam Load Demands', head_level=2) ######################################################################################
     Lpr = CalcVariable('L_{pr}', Wtp, 'ft', 'Length of main beam (max)')
     apr = CalcVariable('a_{pr}', (Lpr-Wtr)/2, 'ft', 'Average distance from stringer load to end of beam')
-    wpr = CalcVariable('w_{dpr}', BRACKETS(DL+LL)*Ltp/2+wswpr,'lsb/ft', 'Distributed load on main beam')
+    wpr = CalcVariable('w_{dpr}', BRACKETS(DL+LL)*Ltp/2+wswpr,'lbs/ft', 'Distributed load on main beam')
     # Resc
     BodyText('Conservatively assume stair stringer reactions are centered on the main beam. Distance between reactions will be equal to the stair tread width.')
     Mupr = CalcVariable('M_{upr}', Fosha*BRACKETS(wpr*Lpr**2/8 + Resc*apr), 'lbs-ft', 'Factored moment on main beam')
@@ -442,7 +442,7 @@ def create_calculation(updated_input={}):
 
 
     BodyHeader('Lateral-Torsional Buckling (ADM F.4)')
-    Cb = CalcVariable('C_b', 1.0, '', code_ref='ADM F.4.1(a)')
+    Cb = CalcVariable('C_b', 1.0, '', code_ref='ADM F.4.1')
     ybpr = CalcVariable('\lambda_{bpr}', 2.3*SQRT(Lpr*Spr/(Cb*SQRT(Iypr*Jpr))), '', code_ref='ADM F.4-6')
 
     if ybpr.result() < Cc.result():
@@ -486,7 +486,7 @@ def create_calculation(updated_input={}):
 
 
     BodyHeader('Platform Channel Beam Load Demands', head_level=2) ######################################################################################
-    Lpc = CalcVariable('L_{pc}', Ltp, 'ft', 'Length of platform channel beam (max)')
+    Lpc = CalcVariable('L_{pc}', MAX(Ltp, Wtp), 'ft', 'Length of platform channel beam (max)')
     wdpc = CalcVariable('w_{dpc}', DL*Wtp/2+wswpc,'lbs/ft', 'Distributed dead load on platform channel beam')
     wpc = CalcVariable('w_{pc}', LL*Wtp/2+wdpc,'lbs/ft', 'Distributed dead and live load on platform channel beam')
 
