@@ -65,5 +65,10 @@ def create_calculation(updated_input={}):
     else:
         BodyHeader('Demand is greater than capacity, design fails')
 
-    calculation_sum = {'head':HeadCollection.head_instances, 'assum': AssumCollection.assum_instances, 'setup':SetupCollection.setup_instances, 'calc':CalcCollection.calc_instances, 'foot':FootCollection.foot_instances}
-    return calculation_sum
+    return {
+        'head': HeadCollection.head_instances,
+        'assum': AssumCollection.assum_instances,
+        'setup': SetupCollection.setup_instances,
+        'calc': CalcCollection.calc_instances,
+        'foot': FootCollection.foot_instances,
+    }
