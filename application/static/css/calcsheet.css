@@ -9,6 +9,7 @@
   --brandRed: #bf211e;
 }
 
+/* random */
 body {
         counter-reset: h2counter;
     }

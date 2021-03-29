@@ -2,35 +2,83 @@
 
     {% block content %}
 <div class="container">
-    <div class="row centerdiv">
-        <div class="sidecontainer"></div>
-        <div class="col-md-6 offset-md-3">
-            <form class="user-form" name="login" action="" method="post" novalidate>
-              <fieldset class="form-group">
-                <legend>{{title}}</legend>
-                {{ form.hidden_tag() }}
+    <div class="column-forms">
 
-                <div>
-                  <p>  {{ form.email.label }}</p>
-                  {{ form.email(size=35) }}
-                  {% for error in form.email.errors %}
-                    <span class="error-message">{{ error }}</span>
-                  {% endfor %}
-                </div>
-                <div>
-                  <p>{{ form.password.label }}</p>
-                  {{ form.password(size=20) }}
-                  {% for error in form.password.errors %}
-                    <span class="error-message">{{ error }}</span>
-                  {% endfor %}
-                </div>
-                <div>
-                  {{ form.submit(class="btn-submit", onclick="clearProjectStorage()") }}
-                </div>
-                </fieldset>
-            </form>
-        </div>
-        <div class="sidecontainer"></div>
+            <div class="split-form">
+              <form class="user-form" name="register" action="" method="post" novalidate>
+                <fieldset class="form-group">
+                  <legend>Register</legend>
+                  {{ formR.hidden_tag() }}
+
+                  <div>
+                    <p>{{ formR.emailR.label }}</p>
+                    {{ formR.emailR(size=35, autocomplete="email") }}
+                    {% for error in formR.emailR.errors %}
+                      <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                  <div>
+                    <p>{{ formR.passwordR.label }}</p>
+                    {{ formR.passwordR(size=20, autocomplete="new-password") }}
+                    {% for error in formR.passwordR.errors %}
+                      <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                  <div>
+                    <p>{{ formR.password_confirm.label }}</p>
+                    {{ formR.password_confirm(size=20, autocomplete="new-password") }}
+                    {% for error in formR.password_confirm.errors %}
+                      <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                  <div>
+                    <p>{{ formR.first_name.label }}</p>
+                    {{ formR.first_name(size=25, autocomplete="given-name") }}
+                    {% for error in formR.first_name.errors %}
+                      <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                  <div>
+                    <p>{{ formR.last_name.label }}</p>
+                    {{ formR.last_name(size=25, autocomplete="family-name") }}
+                    {% for error in formR.last_name.errors %}
+                      <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                  <div>
+                    {{ formR.register_submit(class="btn-submit") }}
+                  </div>
+                  </fieldset>
+              </form>
+            </div>
+
+            <div class="split-form">
+              <form class="user-form" name="login" action="" method="post" novalidate>
+                <fieldset class="form-group">
+                  <legend>Login</legend>
+                  {{ form.hidden_tag() }}
+
+                  <div>
+                    <p>  {{ form.email.label }}</p>
+                    {{ form.email(size=35, autocomplete="username") }}
+                    {% for error in form.email.errors %}
+                      <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                  <div>
+                    <p>{{ form.password.label }}</p>
+                    {{ form.password(size=20, autocomplete="current-password") }}
+                    {% for error in form.password.errors %}
+                      <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                  <div>
+                    {{ form.login_submit(class="btn-submit", onclick="clearProjectStorage()") }}
+                  </div>
+                  </fieldset>
+              </form>
+            </div>
+
     </div>
 </div>
  {% endblock %}

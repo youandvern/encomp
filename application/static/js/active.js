@@ -1,5 +1,25 @@
 // WINDOW.FOCUS()
 
+function set_project_id(btnid) {
+  // '<%Session["UserName"] = "' + userName + '"; %>';
+  window.localStorage.setItem('current_project', btnid);
+}
+
+function highlight_project() {
+  var btnid = window.localStorage.getItem('current_project')
+  var select_btn = document.getElementById(btnid);
+  if(select_btn) {
+    var list = document.getElementsByClassName("project-bullet-selected");
+    if(list[0]){
+      for (var i=0, item; item = list[i]; i++) {
+        item.classList.remove("project-bullet-selected");
+      }
+    }
+    select_btn.classList.add("project-bullet-selected");
+  }
+}
+highlight_project();
+
 
 // https://www.w3schools.com/howto/howto_js_slideshow.asp
 var slideIndex = 1;
@@ -22,17 +42,20 @@ function showSlides(n) {
   var i;
   var slides = document.getElementsByClassName("index-video-slide");
   var dots = document.getElementsByClassName("dot");
-  if (n > slides.length) {slideIndex = 1}
-  if (n < 1) {slideIndex = slides.length}
-  for (i = 0; i < slides.length; i++) {
-      slides[i].style.display = "none";
+  if (slides.length > 0 && dots.length > 0){
+    if (n > slides.length) {slideIndex = 1}
+    if (n < 1) {slideIndex = slides.length}
+    for (i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+    }
+    for (i = 0; i < dots.length; i++) {
+        dots[i].className = dots[i].className.replace(" slide-active", "");
+    }
+    slides[slideIndex-1].style.display = "block";
+    dots[slideIndex-1].className += " slide-active";
+    timeoutVar = setTimeout(function() { plusSlides(1); }, 6000); // Change image every 6 seconds
   }
-  for (i = 0; i < dots.length; i++) {
-      dots[i].className = dots[i].className.replace(" slide-active", "");
-  }
-  slides[slideIndex-1].style.display = "block";
-  dots[slideIndex-1].className += " slide-active";
-  timeoutVar = setTimeout(function() { plusSlides(1); }, 6000); // Change image every 6 seconds
+
 }
 
 
@@ -126,6 +149,7 @@ function dragElement(elmnt) {
     var moveables = elmnt.querySelectorAll(':not(select):not(form):not(fieldset):not(div):not(input):not(button):not(textarea)');
     var numelmnt = moveables.length;
     for (var i = 0; i < numelmnt; i++) {
+      moveables[i].style.cursor = "grab";
       moveables[i].onmousedown = dragMouseDown;
       //Do something
     }
@@ -158,30 +182,11 @@ function dragElement(elmnt) {
 
   function closeDragElement() {
     // stop moving when mouse button is released:
+
     document.onmouseup = null;
     document.onmousemove = null;
   }
 }
-
-function set_project_id(btnid) {
-  // '<%Session["UserName"] = "' + userName + '"; %>';
-  window.localStorage.setItem('current_project', btnid);
-}
-
-function highlight_project() {
-  var btnid = window.localStorage.getItem('current_project')
-  var select_btn = document.getElementById(btnid);
-  if(select_btn) {
-    var list = document.getElementsByClassName("project-bullet-selected");
-    if(list[0]){
-      for (var i=0, item; item = list[i]; i++) {
-        item.classList.remove("project-bullet-selected");
-      }
-    }
-    select_btn.classList.add("project-bullet-selected");
-  }
-}
-highlight_project();
 
 
 

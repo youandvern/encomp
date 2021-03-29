@@ -41,6 +41,7 @@ nav .nav-project a.nav-link {
 nav ul {
   display: flex;
   justify-content: space-evenly;
+  padding-inline-start: 0;
 }
 nav {
   margin-bottom: 2.5em;
@@ -156,6 +157,12 @@ li {
     text-decoration: none;
     color: blue;
 } */
+
+div.column-forms {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
 
 
 form legend {
