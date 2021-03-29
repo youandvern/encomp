@@ -45,7 +45,8 @@ def create_calculation(updated_input={}):
     Vs = DeclareVariable('V_s', 4, 'kips', 'Design seismic base shear for platform')
     Vv = DeclareVariable('V_v', 1, 'kips', 'Design seismic vertical load for platform')
 
-    wp = DeclareVariable('w_p', 5, 'ft', 'Width of platform (minimum)')
+    wp = DeclareVariable('w_{pn}', 4, 'ft', 'Spacing of columns (min)')
+    wpx = DeclareVariable('w_{px}', 6, 'ft', 'Spacing of columns (max)')
     hp = DeclareVariable('h_p', 10, 'ft', 'Height of platform column from base')
     Lbc = DeclareVariable('L_{bc}', 10, 'ft', 'Column unbraced length')
     Kc = DeclareVariable('k_{c}', 1, '', 'Column effective length factor')
@@ -206,7 +207,7 @@ def create_calculation(updated_input={}):
     BodyHeader('Brace Compression Design (ADM Chapter E)', head_level=2) ######################################################################################
 
     BodyHeader('Member Buckling (ADM E.2)')
-    Lbb = CalcVariable('L_{bb}', SQRT(wp**2 + (hp/Numb)**2), 'ft', 'Length of brace member')
+    Lbb = CalcVariable('L_{bb}', SQRT(wpx**2 + (hp/Numb)**2), 'ft', 'Length of brace member')
     Kb = CalcVariable('K_b', 1.0, '', 'Brace member effective length factor')
     ybf = CalcVariable('\lambda_{cf}', Kb * Lbb * ft_to_in / rbmin, '', 'Member slenderness ratio for flexural buckling', code_ref='ADM E.2.1')
 
