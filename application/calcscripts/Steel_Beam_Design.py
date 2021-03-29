@@ -16,7 +16,6 @@ def create_calculation(updated_input={}):
 
 
 
-
     ###   DEFINE TITLE, DESCRIPTION, ASSUMPTIONS, AND INPUTS   ###
 
     CalculationTitle('Simply Supported Beam Design')
