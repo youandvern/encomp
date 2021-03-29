@@ -1,4 +1,4 @@
-from application.calcscripts.process.basedefinitions import CalculationTitle, DescriptionHead, Assumption, CheckVariable, \
+from application.calcscripts.process.basedefinitions import CalculationTitle, DescriptionHead, Assumption, CheckVariable, CheckVariablesText, \
         DeclareVariable, CalcVariable, BodyText, BodyHeader, HeadCollection, SetupCollection, CalcCollection, FootCollection, AssumCollection
 from application.calcscripts.process.calcmodels import AISCSectionsWF
 from application.calcscripts.process.listoptions import wf_section_sizes
@@ -64,7 +64,7 @@ def create_calculation(updated_input={}):
 
 
     BodyHeader('Beam Section Properties', head_level=1)
-    sectionb = AISCSectionsWF.objects(Size=section.value).first()
+    sectionb = AISCSectionsWF.objects(AISC_name=section.value).first()
     b = CalcVariable('b', sectionb.bf, 'in')
     d = CalcVariable('d', sectionb.d, 'in')
     tf = CalcVariable('t_f', sectionb.tf, 'in')
@@ -96,7 +96,7 @@ def create_calculation(updated_input={}):
     BodyHeader('ASCE Load Combinations', head_level=2)
     Wu1 = CalcVariable('W_{u1}', 1.4*wud, 'kips/ft', code_ref='ASCE 2.3.1(1)')
     Wu2 = CalcVariable('W_{u2}', 1.2*wud+1.6*wul, 'kips/ft', code_ref='ASCE 2.3.1(2)')
-    Wu = CalcVariable('W_u', MAX(Wu1, Wu2), 'Controlling load combination')
+    Wu = CalcVariable('W_u', MAX(Wu1, Wu2), 'kips/ft','Controlling load combination')
 
     BodyHeader('Beam Section Demands', head_level=2)
     Vu = CalcVariable('V_u', Wu*Lb/2, 'kips', 'Beam shear demand')
@@ -135,7 +135,7 @@ def create_calculation(updated_input={}):
 
     Aw = CalcVariable('A_w', d*tw, 'in^2', 'Area of web considered for shear resistance')
     PVn = CalcVariable('\phi V_n', Pv*0.6*Fy*Aw*Cv, 'kips', 'Design shear strength of the section', code_ref='AISC Eq. G2-1')
-    CheckVariable(Pu, '<=', PVn)
+    CheckVariable(Vu, '<=', PVn)
 
 
     BodyHeader('Beam Flexural Capacity', head_level=1)
@@ -143,13 +143,13 @@ def create_calculation(updated_input={}):
 
     BodyHeader('Section Compactness', head_level=2)
     ypf = CalcVariable('\lambda_{pf}', 0.38*SQRT(E/Fy), '', code_ref='AISC Table B4.1b(10)')
-    CheckVariable(bfl2tf, '<=', ypf, truestate="Flange is compact", falsestate="ERROR:Flange is not compact", result_check=False)
+    CheckVariable(bfl2tf, '<=', ypf, truestate="CompactFlange", falsestate="ERROR:NotCompactFlange", result_check=False)
 
     ypw = CalcVariable('\lambda_{pw}', 3.76*SQRT(E/Fy), '', code_ref='AISC Table B4.1b(15)')
-    CheckVariable(hltw, '<=', ypw, truestate="Web is compact", falsestate="ERROR:Web is not compact", result_check=False)
+    CheckVariable(hltw, '<=', ypw, truestate="CompactWeb", falsestate="ERROR:NotCompactWeb", result_check=False)
 
     BodyHeader('Plastic Moment Strength', head_level=2)
-    Mp = CalcVariable('M_{p}', Fy*Zx/ft_to_in, 'kip-ft', 'nominal plastic moment strength', code_ref='AISC Eq. F2-1')
+    Mp = CalcVariable('M_{p}', Fy*Zx/ft_to_in, 'kip-ft', 'Nominal plastic moment strength', code_ref='AISC Eq. F2-1')
 
     BodyHeader('Yielding Strength', head_level=2)
     Mny = CalcVariable('M_{ny}', Mp, 'kip-ft', code_ref='AISC Eq. F2-1')
