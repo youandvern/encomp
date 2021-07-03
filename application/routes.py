@@ -8,6 +8,36 @@ from application.mongo_query import getUserProjects, getProjCalcs, removeCalcula
 from application.calcscripts.process.compilecalc import compile_calculation
 import shutil
 import os
+import functools
+
+# decorator function to save navigation history with each new path
+def store_last_page(func):
+    # python decorator for keeping route method function identity properties
+    @functools.wraps(func)
+    # inner method to keep arguments and kw arguments if used in route method
+    def set_last_page(*args, **kwargs):
+        # set session list with first page always the index
+        if not session.get('global_page_history'):
+            session['global_page_history'] = ['index']
+        else:
+            # get name of route that was navigated to
+            page = func.__name__
+            # don't record if refreshed or same page navigated to
+            if page != session.get('global_page_history')[-1]:
+                session.get('global_page_history').append(page) # save page name
+                # flash(f"history list: {session.get('global_page_history')}")
+            else:
+                pass # repeated page, don't save
+
+        # remove first item if list is longer than 10 paths (limit stack size to 10)
+        if  len(session.get('global_page_history')) > 10:
+            session.get('global_page_history').pop(0)
+
+        # call route function and return returned variables
+        return func(*args, **kwargs)
+
+    # return wrapped function
+    return set_last_page
 
 
 
@@ -15,18 +45,20 @@ import os
 @application.route("/")
 @application.route("/index")
 @application.route("/home")
+@store_last_page
 def index():
     return render_template('index.html', index = True)
 
 
 
 @application.route("/about")
+@store_last_page
 def about():
     return render_template('about.html', about = True)
 
 
-
 @application.route("/contact", methods=['GET', 'POST'])
+@store_last_page
 def contact():
     form = ContactForm()
     if form.validate_on_submit():
@@ -44,8 +76,8 @@ def contact():
     return render_template('contact.html', contact = True, form = form)
 
 
-
 @application.route("/myprojects", methods=['GET', 'POST'])
+@store_last_page
 def landing():
     if not session.get('username'):
         return redirect(url_for('index'))
@@ -149,8 +181,8 @@ def landing():
     return render_template('landing.html', my_projects=my_projects, project_calcs=project_calcs, select_comment=select_comment, pform = pform, cform=cform, pnameform = pnameform,current_p_description =session.get('current_p_description'), current_p_name = session.get('current_p_name'),  project=True)
 
 
-
 @application.route("/login", methods=['GET', 'POST'])
+@store_last_page
 def login():
     if session.get('username'):
         flash(f"You are already logged in, {session.get('username')}")
@@ -196,8 +228,8 @@ def login():
 
 
 
-
 @application.route("/logout")
+@store_last_page
 def logout():
     current_user_id = session.get('user_id')
     # dir_path = f"C:/Users/ayoung/encomp/application/static/jsonfiles/{current_user_id}"
@@ -213,8 +245,8 @@ def logout():
 
 
 
-
 @application.route("/design_dashboard", methods=['GET', 'POST'])
+@store_last_page
 def design_dashboard():
 
     if not session.get('current_calc_id'):
@@ -295,6 +327,7 @@ def design_dashboard():
         change_calc_name   = 'change_calc_name' in form_submit_dict
         delete_calc        = 'delete_current_calc' in form_submit_dict
         export_calc        = 'export_calc' in form_submit_dict
+        go_back            = 'go_back' in form_submit_dict
 
         if update_results:
             current_calc.calc_input_dict = form_submit_dict
@@ -309,6 +342,10 @@ def design_dashboard():
             return delete_current_calculation()
         elif export_calc:
             return export_calculation()
+        elif go_back:
+            # get rid of current page from history list, then go to previous page
+            session.get('global_page_history').pop()
+            return redirect(url_for(session.get('global_page_history').pop()))
 
 
     ############------------RENDER INPUT AND OUTPUT VALUES-----------##############
@@ -350,8 +387,8 @@ def design_dashboard():
 
 
 
-
 @application.route("/calcreport<print_report>", methods=['GET', 'POST'])
+@store_last_page
 def calcreport(print_report):
     current_calc = CalcInput.objects( _id = session['current_calc_id'] ).first()
     current_calc_type = CalcType.objects( _id = current_calc.calc_type_id ).first()
@@ -374,8 +411,8 @@ def calcreport(print_report):
 
 
 
-
 @application.route("/exportcalculation")
+@store_last_page
 def export_calculation():
     if session.get('user_id') and session.get('current_calc_id'):
         current_user_id = session.get('user_id')
@@ -396,3 +433,12 @@ def export_calculation():
             flash("Current calculation not found.", "danger")
     else:
         return redirect(url_for('index'))
+
+@application.route("/api/testing", methods=["GET", "POST"])
+def test_api():
+    # input_json = request.get_json(force=True)
+    input_json = {}
+    a = input_json.get("a", 0)
+    b = input_json.get("b", 0)
+    ret_dict = {'sum':a+b, "product":a*b}
+    return ret_dict # jsonify(ret_dict)

@@ -6,7 +6,15 @@
         <div class="col-md-12 text-center container">
 
           <div class="container-fluid text-center" id="title-container">
-            <div class="beside-logo">
+            <div class="flex-left">
+
+              <div class="back-div">
+                <form action="" method="post">
+                  <input type="hidden" name="go_back" value="True">
+                  <h2 class="tight"><button class="image-only-btn in-line-button"  title="Go Back" value="go_back"><img id = "go_back_page" src="{{ url_for('static', filename='images/left_arrow_symbol.png')}}"></button></h2>
+                </form>
+              </div>
+
             </div>
 
             <div class="logo-container">
