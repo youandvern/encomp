@@ -269,3 +269,75 @@ class BodyHeader(CalcCollection):
         self.calc_instances.append(self)
     def __str__(self):
         return f"{self.text}"
+
+class DeclareTable(SetupCollection):
+    """ Declares a table style input with a numeric values and headers.
+        Table to be 2 dimensional with first row headers, units are 1 dimensional array (length = table column #s).
+    """
+    instances = []
+    def __init__(self, name, value=[[]], unit=[], description="", code_ref = "", input_type = "table", num_step="any", min_value=None, max_value=None, input_options=None):
+        self.name=name
+        self.value=value
+        # self.Value=value
+        self.unit=unit
+        self.description = description
+        self.code_ref = code_ref
+        self.input_type = input_type
+        self.num_step = num_step
+        self.min_value=min_value
+        self.max_value=max_value
+        self.input_options= input_options
+        self.unitFormat = r'\mathrm{%s}'
+        self.__class__.instances.append(self)
+        self.setup_instances.append(self)
+
+    def _set_value(self,v):
+    	if v is None:
+    		self.value = [[]]
+    	else:
+    		self.value = v
+
+    def strResultWithName(self):
+        r"""Returns string of the result of the receiver (its formatted result) including name ending with its units
+
+		:rtype: str
+
+		.. code-block:: python
+
+			>>> v1 = DeclareVariable('a_{22}',3.45,'mm', description="Section thickness")
+			>>> print v1.strResultWithDescription()
+			a_{22} = 3.45 \ \mathrm{mm}
+		"""
+        return '%s = \\ %s \\ %s'%(self.name, self.value, self.unitFormat%self.unit)
+
+class CalcTable(CalcCollection):
+    """ Declares a table style input with a numeric values and headers.
+        Table to be 2 dimensional with first row headers, units are 1 dimensional array (length = table column #s).
+    """
+    instances = []
+    def __init__(self, name, value=[[]], unit=[], description="", code_ref = "", result_check=False):
+        self.name=name
+        self.value=value
+        # self.Value=value
+        self.unit=unit
+        self.description = description
+        self.code_ref = code_ref
+        self.unitFormat = r'\mathrm{%s}'
+        self.result_check=result_check
+        self.__class__.instances.append(self)
+        self.calc_instances.append(self)
+
+    def strResultWithName(self):
+        r"""Returns string of the result of the receiver (its formatted result) including name ending with its units
+
+		:rtype: str
+
+		.. code-block:: python
+
+			>>> v1 = DeclareVariable('a_{22}',3.45,'mm', description="Section thickness")
+			>>> print v1.strResultWithDescription()
+			a_{22} = 3.45 \ \mathrm{mm}
+		"""
+        return '%s = \\ %s \\ %s'%(self.name, self.value, self.unitFormat%self.unit)
+    def result(self):
+        return self.value 

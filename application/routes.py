@@ -436,9 +436,59 @@ def export_calculation():
 
 @application.route("/api/testing", methods=["GET", "POST"])
 def test_api():
-    # input_json = request.get_json(force=True)
-    input_json = {}
-    a = input_json.get("a", 0)
-    b = input_json.get("b", 0)
-    ret_dict = {'sum':a+b, "product":a*b}
-    return ret_dict # jsonify(ret_dict)
+    input_json = request.json
+    if input_json:
+        a = input_json.get("a", 0)
+        b = input_json.get("b", 0)
+        ret_dict = {'sum':a+b, "product":a*b}
+        return ret_dict # jsonify(ret_dict)
+    return "No input given"
+
+@application.route("/api/ConcreteBeam", methods=["GET", "POST"])
+def concrete_beam_api():
+    input_json = request.json
+    if input_json:
+
+        calc_file_name = 'ConcreteBeam'
+
+        ############------------GET CALCULATION INPUT OBJECTS BY RUNNING CALC -----------##############
+        calculation_path = f'application.calcscripts.{calc_file_name}.create_calculation'
+        calc_items_and_strings, calc_errors = compile_calculation(compile_calc_path=calculation_path)
+        # if calc_errors:
+        #     print(calc_errors)
+        calc_items = calc_items_and_strings['all_items']
+        setup_items = calc_items['setup']
+        calc_inputs = []
+        for item in setup_items:
+            if item.__class__.__name__ == 'DeclareVariable' or item.__class__.__name__ == 'DeclareTable':
+                calc_inputs.append(item)
+
+        ############------------UPDATE INPUTS, RUN CALC, AND GET OUTPUT VALUES-----------##############
+        # update input variables
+        if isinstance(input_json, dict):
+            for item in calc_inputs:
+                var_name = item.name
+                input_val = input_json.get(var_name)
+                if input_val:
+                    item._set_value(input_val)
+                else:
+                    input_json[var_name] = item.value
+
+        #  get calculation output objects
+        calc_items_and_strings, calc_errors = compile_calculation(compile_calc_path=calculation_path, compile_update_vals=True, compile_updated_items=calc_inputs)
+        # if calc_errors:
+        #     print(calc_errors)
+        calc_items = calc_items_and_strings['all_items']
+        result_items = calc_items['calc']
+        calc_results = {}
+        for item in result_items:
+            if item.__class__.__name__ == 'CalcVariable' or item.__class__.__name__ == 'CalcTable':
+                if item.result_check:
+                    calc_results[item.name] = item.result()
+
+        # SAVE HTML STRINGS FOR CALC REPORT
+        # stringsdict = calc_items_and_strings['html_strings']
+        # session['stringsdict'] = stringsdict
+
+        return calc_results # SEND AS DICTIONARY !!!!!!!!!!!!!!!
+    return "No input given"
