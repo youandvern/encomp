@@ -39,12 +39,14 @@ def create_calculation(updated_input={}):
     ###   DO NOT DEFINE INPUTS BELOW HERE OR EDIT THE FOLLOWING SECTION   ###
 
     if len(updated_input)>0:
-        for input_variable in DeclareVariable.instances:
+        for input_variable in DeclareVariable.instances + DeclareTable.instances:
+            print("updating " + input_variable.name)
             new_value = updated_input.get(input_variable.name)
             if new_value:
                 input_variable._set_value(new_value)
 
     ###   DEFINE CALCULATION, BODY HEADER, AND BODY TEXT   ###
+
 
 
     k_to_lb = Variable('1000 \ \mathrm{lbs/kip}', 1000, 'lbs/kip')
@@ -123,7 +125,7 @@ def create_calculation(updated_input={}):
         if abs(fsi) > fy_val:
             fsi = fy_val * ( esi / abs(esi) )
 
-        bars_output.append([bar[0], bar[1], round(esi, 5), round(fsi,1), round(bar[4], 2)])
+        bars_output.append([bar[0], round(bar[1], 2), round(esi, 5), round(fsi,1), round(bar[4], 2)])
         bars_sum += bar[1]*fsi*bar[4]
 
     et_max = CalcVariable('\varepsilon _{t,max}', abs(et_max_val), '', 'Maximimum tensile strain in reinforcement steel')

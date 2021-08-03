@@ -449,6 +449,8 @@ def concrete_beam_api():
     input_json = request.json
     if input_json:
 
+
+
         calc_file_name = 'ConcreteBeam'
 
         ############------------GET CALCULATION INPUT OBJECTS BY RUNNING CALC -----------##############
@@ -466,9 +468,11 @@ def concrete_beam_api():
         ############------------UPDATE INPUTS, RUN CALC, AND GET OUTPUT VALUES-----------##############
         # update input variables
         if isinstance(input_json, dict):
+
             for item in calc_inputs:
                 var_name = item.name
                 input_val = input_json.get(var_name)
+                print(var_name + " - " + str(input_val))
                 if input_val:
                     item._set_value(input_val)
                 else:

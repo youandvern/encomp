@@ -292,10 +292,10 @@ class DeclareTable(SetupCollection):
         self.setup_instances.append(self)
 
     def _set_value(self,v):
-    	if v is None:
-    		self.value = [[]]
-    	else:
-    		self.value = v
+        if v is None:
+            self.value = [[]]
+        else:
+            self.value = v
 
     def strResultWithName(self):
         r"""Returns string of the result of the receiver (its formatted result) including name ending with its units
@@ -340,4 +340,4 @@ class CalcTable(CalcCollection):
 		"""
         return '%s = \\ %s \\ %s'%(self.name, self.value, self.unitFormat%self.unit)
     def result(self):
-        return self.value 
+        return self.value
