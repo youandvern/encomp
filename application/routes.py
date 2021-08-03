@@ -472,7 +472,6 @@ def concrete_beam_api():
             for item in calc_inputs:
                 var_name = item.name
                 input_val = input_json.get(var_name)
-                print(var_name + " - " + str(input_val))
                 if input_val:
                     item._set_value(input_val)
                 else:

@@ -40,7 +40,6 @@ def create_calculation(updated_input={}):
 
     if len(updated_input)>0:
         for input_variable in DeclareVariable.instances + DeclareTable.instances:
-            print("updating " + input_variable.name)
             new_value = updated_input.get(input_variable.name)
             if new_value:
                 input_variable._set_value(new_value)
