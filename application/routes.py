@@ -212,8 +212,8 @@ def login():
                     flash("Sorry, email not found.", "danger")
         elif register_attempt:
             if formR.validate_on_submit():
-                emailR = formR.email.data
-                passwordR = formR.password.data
+                emailR = formR.emailR.data
+                passwordR = formR.passwordR.data
                 first_nameR = formR.first_name.data
                 last_nameR = formR.last_name.data
 
