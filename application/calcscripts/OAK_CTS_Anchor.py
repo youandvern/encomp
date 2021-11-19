@@ -65,6 +65,8 @@ def create_calculation(updated_input={}):
     k_to_lb = Variable('1000 \ \mathrm{lbs/kip}', 1000, 'lbs/kip')
     ft_to_in = Variable('12 \ \mathrm{in/ft}', 12, 'in/ft')
 
+
+
     BodyHeader('Tension Design (ACI 318-14 17.4)', head_level=1)
 
     db = CalcVariable('d_b', Da/8, 'in', 'Anchor bar diameter')
@@ -79,7 +81,7 @@ def create_calculation(updated_input={}):
     PNsa = CalcVariable(r'\phi N_{sa}', Phis*Nsa, 'lbs')
     cpnsa = CheckVariable(Tu, '<=', PNsa, code_ref='ACI 318-14 Table 17.3.1.1' )
 
-    Freduce = CalcVariable('R_{reduction}', PNsa / Tu, '', 'Development length reduction factor', 'ACI 318-14 25.4.10.1' )
+    Freduce = CalcVariable('R_{reduction}',  Tu / PNsa, '', 'Development length reduction factor', 'ACI 318-14 25.4.10.1' )
     Ldha = CalcVariable('L_{dha}', Freduce*Fsy*0.7*db/(50*SQRT(Fce)), 'in', 'Calculated hooked development length of dowel (assuming side cover > 2.5")', 'ACI 318-14 25.4.3.1a')
     BodyText("Minimum required hooked development length for anchor:")
     Ldhb = CalcVariable('L_{dhb}', 8*db, 'in', code_ref= 'ACI 318-14 25.4.3.1b')
@@ -135,7 +137,6 @@ def create_calculation(updated_input={}):
 
     heflim = CalcVariable('h_{ef,lim}', MAX(camax/1.5, Sa/3), 'in', 'Limit to effective embedment length for concrete breakout strength in tension', 'ACI 318-14 17.4.2.3' )
     hef = CalcVariable('h_{ef}', MIN(Ha, heflim), 'in', 'Effective embedment length for concrete breakout strength in tension')
-    cacb = CalcVariable('c_{acb}', 2*hef, 'in', 'Critical edge distance, tension breakout', 'ACI 318-14 17.7.6')
 
     Yecn = CalcVariable(r'\psi_{ec,N}', 1.0, '', 'Modification factor for eccentricity', code_ref='ACI 318-14 17.4.2.4')
 
@@ -149,14 +150,14 @@ def create_calculation(updated_input={}):
     
     Ycn = CalcVariable(r'\psi_{c,N}', 1.0, '', 'Modification factor for uncracked sections', code_ref='ACI 318-14 17.4.2.6')
 
-    if camin.result() >= cacb.result():
-        CheckVariablesText(camin, '>=', cacb)
+    if camin.result() >= cac.result():
+        CheckVariablesText(camin, '>=', cac)
         Ycpn = CalcVariable(r'\psi_{cp,N}', 1.0, '', 'Modification factor to control splitting', code_ref='ACI 318-14 17.4.2.7a')
-    elif camin.result()/cacb.result() >= hef15.result()/cacb.result():
-        CheckVariablesText(camin, '<', cacb)
-        Ycpn = CalcVariable(r'\psi_{cp,N}', camin/cacb, '', 'Modification factor to control splitting', code_ref='ACI 318-14 17.4.2.7b')
+    elif camin.result()/cac.result() >= cna.result()/cac.result():
+        CheckVariablesText(camin, '<', cac)
+        Ycpn = CalcVariable(r'\psi_{cp,N}', camin/cac, '', 'Modification factor to control splitting', code_ref='ACI 318-14 17.4.2.7b')
     else:
-        CheckVariablesText(camin, '<', cacb)
+        CheckVariablesText(camin, '<', cac)
         Ycpn = CalcVariable(r'\psi_{cp,N}', 1.0, '', 'Modification factor to control splitting', code_ref='ACI 318-14 17.4.2.7b note')
     
     kc = CalcVariable('k_c', 17, '', 'Post-installed anchor breakout factor', 'ACI 318-14 17.4.2.2')
@@ -164,12 +165,17 @@ def create_calculation(updated_input={}):
     Anco = CalcVariable('A_{Nco}', 9*hef**2, 'in^2', 'Projected concrete failure area of a single adhesive anchor', code_ref='ACI 318-14 17.4.2.1c')
     ca1 = CalcVariable('c_{ar}', MIN(1.5*hef, camin), 'in', 'Maximum radial projected length of concrete failure for each anchor')
     ca2 = CalcVariable('c_{aa}', MIN(1.5*hef, Sa/2), 'in', 'Maximum angular projected length of concrete failure for each anchor')
-    Anc = CalcVariable('A_{Nc}', 2*ca1*2*ca2, 'in^2', 'Projected influence area of the group of adhesive anchors')
+    Anc = CalcVariable('A_{Nc}', Na* BRACKETS(2*ca1*2*ca2), 'in^2', 'Projected influence area of the group of adhesive anchors')
 
     Ncbg = CalcVariable('N_{cbg}', Yecn*Yedn*Ycn*Ycpn*Nb*Anc/Anco, 'lbs', 'Nominal concrete breakout strength of the anchor group', 'ACI 318-14 Eq. 17.4.2.1b')
     Phic = CalcVariable(r'\phi_{conc}', 0.75, description='Strength reduction factor for breakout failure with tension reinforcing across failure plane', code_ref='ACI 318-14 17.3.3')
     PNcbg = CalcVariable(r'\phi N_{cbg}', Phic*Ncbg, 'lbs')
     cpnsa = CheckVariable(Tu, '<=', PNcbg, code_ref='ACI 318-14 Table 17.3.1.1' )
+
+
+    BodyHeader('Shear Design (ACI 318-14 17.5)', head_level=1)
+
+    BodyHeader('Steel Anchor', head_level=1)
 
     
 
