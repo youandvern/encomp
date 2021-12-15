@@ -16,45 +16,57 @@ def create_calculation(updated_input={}):
 
     ###   DEFINE TITLE, DESCRIPTION, ASSUMPTIONS, AND INPUTS   ###
 
-    CalculationTitle('EBMUD Oakland Digester 3 Wall Cap')
+    CalculationTitle('EBMUD Oakland Digester 3 and 4 Wall Cap Reinforcing')
 
     DescriptionHead(
-        "Structural design capacity calculations for a new installed wall cap, placed just below bottom of the dual membrane system anchors of Digester 3, designed to transfer membrane system anchor forces connected to the top of the existing corewall.")
+        "Structural design capacity calculations for a new installed wall cap, placed just below bottom of the dual membrane system anchors of Digester 3 and 4, designed to transfer membrane system anchor forces connected to the existing vertical reinforcing through lap splice.")
 
     Assumption("ACI 318-14 controls member design")
     Assumption(
         "Design loads are taken from provided WesTech DuoSphere calculation report Revision F dated 10/5/2021")
     Assumption(
         "Existing concrete strength is calculated per ACI 214.4R-10 chapter 9 from the provided core strengths by Testing Engineers Inc dated 11/1/21 (appendix C) and by Atlas dated 6/4/21 (appendix D)")
-    Assumption("The wall cap will have enough stiffness to evenly distribute loads among the new anchors")
-    Assumption("Adhesive anchors will be installed with Hilti HIT-RE 500 adhesive in accordance with ICC ESR-3814")
-    Assumption("Anchor bars shall conform to ASTM A615 specifications")
+    Assumption("The wall cap will have enough stiffness to evenly distribute loads among the post-installed vertical reinforcing")
+    Assumption("Post-installed reinforcement will be installed with Hilti HIT-RE 500 adhesive in accordance with ICC ESR-3814")
+    Assumption("Post-installed bars shall conform to ASTM A615 specifications")
+    Assumption("Tension splice type is Class B")
         
 
     Tu = DeclareVariable('T_u', 23000, 'lbs', 'Design ultimate tensile demand per cable group (Appendix B Page 46)', code_ref='Appendix B Page 46', input_type="number", min_value=0)
     Vu = DeclareVariable('V_u', 3500, 'lbs', 'Design ultimate shear demand per cable group (Appendix B Page 46)',  code_ref='Appendix B Page 46', input_type="number", min_value=0)
 
     Fce = DeclareVariable("f'_c", 3100, 'psi', 'Existing concrete strength (See appendix A)', 'ACI 214.4R-10 Eq. 9-9', input_type='number', min_value=0)
-    Fsy = DeclareVariable('f_y', 60000, 'psi', 'Steel yield strength', input_type='number', min_value=0)
+    Fsy = DeclareVariable('f_y', 60000, 'psi', 'Post-installed reinforcement yield strength', input_type='number', min_value=0)
+    Fsye = DeclareVariable('f_{ye}', 40000, 'psi', 'Existing reinforcement yield strength', input_type='number', min_value=0)
 
     Tw = DeclareVariable('t_w', 11, 'in', 'Wall thickness', input_type='number', min_value=0)
     Ww = DeclareVariable('w_w', 75, 'in', 'Length of wall section per cable group', input_type='number', min_value=0)
     Rt = DeclareVariable('R_t', 48, 'ft', 'Radius of tank wall center line', input_type='number', min_value=1)
 
-    Na = DeclareVariable("N_a", 8, "", 'Number of anchors per cable group', input_type='number', min_value=1)
+    Na = DeclareVariable("N_a", 8, "", 'Number of post-installed bars per cable group', input_type='number', min_value=1)
 
-    Sa = DeclareVariable(
-        'S_a', 8, 'in', 'spacing of anchors', input_type='number')
+    
 
-    Da = DeclareVariable('D_a', reinforcement_bar_sizes[1], '', 'Anchor bar size (eighth of an inch diameter)',
+    Da = DeclareVariable('D_a', reinforcement_bar_sizes[1], '', 'Post-installed bar size (eighth of an inch diameter)',
+                         input_type='select', input_options=reinforcement_bar_sizes)
+                        
+    Dae = DeclareVariable('D_{ae}', reinforcement_bar_sizes[1], '', 'Existing bar size (eighth of an inch diameter)',
                          input_type='select', input_options=reinforcement_bar_sizes)
 
-    bonduncrc = DeclareVariable(r'\tau_{uncr,c}', 1670, 'psi', 'Characteristic anchor bond strength (ESR-3814)', input_type='number', min_value=0)
-    bondcrc = DeclareVariable(r'\tau_{cr,c}', 1410, 'psi', 'Characteristic anchor bond strength - cracked (ESR-3814)', input_type='number', min_value=0)
+    Sa = DeclareVariable(
+        'S_a', 8, 'in', 'Spacing of splice bars', input_type='number')
     
-    Ha = DeclareVariable('h_{eff,a}', 5, 'in', 'Embedment depth of anchor', input_type='number', min_value=0)
+    Sbpe = DeclareVariable("S_{b,p,e}", 2, "in", 'Transverse center-to-center spacing of splice bars', input_type='number', min_value=0)
+    cbp = DeclareVariable("c_{b,p}", 2, "in", 'Center-to-edge distance of post-installed bars', input_type='number', min_value=0)
+    cbpe = DeclareVariable("c_{b,e}", 2, "in", 'Center-to-edge distance of existing bars', input_type='number', min_value=0)
 
-    Hh = DeclareVariable('l_{dh}', 12, 'in', 'Hooked development length of anchor in wall cap')
+    ce = DeclareVariable("c_{1,e}", 2, "in", 'Maximum distance from end of existing bar to surface of concrete', input_type='number', min_value=0)
+
+    Ktr = DeclareVariable("K_{tr}", 0, "", 'Confining reinforcement factor', input_type='number', min_value=0)
+    
+    Le = DeclareVariable('L_e', 5, 'in', 'Total embedment depth of post-installed bar', input_type='number', min_value=0)
+
+    Hh = DeclareVariable('l_{dh}', 12, 'in', 'Hooked development length of post-installed bar in wall cap')
 
     Nh = DeclareVariable("N_h", 6, "", 'Number of horizontal bars in wall cap', input_type='number', min_value=0)
     Dh = DeclareVariable('D_h', reinforcement_bar_sizes[1], '', 'Horizontal bar size (eighth of an inch diameter)')
