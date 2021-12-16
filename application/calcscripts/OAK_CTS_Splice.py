@@ -30,12 +30,15 @@ def create_calculation(updated_input={}):
     Assumption("Post-installed reinforcement will be installed with Hilti HIT-RE 500 adhesive in accordance with ICC ESR-3814")
     Assumption("Post-installed bars shall conform to ASTM A615 specifications")
     Assumption("Tension splice type is Class B")
+    Assumption("All concrete is normal-weight")
+    
         
 
     Tu = DeclareVariable('T_u', 23000, 'lbs', 'Design ultimate tensile demand per cable group (Appendix B Page 46)', code_ref='Appendix B Page 46', input_type="number", min_value=0)
     Vu = DeclareVariable('V_u', 3500, 'lbs', 'Design ultimate shear demand per cable group (Appendix B Page 46)',  code_ref='Appendix B Page 46', input_type="number", min_value=0)
 
-    Fce = DeclareVariable("f'_c", 3100, 'psi', 'Existing concrete strength (See appendix A)', 'ACI 214.4R-10 Eq. 9-9', input_type='number', min_value=0)
+    Fcn = DeclareVariable("f'_cn", 4000, 'psi', 'New concrete strength', input_type='number', min_value=0)
+    Fce = DeclareVariable("f'_ce", 3100, 'psi', 'Existing concrete strength (See appendix A)', 'ACI 214.4R-10 Eq. 9-9', input_type='number', min_value=0)
     Fsy = DeclareVariable('f_y', 60000, 'psi', 'Post-installed reinforcement yield strength', input_type='number', min_value=0)
     Fsye = DeclareVariable('f_{ye}', 40000, 'psi', 'Existing reinforcement yield strength', input_type='number', min_value=0)
 
@@ -53,17 +56,13 @@ def create_calculation(updated_input={}):
     Dae = DeclareVariable('D_{ae}', reinforcement_bar_sizes[1], '', 'Existing bar size (eighth of an inch diameter)',
                          input_type='select', input_options=reinforcement_bar_sizes)
 
-    Sa = DeclareVariable(
-        'S_a', 8, 'in', 'Spacing of splice bars', input_type='number')
+    Sa = DeclareVariable('S_a', 8, 'in', 'Transverse center-to-center spacing of splice bars', input_type='number', min_value=0)
     
-    Sbpe = DeclareVariable("S_{b,p,e}", 2, "in", 'Transverse center-to-center spacing of splice bars', input_type='number', min_value=0)
-    cbp = DeclareVariable("c_{b,p}", 2, "in", 'Center-to-edge distance of post-installed bars', input_type='number', min_value=0)
-    cbpe = DeclareVariable("c_{b,e}", 2, "in", 'Center-to-edge distance of existing bars', input_type='number', min_value=0)
+    Sbpe = DeclareVariable("S_{b,p,e}", 2, "in", 'Closest spacing between post-installed bar and existing bar', input_type='number', min_value=0)
+    cbp = DeclareVariable("c_{b,p}", 2, "in", 'Minimum center-to-edge distance of post-installed bars', input_type='number', min_value=0)
+    cbe = DeclareVariable("c_{b,e}", 2, "in", 'Minimum center-to-edge distance of existing bars', input_type='number', min_value=0)
 
     ce = DeclareVariable("c_{1,e}", 2, "in", 'Maximum distance from end of existing bar to surface of concrete', input_type='number', min_value=0)
-
-    Ktr = DeclareVariable("K_{tr}", 0, "", 'Confining reinforcement factor', input_type='number', min_value=0)
-    
     Le = DeclareVariable('L_e', 5, 'in', 'Total embedment depth of post-installed bar', input_type='number', min_value=0)
 
     Hh = DeclareVariable('l_{dh}', 12, 'in', 'Hooked development length of post-installed bar in wall cap')
@@ -71,10 +70,16 @@ def create_calculation(updated_input={}):
     Nh = DeclareVariable("N_h", 6, "", 'Number of horizontal bars in wall cap', input_type='number', min_value=0)
     Dh = DeclareVariable('D_h', reinforcement_bar_sizes[1], '', 'Horizontal bar size (eighth of an inch diameter)')
 
+    Muj = DeclareVariable(r"\mu_j", 1.0, '', 'Coefficient of friction between new wall cap and existing wall (ACI 318-14 Table 22.9.4.2)')
+
     Hcap = DeclareVariable('H_{cap}', 16, 'in', 'Height of new wall cap', input_type='number')
     Hunr = DeclareVariable('H_{unreinforced}', 12, 'in', 'Height of existing unreinforced zone above prestressing', input_type='number')
 
     Es = DeclareVariable('E_s', 29000000, 'psi', 'Modulus of elasticity of reinforcement steel')
+    Yep = DeclareVariable(r'\psi_{e,p}', 1.0, '', 'Modification factor for epoxy coated post-installed bars (ACI 318-14 Table 25.4.2.4)')
+    Yee = DeclareVariable(r'\psi_{e,e}', 1.0, '', 'Modification factor for epoxy coated existing bars (ACI 318-14 Table 25.4.2.4)')
+    Yt = DeclareVariable(r'\psi_{t}', 1.0, '', 'Modification factor for splice casting position (ACI 318-14 Table 25.4.2.4)')
+    Ktr = DeclareVariable("K_{tr}", 0, "", 'Confining reinforcement factor', input_type='number', min_value=0)
 
 
 
@@ -90,116 +95,134 @@ def create_calculation(updated_input={}):
 
     k_to_lb = Variable('1000 \ \mathrm{lbs/kip}', 1000, 'lbs/kip')
     ft_to_in = Variable('12 \ \mathrm{in/ft}', 12, 'in/ft')
+    twelve_inches = Variable('12 \ \mathrm{in}', 12, 'in')
 
+    BodyHeader('Tension Design', head_level=1)
 
+    db = CalcVariable('d_b', Da/8, 'in', 'Post-installed bar diameter')
+    aa = CalcVariable('A_a', PI*(db/2)**2, 'in^2', 'Post-installed bar area')
+    atot = CalcVariable('A_{stot}', aa*Na, 'in^2', 'Total steel area of post-installed bars')
 
-    BodyHeader('Tension Design (ACI 318-14 17.4)', head_level=1)
+    dbe = CalcVariable('d_be', Dae/8, 'in', 'Existing bar diameter')
+    aae = CalcVariable('A_{ae}', PI*(dbe/2)**2, 'in^2', 'Existing bar area')
+    atote = CalcVariable('A_{stote}', aae*Na, 'in^2', 'Total steel area of existing bars')
 
-    db = CalcVariable('d_b', Da/8, 'in', 'Anchor bar diameter')
-    aa = CalcVariable('A_a', PI*(db/2)**2, 'in^2', 'Area of steel anchor')
-    atot = CalcVariable('A_{stot}', aa*Na, 'in^2', 'Total steel area of anchors')
+    Lspe = CalcVariable('L_{s,pe}', Le - ce, 'in', 'Provided lap splice length between post-installed and existing bars')
 
-    
-    BodyHeader('Steel Anchor', head_level=2)
-    futa = CalcVariable('f_{uta}', MIN(1.9*Fsy, 90000), 'psi', code_ref='ACI 318-14 17.4.1.2, ESR-3814')
-    Nsa = CalcVariable('N_{sa}', atot*futa, 'lbs', 'Nominal strength of anchor in tension')
-    Phis = CalcVariable(r'\phi_{steel}', 0.65, description='Strength reduction factor for steel tension', code_ref='ACI 318-14 17.3.3')
-    PNsa = CalcVariable(r'\phi N_{sa}', Phis*Nsa, 'lbs')
-    cpnsa = CheckVariable(Tu, '<=', PNsa, code_ref='ACI 318-14 Table 17.3.1.1' )
-
-    Freduce = CalcVariable('R_{reduction}',  Tu / PNsa, '', 'Development length reduction factor', 'ACI 318-14 25.4.10.1' )
-    Ldha = CalcVariable('L_{dha}', Freduce*Fsy*0.7*db/(50*SQRT(Fce)), 'in', 'Calculated hooked development length of dowel (assuming side cover > 2.5")', 'ACI 318-14 25.4.3.1a')
-    BodyText("Minimum required hooked development length for anchor:")
-    Ldhb = CalcVariable('L_{dhb}', 8*db, 'in', code_ref= 'ACI 318-14 25.4.3.1b')
-    Ldhc = CalcVariable('L_{dhc}', Fsy*0.7*db/(50*SQRT(Fce)), 'in', code_ref='ACI 318-14 25.4.3.1c')
-
-    Ldh = CalcVariable('L_{dh}', MAX(Ldha, Ldhb, Ldhc), 'in', 'Hooked development length of anchor bar' ,code_ref= 'ACI 318-14 25.4.3.1b')
-    cldh = CheckVariable( Hh, '>=', Ldh, truestate="OK", falsestate="ERROR", result_check=True)
+    # Ldmin = CalcVariable('L_{d,min}', 12, 'in', 'Minimum allowable development length in tension', code_ref='ACI 318-14 25.4.2.1(b)')
 
     
-    BodyHeader('Bond Strength', head_level=2)
-
-    bonduncr = CalcVariable(r'\tau_{uncr}', bonduncrc*(Fce/2500)**0.15, 'psi', 'Adjusted anchor bond strength', code_ref="ESR-3814")
-    bondcr = CalcVariable(r'\tau_{cr}', bondcrc*(Fce/2500)**0.15, 'psi', 'Adjusted anchor bond strength - cracked', code_ref="ESR-3814")
+    BodyHeader('Post-installed reinforcement tension splice', head_level=2)
     
-
-    Yecna = CalcVariable(r'\psi_{ec,Na}', 1.0, '', 'Modification factor for eccentricity', code_ref='ACI 318-14 17.4.5.3')
-    camin = CalcVariable('c_{a,min}', Tw / 2, 'in', 'Minimum edge distance of anchor bar')
-    camax = CalcVariable('c_{a,max}', Tw / 2, 'in', 'Maximum edge distance of anchor bar')
-    cna = CalcVariable('c_{Na}', 10*db*SQRT(bonduncr/1100), 'in', 'Projected maximum edge distance', 'ACI 318-14 Eq. 17.4.5.1d')
-    
-
-    if camin.result() >= cna.result():
-        CheckVariablesText(camin, '>=', cna)
-        Yedna = CalcVariable(r'\psi_{ed,Na}', 1.0, '', 'Modification factor for edge effects', code_ref='ACI 318-14 17.4.5.4a')
+    if Da.value <= 6:
+        CheckVariablesText(Da.value, '<=', Variable('6', 6, ''))
+        ccmin = CalcVariable('c_{c,min}', 1.1875, 'in', 'Minimum concrete cover', code_ref='ESR-3814 4.2.3')
     else:
-        CheckVariablesText(camin, '<', cna)
-        Yedna = CalcVariable(r'\psi_{ed,Na}', 0.7+0.3*camin/cna, '', 'Modification factor for edge effects', code_ref='ACI 318-14 17.4.5.4b')
-
-    cac = CalcVariable('c_{ac}', 2*Ha, 'in', 'Critical edge distance', 'ACI 318-14 17.7.6')
-
-    if camin.result() >= cac.result():
-        CheckVariablesText(camin, '>=', cac)
-        Ycpna = CalcVariable(r'\psi_{cp,Na}', 1.0, '', 'Modification factor to control splitting', code_ref='ACI 318-14 17.4.5.5a')
-    elif camin.result()/cac.result() >= cna.result()/cac.result():
-        CheckVariablesText(camin, '<', cac)
-        Ycpna = CalcVariable(r'\psi_{cp,Na}', camin/cac, '', 'Modification factor to control splitting', code_ref='ACI 318-14 17.4.5.5b')
-    else:
-        CheckVariablesText(camin, '<', cac)
-        Ycpna = CalcVariable(r'\psi_{cp,Na}', 1.0, '', 'Modification factor to control splitting', code_ref='ACI 318-14 17.4.5.5b note')
-
-    Nba = CalcVariable('N_{ba}', bondcr*PI*db*Ha, 'lbs', 'Basic bond strength of single adhesive anchor in tension in cracked concrete')
-    Anao = CalcVariable('A_{Nao}', 4*cna**2, 'in^2', 'Projected influence area of a single adhesive anchor', code_ref='ACI 318-14 17.4.5.1c')
-    Ana = CalcVariable('A_{Na}', BRACKETS(camin + camax)*BRACKETS(Sa*Na), 'in^2', 'Projected influence area of the group of adhesive anchors', code_ref='ACI 318-14 17.4.5.1c')
+        CheckVariablesText(Da.value, '>', Variable('6', 6, ''))
+        ccmin = CalcVariable('c_{c,min}', 1.5625, 'in', 'Minimum concrete cover', code_ref='ESR-3814 4.2.3')
     
-    Nag = CalcVariable('N_{ag}', Yecna*Yedna*Ycpna*Nba*Ana/Anao, 'lbs', 'Nominal bond strength of the anchor group', 'ACI 318-14 Eq. 17.4.5.1b')
-    Phib = CalcVariable(r'\phi_{bond}', 0.65, description='Strength reduction factor for bond failure', code_ref='ACI 318-14 17.3.3')
-    PNag = CalcVariable(r'\phi N_{ag}', Phib*Nag, 'lbs')
-    cpnag = CheckVariable(Tu, '<=', PNag, code_ref='ACI 318-14 Table 17.3.1.1' )
+    cbmin = CalcVariable('c_{b,min}', db/2+ccmin, 'in', 'Required minimum edge distance for post-installed reinforcing bars', code_ref='ESR-3814 4.2.3')
+    CheckVariable( cbmin, '<=', cbp, truestate="OK", falsestate="ERROR", result_check=True)
 
-    BodyHeader('Concrete Breakout Strength', head_level=2)
+    sbmin = CalcVariable('S_{b,min}', db+ccmin, 'in', 'Required minimum center-to-center spacing between post-installed reinforcing bars', code_ref='ESR-3814 4.2.3')
+    CheckVariable( sbmin, '<=', Sa, truestate="OK", falsestate="ERROR", result_check=True)
 
-    heflim = CalcVariable('h_{ef,lim}', Ha, 'in', 'Limit to effective embedment length for concrete breakout strength in tension', 'ACI 318-14 17.4.2.3' )
-    hef = CalcVariable('h_{ef}', MIN(Ha, heflim), 'in', 'Effective embedment length for concrete breakout strength in tension')
+    sbpemin = CalcVariable('S_{bpe,min}', dbe/2 + db/2 + ccmin, 'in', 'Required minimum center-to-center distance between existing and post-installed reinforcing bars', code_ref='ESR-3814 4.2.3')
+    CheckVariable( sbpemin, '<=', Sbpe, truestate="OK", falsestate="ERROR", result_check=True)
 
-    Yecn = CalcVariable(r'\psi_{ec,N}', 1.0, '', 'Modification factor for eccentricity', code_ref='ACI 318-14 17.4.2.4')
-
-    hef15 = CalcVariable('1.5h_{ef}', 1.5*hef, 'in')
-    if camin.result() >= hef15.result():
-        CheckVariablesText(camin, '>=', hef15)
-        Yedn = CalcVariable(r'\psi_{ed,N}', 1.0, '', 'Modification factor for edge effects', code_ref='ACI 318-14 17.4.2.5a')
+    if Da.value >= 7:
+        CheckVariablesText(Da, '>=', Variable('7', 7, ''))
+        Ysp = CalcVariable(r'\psi_{s,p}', 1.0, '', 'Modification factor for post-installed bar size', code_ref='ACI 318-14 Table 25.4.2.4')
     else:
-        CheckVariablesText(camin, '<', hef15)
-        Yedn = CalcVariable(r'\psi_{ed,N}', 0.7+0.3*camin/hef15, '', 'Modification factor for edge effects', code_ref='ACI 318-14 17.4.2.5b')
-    
-    Ycn = CalcVariable(r'\psi_{c,N}', 1.0, '', 'Modification factor for uncracked sections', code_ref='ACI 318-14 17.4.2.6')
+        CheckVariablesText(Da, '<=', Variable('6', 6, ''))
+        Ysp = CalcVariable(r'\psi_{s,p}', 0.8, '', 'Modification factor for post-installed bar size', code_ref='ACI 318-14 Table 25.4.2.4')
 
-    if camin.result() >= cac.result():
-        CheckVariablesText(camin, '>=', cac)
-        Ycpn = CalcVariable(r'\psi_{cp,N}', 1.0, '', 'Modification factor to control splitting', code_ref='ACI 318-14 17.4.2.7a')
-    elif camin.result()/cac.result() >= cna.result()/cac.result():
-        CheckVariablesText(camin, '<', cac)
-        Ycpn = CalcVariable(r'\psi_{cp,N}', camin/cac, '', 'Modification factor to control splitting', code_ref='ACI 318-14 17.4.2.7b')
+    cbpm = CalcVariable('c_{bp,min}', MIN(cbp, Sa/2), 'in', code_ref='ACI 318-14 R25.4.2.3')
+    cbdp = CalcVariable('C_{conf,p}', MAX(2.5, (cbpm + Ktr)/db), '', 'Confinement term for development length', code_ref='ACI 318-14 25.4.2.3')
+
+
+    Ldpc = CalcVariable('L_{dpc}', BRACKETS(3*Fsy*Yt*Yep*Ysp / (40*SQRT(Fce)*cbdp) )*db, 'in', 'Calculated required development length for post-installed bar', code_ref='ACI 318-14 Eq. 25.4.2.3a')
+    # Ldp = CalcVariable('L_{dp}', MAX(Ldmin, Ldpc), 'in', 'Required development length for post-installed bar', code_ref='ACI 318-14 25.4.2.1')
+
+    Lstp = CalcVariable('L_{st,p}', MAX(1.3*Ldpc, twelve_inches), 'in', 'Required tension lap splice length for post-installed reinforcing', code_ref='ACI 318-14 Table 25.5.2.1')
+    CheckVariable( Lspe, '>=', Lstp, truestate="OK", falsestate="ERROR", result_check=True)
+
+    BodyHeader('Existing reinforcement tension splice', head_level=2)
+    
+    if Dae.value <= 6:
+        CheckVariablesText(Dae.value, '<=', Variable('6', 6, ''))
+        ccmine = CalcVariable('c_{c,min,e}', 1.1875, 'in', 'Minimum concrete cover', code_ref='ESR-3814 4.2.3')
     else:
-        CheckVariablesText(camin, '<', cac)
-        Ycpn = CalcVariable(r'\psi_{cp,N}', 1.0, '', 'Modification factor to control splitting', code_ref='ACI 318-14 17.4.2.7b note')
+        CheckVariablesText(Dae.value, '>', Variable('6', 6, ''))
+        ccmine = CalcVariable('c_{c,min,e}', 1.5625, 'in', 'Minimum concrete cover', code_ref='ESR-3814 4.2.3')
     
-    kc = CalcVariable('k_c', 17, '', 'Post-installed anchor breakout factor', 'ACI 318-14 17.4.2.2')
-    Nb = CalcVariable('N_{b}', kc*SQRT(Fce)*hef**1.5, 'lbs', 'Basic concrete breakout strength of single adhesive anchor in tension in cracked concrete', 'ACI 318-14 17.4.2.2a')
-    Anco = CalcVariable('A_{Nco}', 9*hef**2, 'in^2', 'Projected concrete failure area of a single adhesive anchor', code_ref='ACI 318-14 17.4.2.1c')
-    ca1 = CalcVariable('c_{ar}', MIN(1.5*hef, camin), 'in', 'Maximum radial projected length of concrete failure for each anchor')
-    ca2 = CalcVariable('c_{aa}', MIN(1.5*hef, Sa/2), 'in', 'Maximum angular projected length of concrete failure for each anchor')
-    Anc = CalcVariable('A_{Nc}', Na* BRACKETS(2*ca1*2*ca2), 'in^2', 'Projected influence area of the group of adhesive anchors')
+    cbmine = CalcVariable('c_{b,min,e}', dbe/2+ccmine, 'in', 'Required minimum edge distance for existing reinforcing bars', code_ref='ESR-3814 4.2.3')
+    CheckVariable( cbmine, '<=', cbe, truestate="OK", falsestate="ERROR", result_check=True)
 
-    Ncbg = CalcVariable('N_{cbg}', Yecn*Yedn*Ycn*Ycpn*Nb*Anc/Anco, 'lbs', 'Nominal concrete breakout strength of the anchor group', 'ACI 318-14 Eq. 17.4.2.1b')
-    Phic = CalcVariable(r'\phi_{conc}', 0.75, description='Strength reduction factor for breakout failure with tension reinforcing across failure plane', code_ref='ACI 318-14 17.3.3')
-    PNcbg = CalcVariable(r'\phi N_{cbg}', Phic*Ncbg, 'lbs')
-    cpncbg = CheckVariable(Tu, '<=', PNcbg, code_ref='ACI 318-14 Table 17.3.1.1' )
+    sbmine = CalcVariable('S_{b,min,e}', dbe+ccmine, 'in', 'Required minimum center-to-center spacing between existing reinforcing bars', code_ref='ESR-3814 4.2.3')
+    CheckVariable( sbmine, '<=', Sa, truestate="OK", falsestate="ERROR", result_check=True)
+
+    if Dae.value >= 7:
+        CheckVariablesText(Dae, '>=', Variable('7', 7, ''))
+        Yse = CalcVariable(r'\psi_{s,e}', 1.0, '', 'Modification factor for existing bar size', code_ref='ACI 318-14 Table 25.4.2.4')
+    else:
+        CheckVariablesText(Dae, '<=', Variable('6', 6, ''))
+        Yse = CalcVariable(r'\psi_{s,e}', 0.8, '', 'Modification factor for existing bar size', code_ref='ACI 318-14 Table 25.4.2.4')
+
+    cbem = CalcVariable('c_{be,min}', MIN(cbe, Sa/2), 'in', code_ref='ACI 318-14 R25.4.2.3')
+    cbde = CalcVariable('C_{conf,e}', MAX(2.5, (cbem + Ktr)/dbe), '', 'Confinement term for development length', code_ref='ACI 318-14 25.4.2.3')
 
 
-    BodyHeader('Shear Design (ACI 318-14 17.5)', head_level=1)
+    Ldec = CalcVariable('L_{dec}', BRACKETS(3*Fsye*Yt*Yee*Yse / (40*SQRT(Fce)*cbde) )*dbe, 'in', 'Calculated required development length for existing bar', code_ref='ACI 318-14 Eq. 25.4.2.3a')
+    # Ldp = CalcVariable('L_{dp}', MAX(Ldmin, Ldpc), 'in', 'Required development length for post-installed bar', code_ref='ACI 318-14 25.4.2.1')
 
-    BodyHeader('Steel Anchor', head_level=2)
+    Lste = CalcVariable('L_{st,e}', MAX(1.3*Ldec, twelve_inches), 'in', 'Required tension lap splice length for post-installed reinforcing', code_ref='ACI 318-14 Table 25.5.2.1')
+    CheckVariable( Lspe, '>=', Lste, truestate="OK", falsestate="ERROR", result_check=True)
+
+
+    BodyHeader('Reinforcement tensile strength', head_level=2)
+    Pntmax = CalcVariable('P_{nt,max}', MIN(Fsy*atot, Fsye*atote), 'lbs', 'Limiting nominal steel tensile strength', code_ref='ACI 318-14 Eq. 22.4.3.1')
+    BodyText('Reinforcement is fully developed for both post-installed and existing bars, therefore the weaker bars will fully yield before failure.')
+    Phit = CalcVariable(r'\phi_{tens}', 0.9, description='Strength reduction factor for tension controlled section capacity', code_ref='ACI 318-14 Table 21.2.2')
+    Pnt = CalcVariable(r'\phi P_{nt}', Phit*Pntmax, 'lbs', 'Design steel tensile strength', code_ref='ESR-3814 4.2.1')
+    CheckVariable(Tu, '<=', Pnt )
+
+
+    BodyHeader('Shear Design', head_level=1)
+
+    BodyHeader('Wall Cap Hoop Tension', head_level=2)
+    BodyText('The new wall cap horizontal steel will be designed to take the entire hoop tension of the new dome structure created by outward shear force at the anchors.')
+    Thu = CalcVariable('T_{uh}', Vu / Ww * Rt*ft_to_in, 'lbs', 'Hoop tension in wall cap')
+    ah = CalcVariable('A_h', PI*(Dh/8/2)**2, 'in^2', 'Area of horizontal bars')
+    ahtot = CalcVariable('A_{htot}', ah*Nh, 'in^2', 'Total steel area of horizontal bars')
+    Pnmax = CalcVariable('P_{nt,max}', Fsy*ahtot, 'lbs', 'Nominal axial tension capacity of new wall cap', 'ACI 318-14 Eq. 22.4.3.1')
+    PPnmax = CalcVariable(r'\phi P_{nt,max}', Phit*Pnmax, description='Design axial tension capacity of new wall cap')
+    cpnmax = CheckVariable(Thu, '<=', PPnmax)
+
+    BodyText('As a conservative design check, the joint and existing wall strength will be analyzed as if the shear force from the new dome anchors is transferred through the new connection rather than taken as a hoop force in the new wall cap. This shear would induce an out-of-plane moment on the previously unreinforced portion of the wall until the loads are disributed into the existing prestressing layer.')
+    
+    BodyHeader('Shear Friction at Wall Cap Joint', head_level=2)
+    Vnfl = CalcVariable('V_{nf,l}', Muj*Pntmax, 'lbs', 'Limiting nominal shear friction capacity at joint', code_ref='ACI 318-14 Eq. 22.9.4.2')
+    Ac = CalcVariable('A_c', Tw*Ww, 'in^2', 'Area of concrete section resisting shear transfer')
+    Fcmin = CalcVariable("f'_{c,min}", MIN(Fce, Fcn), 'psi', 'Minimum concrete strength at joint', code_ref='ACI 318-14 22.9.4.4')
+
+    if Muj > 0.9:
+        Vnma = CalcVariable('V_{nm,a}', 0.2*Fcmin*Ac, 'lbs', code_ref='ACI 318-14 Table 22.9.4.4(a)')
+        Vnmb = CalcVariable('V_{nm,b}', BRACKETS(480+0.08*Fcmin)*Ac, 'lbs', code_ref='ACI 318-14 Table 22.9.4.4(b)')
+        Vnmc = CalcVariable('V_{nm,c}', 1600*Ac, 'lbs', code_ref='ACI 318-14 Table 22.9.4.4(c)')
+        Vnmax = CalcVariable('V_{nmax}', MIN(Vnma, Vnmb, Vnmc), 'lbs', code_ref='ACI 318-14 Table 22.9.4.4')
+    else:
+        Vnmd = CalcVariable('V_{nm,d}', 0.2*Fcmin*Ac, 'lbs', code_ref='ACI 318-14 Table 22.9.4.4(d)')
+        Vnme = CalcVariable('V_{nm,e}', 800*Ac, 'lbs', code_ref='ACI 318-14 Table 22.9.4.4(e)')
+        Vnmax = CalcVariable('V_{nmax}', MIN(Vnmd, Vnme), 'lbs', code_ref='ACI 318-14 Table 22.9.4.4')
+    
+    Vnf = CalcVariable('V_{nf}', MIN(Vnfl, Vnmax), 'lbs', 'Nominal shear friction capacity at joint', code_ref='ACI 318-14 22.9.4.4')
+    Phiv = CalcVariable(r'\phi_{v}', 0.75, description='Strength reduction factor for shear strength', code_ref='ACI 318-14 Table 21.2.1')
+    PVnf = CalcVariable(r'\phi V_{nf}', Phiv*Vnf, 'lbs', 'Design shear friction strength')
+    CheckVariable(Vu, '<=', PVnf, code_ref='ACI 318-14 Eq. 22.9.3.1' )
+
+
+
     Vsa = CalcVariable('V_{sa}', 0.6*aa*futa, 'lbs', 'Nominal shear strength of anchors in shear')
     Phisv = CalcVariable(r'\phi_{steelV}', 0.60, description='Strength reduction factor for steel shear', code_ref='ACI 318-14 17.3.3')
     PVsa = CalcVariable(r'\phi V_{sa}', Phisv*Vsa, 'lbs')
@@ -272,15 +295,7 @@ def create_calculation(updated_input={}):
         ccomb = CheckVariable(Combratio, '<=', Limratio, code_ref='ACI 318-14 Eq. 17.6.3' )
 
     
-    BodyHeader('Wall Cap Hoop Tension', head_level=1)
-    BodyText('The new wall cap horizontal steel will be designed to take the entire hoop tension of the new dome structure created by outward shear force at the anchors.')
-    Thu = CalcVariable('T_{uh}', Vu / Ww * Rt*ft_to_in, 'lbs', 'Hoop tension in wall cap')
-    ah = CalcVariable('A_h', PI*(Dh/8/2)**2, 'in^2', 'Area of steel anchor')
-    ahtot = CalcVariable('A_{htot}', ah*Nh, 'in^2', 'Total steel area of anchors')
-    Pnmax = CalcVariable('P_{nt,max}', Fsy*ahtot, 'lbs', 'Nominal axial tension capacity of new wall cap', 'ACI 318-14 Eq. 22.4.3.1')
-    Phit = CalcVariable(r'\phi_{tens}', 0.90, description='Strength reduction factor for tension controlled section capacity', code_ref='ACI 318-14 Table 21.2.2')
-    PPnmax = CalcVariable(r'\phi P_{nt,max}', Phit*Pnmax, description='Design axial tension capacity of new wall cap')
-    cpnmax = CheckVariable(Thu, '<=', PPnmax)
+    
 
 
 
