@@ -19,13 +19,14 @@ def create_calculation(updated_input={}):
     CalculationTitle('EBMUD Oakland Digester 3 and 4 Wall Cap Reinforcing')
 
     DescriptionHead(
-        "Structural design capacity calculations for a new installed wall cap, placed just below bottom of the dual membrane system anchors of Digester 3 and 4, designed to transfer membrane system anchor forces connected to the existing vertical reinforcing through lap splice.")
+        "Structural design capacity calculations for a new installed wall cap, placed just below bottom of the dual membrane system anchors of Digesters 3 and 4, designed to transfer membrane system anchor forces connected to the existing vertical reinforcing through lap splice.")
 
     Assumption("ACI 318-14 controls member design")
-    Assumption(
-        "Design loads are taken from provided WesTech DuoSphere calculation report Revision F dated 10/5/2021")
-    Assumption(
-        "Existing concrete strength is calculated per ACI 214.4R-10 chapter 9 from the provided core strengths by Testing Engineers Inc dated 11/1/21 (appendix C) and by Atlas dated 6/4/21 (appendix D)")
+    Assumption("Design loads are taken from provided WesTech DuoSphere calculation report Revision F dated 10/5/2021")
+    Assumption("Existing concrete strength of Digester 3 is calculated per ACI 214.4R-10 chapter 9 from the provided core strengths by Testing Engineers Inc dated 11/1/21 (appendix C) and by Atlas dated 6/4/21 (appendix D)")
+    Assumption("Existing concrete strength of Digester 4 is calculated per ACI 214.4R-10 chapter 9 from the provided core strengths by Testing Engineers Inc dated 11/22/21-12/9/21 (appendix E)")
+    Assumption("Design calculations conservatively assume the lesser concrete compressive strength of Digester 3 and Digester 4")
+    Assumption("Design calculations conservatively assume the minimum measured wall thickness of Digester 3 and Digester 4")
     Assumption("The wall cap will have enough stiffness to evenly distribute loads among the post-installed vertical reinforcing")
     Assumption("Post-installed reinforcement will be installed with Hilti HIT-RE 500 adhesive in accordance with ICC ESR-3814")
     Assumption("Post-installed bars shall conform to ASTM A615 specifications")
@@ -38,8 +39,8 @@ def create_calculation(updated_input={}):
     Tu = DeclareVariable('T_u', 23000, 'lbs', 'Design ultimate tensile demand per cable group (Appendix B Page 46)', code_ref='Appendix B Page 46', input_type="number", min_value=0)
     Vu = DeclareVariable('V_u', 3500, 'lbs', 'Design ultimate shear demand per cable group (Appendix B Page 46)',  code_ref='Appendix B Page 46', input_type="number", min_value=0)
 
-    Fcn = DeclareVariable("f'_cn", 4000, 'psi', 'New concrete strength', input_type='number', min_value=0)
-    Fce = DeclareVariable("f'_ce", 3100, 'psi', 'Existing concrete strength (See appendix A)', 'ACI 214.4R-10 Eq. 9-9', input_type='number', min_value=0)
+    Fcn = DeclareVariable("f'_{cn}", 4000, 'psi', 'New concrete strength', input_type='number', min_value=0)
+    Fce = DeclareVariable("f'_{ce}", 3100, 'psi', 'Existing concrete strength (See appendix A)', 'ACI 214.4R-10 Eq. 9-9', input_type='number', min_value=0)
     Fsy = DeclareVariable('f_y', 60000, 'psi', 'Post-installed reinforcement yield strength', input_type='number', min_value=0)
     Fsye = DeclareVariable('f_{ye}', 40000, 'psi', 'Existing reinforcement yield strength', input_type='number', min_value=0)
 
@@ -51,11 +52,9 @@ def create_calculation(updated_input={}):
 
     
 
-    Da = DeclareVariable('D_a', reinforcement_bar_sizes[1], '', 'Post-installed bar size (eighth of an inch diameter)',
-                         input_type='select', input_options=reinforcement_bar_sizes)
+    Da = DeclareVariable('D_a', reinforcement_bar_sizes[1], '', 'Post-installed bar size (eighth of an inch diameter)')
                         
-    Dae = DeclareVariable('D_{ae}', reinforcement_bar_sizes[1], '', 'Existing bar size (eighth of an inch diameter)',
-                         input_type='select', input_options=reinforcement_bar_sizes)
+    Dae = DeclareVariable('D_{ae}', reinforcement_bar_sizes[1], '', 'Existing bar size (eighth of an inch diameter)')
 
     Sa = DeclareVariable('S_a', 8, 'in', 'Transverse center-to-center spacing of splice bars', input_type='number', min_value=0)
     
@@ -80,7 +79,7 @@ def create_calculation(updated_input={}):
     Yep = DeclareVariable(r'\psi_{e,p}', 1.0, '', 'Modification factor for epoxy coated post-installed bars (ACI 318-14 Table 25.4.2.4)')
     Yee = DeclareVariable(r'\psi_{e,e}', 1.0, '', 'Modification factor for epoxy coated existing bars (ACI 318-14 Table 25.4.2.4)')
     Yt = DeclareVariable(r'\psi_{t}', 1.0, '', 'Modification factor for splice casting position (ACI 318-14 Table 25.4.2.4)')
-    Ktr = DeclareVariable("K_{tr}", 0, "", 'Confining reinforcement factor', input_type='number', min_value=0)
+    Ktr = DeclareVariable("K_{tr}", 0, "", 'Confining reinforcement factor (ACI 318-14 25.4.2.3)', input_type='number', min_value=0)
 
 
 
@@ -104,7 +103,7 @@ def create_calculation(updated_input={}):
     aa = CalcVariable('A_a', PI*(db/2)**2, 'in^2', 'Post-installed bar area')
     atot = CalcVariable('A_{stot}', aa*Na, 'in^2', 'Total steel area of post-installed bars')
 
-    dbe = CalcVariable('d_be', Dae/8, 'in', 'Existing bar diameter')
+    dbe = CalcVariable('d_{be}', Dae/8, 'in', 'Existing bar diameter')
     aae = CalcVariable('A_{ae}', PI*(dbe/2)**2, 'in^2', 'Existing bar area')
     atote = CalcVariable('A_{stote}', aae*Na, 'in^2', 'Total steel area of existing bars')
 
@@ -124,10 +123,10 @@ def create_calculation(updated_input={}):
     BodyHeader('Post-installed reinforcement tension splice', head_level=2)
     
     if Da.value <= 6:
-        CheckVariablesText(Da.value, '<=', Variable('6', 6, ''))
+        CheckVariablesText(Da, '<=', Variable('6', 6, ''))
         ccmin = CalcVariable('c_{c,min}', 1.1875, 'in', 'Minimum concrete cover', code_ref='ESR-3814 4.2.3')
     else:
-        CheckVariablesText(Da.value, '>', Variable('6', 6, ''))
+        CheckVariablesText(Da, '>', Variable('6', 6, ''))
         ccmin = CalcVariable('c_{c,min}', 1.5625, 'in', 'Minimum concrete cover', code_ref='ESR-3814 4.2.3')
     
     cbmin = CalcVariable('c_{b,min}', db/2+ccmin, 'in', 'Required minimum edge distance for post-installed reinforcing bars', code_ref='ESR-3814 4.2.3')
@@ -147,7 +146,7 @@ def create_calculation(updated_input={}):
         Ysp = CalcVariable(r'\psi_{s,p}', 0.8, '', 'Modification factor for post-installed bar size', code_ref='ACI 318-14 Table 25.4.2.4')
 
     cbpm = CalcVariable('c_{bp,min}', MIN(cbp, Sa/2), 'in', code_ref='ACI 318-14 R25.4.2.3')
-    cbdp = CalcVariable('C_{conf,p}', MAX(2.5, (cbpm + Ktr)/db), '', 'Confinement term for development length', code_ref='ACI 318-14 25.4.2.3')
+    cbdp = CalcVariable('C_{conf,p}', MIN(2.5, (cbpm + Ktr)/db), '', 'Confinement term for development length', code_ref='ACI 318-14 25.4.2.3')
 
 
     Ldpc = CalcVariable('L_{dpc}', BRACKETS(3*Fsy*Yt*Yep*Ysp / (40*SQRT(Fce)*cbdp) )*db, 'in', 'Calculated required development length for post-installed bar', code_ref='ACI 318-14 Eq. 25.4.2.3a')
@@ -160,10 +159,10 @@ def create_calculation(updated_input={}):
     BodyHeader('Existing reinforcement tension splice', head_level=2)
     
     if Dae.value <= 6:
-        CheckVariablesText(Dae.value, '<=', Variable('6', 6, ''))
+        CheckVariablesText(Dae, '<=', Variable('6', 6, ''))
         ccmine = CalcVariable('c_{c,min,e}', 1.1875, 'in', 'Minimum concrete cover', code_ref='ESR-3814 4.2.3')
     else:
-        CheckVariablesText(Dae.value, '>', Variable('6', 6, ''))
+        CheckVariablesText(Dae, '>', Variable('6', 6, ''))
         ccmine = CalcVariable('c_{c,min,e}', 1.5625, 'in', 'Minimum concrete cover', code_ref='ESR-3814 4.2.3')
     
     cbmine = CalcVariable('c_{b,min,e}', dbe/2+ccmine, 'in', 'Required minimum edge distance for existing reinforcing bars', code_ref='ESR-3814 4.2.3')
@@ -180,7 +179,7 @@ def create_calculation(updated_input={}):
         Yse = CalcVariable(r'\psi_{s,e}', 0.8, '', 'Modification factor for existing bar size', code_ref='ACI 318-14 Table 25.4.2.4')
 
     cbem = CalcVariable('c_{be,min}', MIN(cbe, Sa/2), 'in', code_ref='ACI 318-14 R25.4.2.3')
-    cbde = CalcVariable('C_{conf,e}', MAX(2.5, (cbem + Ktr)/dbe), '', 'Confinement term for development length', code_ref='ACI 318-14 25.4.2.3')
+    cbde = CalcVariable('C_{conf,e}', MIN(2.5, (cbem + Ktr)/dbe), '', 'Confinement term for development length', code_ref='ACI 318-14 25.4.2.3')
 
 
     Ldec = CalcVariable('L_{dec}', BRACKETS(3*Fsye*Yt*Yee*Yse / (40*SQRT(Fce)*cbde) )*dbe, 'in', 'Calculated required development length for existing bar', code_ref='ACI 318-14 Eq. 25.4.2.3a')
@@ -192,7 +191,7 @@ def create_calculation(updated_input={}):
 
     BodyHeader('Reinforcement tensile strength', head_level=2)
     Pntmax = CalcVariable('P_{nt,max}', MIN(Fsy*atot, Fsye*atote), 'lbs', 'Limiting nominal steel tensile strength', code_ref='ACI 318-14 Eq. 22.4.3.1')
-    BodyText('Reinforcement is fully developed for both post-installed and existing bars, therefore the weaker bars will fully yield before failure.')
+    BodyText('Reinforcement is fully developed for both post-installed and existing bars, therefore the weaker bars will be able to fully yield before failure.')
     Phit = CalcVariable(r'\phi_{tens}', 0.9, description='Strength reduction factor for tension controlled section capacity', code_ref='ACI 318-14 Table 21.2.2')
     Pnt = CalcVariable(r'\phi P_{nt}', Phit*Pntmax, 'lbs', 'Design steel tensile strength', code_ref='ESR-3814 4.2.1')
     CheckVariable(Tu, '<=', Pnt )
@@ -206,10 +205,10 @@ def create_calculation(updated_input={}):
     ah = CalcVariable('A_h', PI*(Dh/8/2)**2, 'in^2', 'Area of horizontal bars')
     ahtot = CalcVariable('A_{htot}', ah*Nh, 'in^2', 'Total steel area of horizontal bars')
     Pnmax = CalcVariable('P_{nt,max}', Fsy*ahtot, 'lbs', 'Nominal axial tension capacity of new wall cap', 'ACI 318-14 Eq. 22.4.3.1')
-    PPnmax = CalcVariable(r'\phi P_{nt,max}', Phit*Pnmax, description='Design axial tension capacity of new wall cap')
+    PPnmax = CalcVariable(r'\phi P_{nt,max}', Phit*Pnmax, 'lbs', 'Design axial tension capacity of new wall cap')
     cpnmax = CheckVariable(Thu, '<=', PPnmax)
 
-    BodyText('As a conservative design check, the joint and existing wall strength will be analyzed as if the shear force from the new dome anchors is transferred through the new connection rather than taken as a hoop force in the new wall cap. This shear would induce an out-of-plane moment on the previously unreinforced portion of the wall until the loads are disributed into the existing prestressing layer.')
+    BodyText('As a conservative design check, the joint and existing wall strength will be analyzed as if the shear force from the new dome anchors is transferred through the new connection rather than taken as a hoop force in the new wall cap. This shear would induce an out-of-plane moment on the previously unreinforced portion of the wall until the loads are distributed into the existing prestressing layer.')
     
     BodyHeader('Shear Friction at Wall Cap Joint', head_level=2)
     Vnfl = CalcVariable('V_{nf,l}', Muj*Pntmax, 'lbs', 'Limiting nominal shear friction capacity at joint', code_ref='ACI 318-14 Eq. 22.9.4.2')
@@ -236,7 +235,7 @@ def create_calculation(updated_input={}):
     BodyText('To transfer the shear force from the new dome anchors to the existing prestressing layer, an out-of-plane moment on the previously unreinforced portion of the wall would be induced.')
     Muv = CalcVariable('M_{uV}', Vu * BRACKETS(Hcap+Hunr), 'lb-in', 'Maximum moment demand considered in existing wall')
 
-    BodyText('The moment capacity will be limited by the weaker spliced steel.')
+    BodyText('The moment capacity will be limited by the weaker spliced steel and tensile demands on the section.')
     Tsf = CalcVariable('T_{sf}', Pntmax - Tu, 'lbs', 'Remaining tensile capacity of steel for flexural strength')
     a = CalcVariable('a', Tsf / (0.85*Fce*Ww), 'in', 'Width of concrete compressive stress block' )
     d = CalcVariable('d', Tw/2, 'in', 'Depth from concrete compression face to reinforcing centerline' )
@@ -245,7 +244,7 @@ def create_calculation(updated_input={}):
     B1 = CalcVariable(r'\beta _1', MIN(0.85, 0.85 - 0.05*BRACKETS(Fce-4000)/1000), '', 'Equivalent rectangular compressive stress block depth ratio', code_ref='ACI 318-14 Table 22.2.2.4.3')
     c = CalcVariable('c', a/B1, 'in', 'Neutral axis depth from compression face', code_ref='ACI 318-14 Eq. 22.2.2.4.1')
     ec_var = CalcVariable(r'\varepsilon _c', 0.003, '', 'Crushing strain of concrete', code_ref='ACI 318-14 Eq. 22.2.2.1')
-    es = CalcVariable(r'\varepsilon _t', ec_var*(d-c)/c, '', 'Tensile strain in reinforcing steel at flexural failure', code_ref='ACI 318-14 22.2.1.2' )
+    es = CalcVariable(r'\varepsilon _t', ec_var*BRACKETS(d-c)/c, '', 'Tensile strain in reinforcing steel at flexural failure', code_ref='ACI 318-14 22.2.1.2' )
     ey = CalcVariable(r'\varepsilon _{ty}', MAX(Fsy, Fsye) /Es, '', 'Yield strain of reinforcement steel (max)' )
 
     phi = CalcVariable(r'\phi', MAX(0.65, MIN(0.9, 0.65 + 0.25*BRACKETS((es-ey)/(0.005 - ey)))), '', 'Strength reduction factor', code_ref='ACI 318-14 Table 21.2.2')
