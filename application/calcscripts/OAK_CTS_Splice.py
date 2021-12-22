@@ -22,11 +22,11 @@ def create_calculation(updated_input={}):
         "Structural design capacity calculations for a new installed wall cap, placed just below bottom of the dual membrane system anchors of Digesters 3 and 4, designed to transfer membrane system anchor forces connected to the existing vertical reinforcing through lap splice.")
 
     Assumption("ACI 318-14 controls member design")
-    Assumption("Design loads are taken from provided WesTech DuoSphere calculation report Revision F dated 10/5/2021")
-    Assumption("Existing concrete strength of Digester 3 is calculated per ACI 214.4R-10 chapter 9 from the provided core strengths by Testing Engineers Inc dated 11/1/21 (appendix C) and by Atlas dated 6/4/21 (appendix D)")
-    Assumption("Existing concrete strength of Digester 4 is calculated per ACI 214.4R-10 chapter 9 from the provided core strengths by Testing Engineers Inc dated 11/22/21-12/9/21 (appendix E)")
-    Assumption("Design calculations conservatively assume the lesser concrete compressive strength of Digester 3 and Digester 4")
-    Assumption("Design calculations conservatively assume the minimum measured wall thickness of Digester 3 and Digester 4")
+    Assumption("Design loads are taken from provided WesTech DuoSphere calculation reports for Digester 3 and Digester 4 dated 12/20/2021 (appendix B)")
+    Assumption("Existing concrete strength of Digester 3 is calculated per ACI 214.4R-10 chapter 9 from the provided core strengths by Testing Engineers Inc tested 11/1/21 (appendix C) and by Atlas report date 6/27/21 (appendix D)")
+    Assumption("Existing concrete strength of Digester 4 is calculated per ACI 214.4R-10 chapter 9 from the provided core strengths by Testing Engineers Inc report dated 12/12/21 (appendix E)")
+    Assumption("Design calculations conservatively assume the lesser concrete compressive strength of Digester 3 and Digester 4 (appendix A)")
+    Assumption("Design calculations conservatively assume the minimum measured wall thickness of Digester 3 and Digester 4 (appendix F)")
     Assumption("The wall cap will have enough stiffness to evenly distribute loads among the post-installed vertical reinforcing")
     Assumption("Post-installed reinforcement will be installed with Hilti HIT-RE 500 adhesive in accordance with ICC ESR-3814")
     Assumption("Post-installed bars shall conform to ASTM A615 specifications")
@@ -36,8 +36,8 @@ def create_calculation(updated_input={}):
     
         
 
-    Tu = DeclareVariable('T_u', 23000, 'lbs', 'Design ultimate tensile demand per cable group (Appendix B Page 46)', code_ref='Appendix B Page 46', input_type="number", min_value=0)
-    Vu = DeclareVariable('V_u', 3500, 'lbs', 'Design ultimate shear demand per cable group (Appendix B Page 46)',  code_ref='Appendix B Page 46', input_type="number", min_value=0)
+    Tu = DeclareVariable('T_u', 23000, 'lbs', 'Design ultimate tensile demand at top of wall cap per cable group (Appendix B)', code_ref='Appendix B Page 46', input_type="number", min_value=0)
+    Vu = DeclareVariable('V_u', 3500, 'lbs', 'Design ultimate shear demand at top of wall cap per cable group (Appendix B)',  code_ref='Appendix B Page 46', input_type="number", min_value=0)
 
     Fcn = DeclareVariable("f'_{cn}", 4000, 'psi', 'New concrete strength', input_type='number', min_value=0)
     Fce = DeclareVariable("f'_{ce}", 3100, 'psi', 'Existing concrete strength (See appendix A)', 'ACI 214.4R-10 Eq. 9-9', input_type='number', min_value=0)
@@ -62,7 +62,7 @@ def create_calculation(updated_input={}):
     cbp = DeclareVariable("c_{b,p}", 2, "in", 'Minimum center-to-edge distance of post-installed bars', input_type='number', min_value=0)
     cbe = DeclareVariable("c_{b,e}", 2, "in", 'Minimum center-to-edge distance of existing bars', input_type='number', min_value=0)
 
-    ce = DeclareVariable("c_{1,e}", 2, "in", 'Maximum distance from end of existing bar to surface of concrete', input_type='number', min_value=0)
+    ce = DeclareVariable("c_{1,e}", 2, "in", 'Maximum distance from end of existing bar to top surface of concrete', input_type='number', min_value=0)
     Le = DeclareVariable('L_e', 5, 'in', 'Total embedment depth of post-installed bar', input_type='number', min_value=0)
 
     Hh = DeclareVariable('l_{dh}', 12, 'in', 'Hooked development length of post-installed bar in wall cap')
@@ -204,14 +204,15 @@ def create_calculation(updated_input={}):
     Thu = CalcVariable('T_{uh}', Vu / Ww * Rt*ft_to_in, 'lbs', 'Hoop tension in wall cap')
     ah = CalcVariable('A_h', PI*(Dh/8/2)**2, 'in^2', 'Area of horizontal bars')
     ahtot = CalcVariable('A_{htot}', ah*Nh, 'in^2', 'Total steel area of horizontal bars')
-    Pnmax = CalcVariable('P_{nt,max}', Fsy*ahtot, 'lbs', 'Nominal axial tension capacity of new wall cap', 'ACI 318-14 Eq. 22.4.3.1')
-    PPnmax = CalcVariable(r'\phi P_{nt,max}', Phit*Pnmax, 'lbs', 'Design axial tension capacity of new wall cap')
+    Pnmax = CalcVariable('P_{n,max}', Fsy*ahtot, 'lbs', 'Nominal axial tension capacity of new wall cap', 'ACI 318-14 Eq. 22.4.3.1')
+    PPnmax = CalcVariable(r'\phi P_{n,max}', Phit*Pnmax, 'lbs', 'Design axial tension capacity of new wall cap')
     cpnmax = CheckVariable(Thu, '<=', PPnmax)
 
     BodyText('As a conservative design check, the joint and existing wall strength will be analyzed as if the shear force from the new dome anchors is transferred through the new connection rather than taken as a hoop force in the new wall cap. This shear would induce an out-of-plane moment on the previously unreinforced portion of the wall until the loads are distributed into the existing prestressing layer.')
     
     BodyHeader('Shear Friction at Wall Cap Joint', head_level=2)
-    Vnfl = CalcVariable('V_{nf,l}', Muj*Pntmax, 'lbs', 'Limiting nominal shear friction capacity at joint', code_ref='ACI 318-14 Eq. 22.9.4.2')
+    Tsfv = CalcVariable('T_{sf,v}', Pntmax - Tu, 'lbs', 'Remaining tensile capacity of steel for shear strength', code_ref="ACI 318-14 22.9.4.6")
+    Vnfl = CalcVariable('V_{nf,l}', Muj*Tsfv, 'lbs', 'Limiting nominal shear friction capacity at joint', code_ref='ACI 318-14 Eq. 22.9.4.2')
     Ac = CalcVariable('A_c', Tw*Ww, 'in^2', 'Area of concrete section resisting shear transfer')
     Fcmin = CalcVariable("f'_{c,min}", MIN(Fce, Fcn), 'psi', 'Minimum concrete strength at joint', code_ref='ACI 318-14 22.9.4.4')
 
@@ -241,7 +242,16 @@ def create_calculation(updated_input={}):
     d = CalcVariable('d', Tw/2, 'in', 'Depth from concrete compression face to reinforcing centerline' )
     Mn = CalcVariable('M_n', Tsf*BRACKETS(d-a/2), 'lb-in', 'Nominal moment capacity of wall section')
 
-    B1 = CalcVariable(r'\beta _1', MIN(0.85, 0.85 - 0.05*BRACKETS(Fce-4000)/1000), '', 'Equivalent rectangular compressive stress block depth ratio', code_ref='ACI 318-14 Table 22.2.2.4.3')
+    fourksi = Variable('4000 psi', 4000, 'psi')
+    if Fce.value >= 8000:
+        CheckVariablesText(Fce, '>=', Variable('8000 psi', 8000, 'psi'))
+        B1 = CalcVariable(r'\beta _1', 0.65, '', 'Equivalent rectangular compressive stress block depth ratio', code_ref='ACI 318-14 Table 22.2.2.4.3')
+    elif Fce.value > 4000:
+        B1 = CalcVariable(r'\beta _1', 0.85 - 0.05*BRACKETS(Fce-fourksi)/1000, '', 'Equivalent rectangular compressive stress block depth ratio', code_ref='ACI 318-14 Table 22.2.2.4.3')
+    else:
+        CheckVariablesText(Fce, '<=', fourksi)
+        B1 = CalcVariable(r'\beta _1', 0.85, '', 'Equivalent rectangular compressive stress block depth ratio', code_ref='ACI 318-14 Table 22.2.2.4.3')
+    
     c = CalcVariable('c', a/B1, 'in', 'Neutral axis depth from compression face', code_ref='ACI 318-14 Eq. 22.2.2.4.1')
     ec_var = CalcVariable(r'\varepsilon _c', 0.003, '', 'Crushing strain of concrete', code_ref='ACI 318-14 Eq. 22.2.2.1')
     es = CalcVariable(r'\varepsilon _t', ec_var*BRACKETS(d-c)/c, '', 'Tensile strain in reinforcing steel at flexural failure', code_ref='ACI 318-14 22.2.1.2' )
