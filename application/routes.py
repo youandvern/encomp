@@ -8,6 +8,32 @@ from application.mongo_query import getUserProjects, getProjCalcs, removeCalcula
 from application.calcscripts.process.compilecalc import compile_calculation
 import shutil
 import os
+import functools
+
+# decorator function to save navigation history with each new path
+def store_last_page(func):
+    # python decorator for keeping route method function identity properties
+    @functools.wraps(func)
+    def set_last_page(*args, **kwargs):
+        # set session list with first page always the index
+        if not session.get('global_page_history'):
+            session['global_page_history'] = ['index']
+        else:
+            # get name of route that was navigated to
+            page = func.__name__
+            # don't record if refreshed or same page navigated to
+            if page != session.get('global_page_history')[-1]:
+                session.get('global_page_history').append(page) # save page name
+                # flash(f"history list: {session.get('global_page_history')}")
+        # remove first item if list is longer than 10 paths (limit stack size to 10)
+        if  len(session.get('global_page_history')) > 10:
+            session.get('global_page_history').pop(0)
+
+        # call route function and return returned variables
+        return func(*args, **kwargs)
+
+    # return wrapped function
+    return set_last_page
 
 
 
@@ -15,18 +41,20 @@ import os
 @application.route("/")
 @application.route("/index")
 @application.route("/home")
+@store_last_page
 def index():
     return render_template('index.html', index = True)
 
 
 
 @application.route("/about")
+@store_last_page
 def about():
     return render_template('about.html', about = True)
 
 
-
 @application.route("/contact", methods=['GET', 'POST'])
+@store_last_page
 def contact():
     form = ContactForm()
     if form.validate_on_submit():
@@ -37,41 +65,43 @@ def contact():
         %s
         """ % (form.name.data, form.email.data, form.message.data)
         mail.send(msg)
-        flash(f"Thank you for contacting us. We will reach out to you as soon as possible.", "success")
+        flash(
+            "Thank you for contacting us. We will reach out to you as soon as possible.",
+            "success",
+        )
+
         return redirect(url_for('index'))
     # else:
     #     flash("All fields required")
     return render_template('contact.html', contact = True, form = form)
 
 
-
 @application.route("/myprojects", methods=['GET', 'POST'])
+@store_last_page
 def landing():
     if not session.get('username'):
         return redirect(url_for('index'))
+    my_projects = getUserProjects(session.get('user_id'))
+
+    if selected_project_id := request.form.get('selected_project_id'):
+        session['current_project_id'] = selected_project_id
+        selected_project = Project.objects(_id=selected_project_id).first()
+        session['current_p_name'] = selected_project.project_name
+        session['current_p_description'] = selected_project.description
+
+    if session.get('current_project_id'):
+        select_comment = False
+        project_calcs = getProjCalcs(session.get('current_project_id'))
     else:
-        my_projects = getUserProjects(session.get('user_id'))
-
-        selected_project_id = request.form.get('selected_project_id')
-        if selected_project_id:
-            session['current_project_id'] = selected_project_id
-            selected_project = Project.objects(_id=selected_project_id).first()
-            session['current_p_name'] = selected_project.project_name
-            session['current_p_description'] = selected_project.description
-
-        if session.get('current_project_id'):
-            select_comment = False
-            project_calcs = getProjCalcs(session.get('current_project_id'))
-        else:
-            select_comment = True
-            project_calcs = False
+        select_comment = True
+        project_calcs = False
 
         ###### Import Calculation  #####
-        if request.method == 'POST':
-            file = request.files.get('upload_calc')
-            if file and file.filename == '':
+    if request.method == 'POST':
+        if file := request.files.get('upload_calc'):
+            if file.filename == '':
                 flash("No file has been selected")
-            elif file and session.get('current_project_id'):
+            elif session.get('current_project_id'):
                 filename = secure_filename(file.filename)
                 upload_content = file.read()
                 calc_import_dict = json.loads(upload_content)
@@ -80,77 +110,74 @@ def landing():
                 flash(f"You have uploaded {filename} successfully as: {calc_import_dict['calc_name']}", "success")
                 return redirect(url_for('landing'))
 
-        selected_calc_id = request.form.get('selected_calc_id')
-        if selected_calc_id:
-            session['current_calc_id'] = selected_calc_id
-            selected_calculation = CalcInput.objects(_id=selected_calc_id).first()
-            session['current_c_name'] = selected_calculation.calc_name
-            session['current_c_description'] = selected_calculation.description
-            return redirect(url_for('design_dashboard'))
+    if selected_calc_id := request.form.get('selected_calc_id'):
+        session['current_calc_id'] = selected_calc_id
+        selected_calculation = CalcInput.objects(_id=selected_calc_id).first()
+        session['current_c_name'] = selected_calculation.calc_name
+        session['current_c_description'] = selected_calculation.description
+        return redirect(url_for('design_dashboard'))
 
-        ############------------ADD PROJECT FORM-----------##############
-        pform = ProjectForm()
-        if pform.validate_on_submit():
-            project_name = pform.project_name.data
-            description = pform.description.data
+    ############------------ADD PROJECT FORM-----------##############
+    pform = ProjectForm()
+    if pform.validate_on_submit():
+        project_name = pform.project_name.data
+        description = pform.description.data
 
-            project = Project( project_name=project_name, description=description, user_id=session.get('user_id')) # user_id=ObjectId(),
-            project.save()
+        project = Project( project_name=project_name, description=description, user_id=session.get('user_id')) # user_id=ObjectId(),
+        project.save()
 
-            flash(f"You have saved {project_name}", "success")
-            return redirect(url_for('landing'))
+        flash(f"You have saved {project_name}", "success")
+        return redirect(url_for('landing'))
 
-        ############------------CHANGE PROJECT NAME FORM-----------##############
-        pnameform = ChangeProjectForm()
-        if pnameform.validate_on_submit():
-            new_project_name = pnameform.new_project_name.data
-            new_description = pnameform.new_description.data
+    ############------------CHANGE PROJECT NAME FORM-----------##############
+    pnameform = ChangeProjectForm()
+    if pnameform.validate_on_submit():
+        new_project_name = pnameform.new_project_name.data
+        new_description = pnameform.new_description.data
 
-            project = Project.objects( _id = session['current_project_id'] ).first()
-            project.project_name = new_project_name
-            project.description = new_description
-            project.save()
+        project = Project.objects( _id = session['current_project_id'] ).first()
+        project.project_name = new_project_name
+        project.description = new_description
+        project.save()
 
-            flash(f"You have updated {new_project_name}", "success")
-            return redirect(url_for('landing'))
+        flash(f"You have updated {new_project_name}", "success")
+        return redirect(url_for('landing'))
 
-        ############------------ADD calc FORM-----------##############
-        cform = CalcForm()
-        if cform.validate_on_submit():
-            calc_name = cform.calc_name.data
-            description = cform.description.data
-            calc_type_name = cform.calc_type.data
-            calc_type = CalcType.objects(type_name=calc_type_name).first()
+    ############------------ADD calc FORM-----------##############
+    cform = CalcForm()
+    if cform.validate_on_submit():
+        calc_name = cform.calc_name.data
+        description = cform.description.data
+        calc_type_name = cform.calc_type.data
+        calc_type = CalcType.objects(type_name=calc_type_name).first()
 
-            calc_type_id = calc_type._id
-            project_id = session.get('current_project_id')
+        calc_type_id = calc_type._id
+        project_id = session.get('current_project_id')
 
-            calc = CalcInput( calc_name=calc_name, description=description, calc_type_id=calc_type_id, project_id=project_id) # user_id=ObjectId(),
-            calc.save()
+        calc = CalcInput( calc_name=calc_name, description=description, calc_type_id=calc_type_id, project_id=project_id) # user_id=ObjectId(),
+        calc.save()
 
-            flash(f"You have saved {calc_name}", "success")
-            return redirect(url_for('landing'))
+        flash(f"You have saved {calc_name}", "success")
+        return redirect(url_for('landing'))
 
-        # Delete project
-        delete_project_trigger = request.form.get('delete_current_project')
-        if delete_project_trigger:
-            deleteProject(session.get('current_project_id'))
-            deleted_project_name = session.get('current_p_name')
-            session.pop('current_project_id')
-            session.pop('current_p_name')
-            session.pop('current_p_description')
-            if session.get('current_calc_id'):
-                session.pop('current_calc_id')
-                session.pop('current_c_name')
-                session.pop('current_c_description')
-            flash(f"You have deleted {deleted_project_name}", "success")
-            return redirect(url_for('landing'))
+    if delete_project_trigger := request.form.get('delete_current_project'):
+        deleteProject(session.get('current_project_id'))
+        deleted_project_name = session.get('current_p_name')
+        session.pop('current_project_id')
+        session.pop('current_p_name')
+        session.pop('current_p_description')
+        if session.get('current_calc_id'):
+            session.pop('current_calc_id')
+            session.pop('current_c_name')
+            session.pop('current_c_description')
+        flash(f"You have deleted {deleted_project_name}", "success")
+        return redirect(url_for('landing'))
 
     return render_template('landing.html', my_projects=my_projects, project_calcs=project_calcs, select_comment=select_comment, pform = pform, cform=cform, pnameform = pnameform,current_p_description =session.get('current_p_description'), current_p_name = session.get('current_p_name'),  project=True)
 
 
-
 @application.route("/login", methods=['GET', 'POST'])
+@store_last_page
 def login():
     if session.get('username'):
         flash(f"You are already logged in, {session.get('username')}")
@@ -180,8 +207,8 @@ def login():
                     flash("Sorry, email not found.", "danger")
         elif register_attempt:
             if formR.validate_on_submit():
-                emailR = formR.email.data
-                passwordR = formR.password.data
+                emailR = formR.emailR.data
+                passwordR = formR.passwordR.data
                 first_nameR = formR.first_name.data
                 last_nameR = formR.last_name.data
 
@@ -196,8 +223,8 @@ def login():
 
 
 
-
 @application.route("/logout")
+@store_last_page
 def logout():
     current_user_id = session.get('user_id')
     # dir_path = f"C:/Users/ayoung/encomp/application/static/jsonfiles/{current_user_id}"
@@ -206,15 +233,15 @@ def logout():
         try:
             shutil.rmtree(dir_path)
         except OSError as e:
-            flash("Error: %s : %s" % (dir_path, e.strerror))
+            flash(f"Error: {dir_path} : {e.strerror}")
     [session.pop(key) for key in list(session.keys())]
     flash("You have been logged out.", "success")
     return redirect(url_for('index'))
 
 
 
-
 @application.route("/design_dashboard", methods=['GET', 'POST'])
+@store_last_page
 def design_dashboard():
 
     if not session.get('current_calc_id'):
@@ -295,6 +322,7 @@ def design_dashboard():
         change_calc_name   = 'change_calc_name' in form_submit_dict
         delete_calc        = 'delete_current_calc' in form_submit_dict
         export_calc        = 'export_calc' in form_submit_dict
+        go_back            = 'go_back' in form_submit_dict
 
         if update_results:
             current_calc.calc_input_dict = form_submit_dict
@@ -309,6 +337,10 @@ def design_dashboard():
             return delete_current_calculation()
         elif export_calc:
             return export_calculation()
+        elif go_back:
+            # get rid of current page from history list, then go to previous page
+            session.get('global_page_history').pop()
+            return redirect(url_for(session.get('global_page_history').pop()))
 
 
     ############------------RENDER INPUT AND OUTPUT VALUES-----------##############
@@ -350,8 +382,8 @@ def design_dashboard():
 
 
 
-
 @application.route("/calcreport<print_report>", methods=['GET', 'POST'])
+@store_last_page
 def calcreport(print_report):
     current_calc = CalcInput.objects( _id = session['current_calc_id'] ).first()
     current_calc_type = CalcType.objects( _id = current_calc.calc_type_id ).first()
@@ -374,25 +406,80 @@ def calcreport(print_report):
 
 
 
-
 @application.route("/exportcalculation")
+@store_last_page
 def export_calculation():
-    if session.get('user_id') and session.get('current_calc_id'):
-        current_user_id = session.get('user_id')
-        current_calc = CalcInput.objects( _id = session['current_calc_id'] ).first()
-        if current_calc:
-            calc_file_name =  current_calc.calc_name.replace(" ", "_")
-            calc_export_dict = {'calc_name': current_calc.calc_name, 'description': current_calc.description, 'calc_type_id': str(current_calc.calc_type_id), 'calc_input_dict': current_calc.calc_input_dict, 'left_header': current_calc.left_header, 'center_header': current_calc.center_header, 'right_header': current_calc.right_header}
-            # file_path = f"C:/Users/ayoung/encomp/application/static/jsonfiles/{current_user_id}/{calc_file_name}.json"
-            file_path = f"/home/ubuntu/encomp/application/static/jsonfiles/{current_user_id}/{calc_file_name}.json"
-            # dir_path = f"C:/Users/ayoung/encomp/application/static/jsonfiles/{current_user_id}"
-            dir_path = f"/home/ubuntu/encomp/application/static/jsonfiles/{current_user_id}"
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path)
-            with open(file_path,"w") as file:
-                json.dump(calc_export_dict,file)
-            return send_file(file_path, as_attachment=True, attachment_filename=f"{calc_file_name}_export.json")
-        else:
-            flash("Current calculation not found.", "danger")
-    else:
+    if not session.get('user_id') or not session.get('current_calc_id'):
         return redirect(url_for('index'))
+    current_user_id = session.get('user_id')
+    if current_calc := CalcInput.objects(
+        _id=session['current_calc_id']
+    ).first():
+        calc_file_name =  current_calc.calc_name.replace(" ", "_")
+        calc_export_dict = {'calc_name': current_calc.calc_name, 'description': current_calc.description, 'calc_type_id': str(current_calc.calc_type_id), 'calc_input_dict': current_calc.calc_input_dict, 'left_header': current_calc.left_header, 'center_header': current_calc.center_header, 'right_header': current_calc.right_header}
+        # file_path = f"C:/Users/ayoung/encomp/application/static/jsonfiles/{current_user_id}/{calc_file_name}.json"
+        file_path = f"/home/ubuntu/encomp/application/static/jsonfiles/{current_user_id}/{calc_file_name}.json"
+        # dir_path = f"C:/Users/ayoung/encomp/application/static/jsonfiles/{current_user_id}"
+        dir_path = f"/home/ubuntu/encomp/application/static/jsonfiles/{current_user_id}"
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+        with open(file_path,"w") as file:
+            json.dump(calc_export_dict,file)
+        return send_file(file_path, as_attachment=True, attachment_filename=f"{calc_file_name}_export.json")
+    else:
+        flash("Current calculation not found.", "danger")
+
+@application.route("/api/testing", methods=["GET", "POST"])
+def test_api():
+    if input_json := request.json:
+        a = input_json.get("a", 0)
+        b = input_json.get("b", 0)
+        return {'sum':a+b, "product":a*b}
+    return "No input given"
+
+@application.route("/api/ConcreteBeam", methods=["GET", "POST"])
+def concrete_beam_api():
+    if not (input_json := request.json):
+        return "No input given"
+    calc_file_name = 'ConcreteBeam'
+
+    ############------------GET CALCULATION INPUT OBJECTS BY RUNNING CALC -----------##############
+    calculation_path = f'application.calcscripts.{calc_file_name}.create_calculation'
+    calc_items_and_strings, calc_errors = compile_calculation(compile_calc_path=calculation_path)
+    # if calc_errors:
+    #     print(calc_errors)
+    calc_items = calc_items_and_strings['all_items']
+    setup_items = calc_items['setup']
+    calc_inputs = [
+        item
+        for item in setup_items
+        if item.__class__.__name__ in ['DeclareVariable', 'DeclareTable']
+    ]
+
+        ############------------UPDATE INPUTS, RUN CALC, AND GET OUTPUT VALUES-----------##############
+        # update input variables
+    if isinstance(input_json, dict):
+
+        for item in calc_inputs:
+            var_name = item.name
+            if input_val := input_json.get(var_name):
+                item._set_value(input_val)
+            else:
+                input_json[var_name] = item.value
+
+    #  get calculation output objects
+    calc_items_and_strings, calc_errors = compile_calculation(compile_calc_path=calculation_path, compile_update_vals=True, compile_updated_items=calc_inputs)
+    # if calc_errors:
+    #     print(calc_errors)
+    calc_items = calc_items_and_strings['all_items']
+    result_items = calc_items['calc']
+        # SAVE HTML STRINGS FOR CALC REPORT
+        # stringsdict = calc_items_and_strings['html_strings']
+        # session['stringsdict'] = stringsdict
+
+    return {
+        item.name: item.result()
+        for item in result_items
+        if item.__class__.__name__ in ['CalcVariable', 'CalcTable']
+        and item.result_check
+    }

@@ -4,7 +4,7 @@
 <div class="container">
 
     <div class="row">
-        <div class="col-md-12 text-center">
+        <div class="col-md-12 text-center home-intro">
 
             {% if session.get('username') %}
             <h2>Let's get started.</h2>
@@ -13,9 +13,20 @@
             {% else %}
             <br>
             <h2> Welcome to <span class="blue-text"><b>EnComp</b></span>! Let's get started. </h2>
-            <br><br>
+            <br>
 
             {% endif %}
+            <div class="new-feature">
+              <div class="new-feature-back"></div>
+              <div class="new-feature-text">
+                <h4 >Go see our new concrete beam design tool and let us know what you think: </h4>
+                <h3><b><a href="https://concrete.encompapp.com/">concrete.encompapp.com</a></b></h3>
+              </div>
+              
+            </div>
+            
+            <br><br>
+
             </div>
     </div>
 
