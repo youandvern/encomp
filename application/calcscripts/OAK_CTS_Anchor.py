@@ -29,7 +29,7 @@ def create_calculation(updated_input={}):
     Assumption("The wall cap will have enough stiffness to evenly distribute loads among the new anchors")
     Assumption("Adhesive anchors will be installed with Hilti HIT-RE 500 adhesive in accordance with ICC ESR-3814")
     Assumption("Anchor bars shall conform to ASTM A615 specifications")
-        
+
 
     Tu = DeclareVariable('T_u', 23000, 'lbs', 'Design ultimate tensile demand per cable group (Appendix B Page 46)', code_ref='Appendix B Page 46', input_type="number", min_value=0)
     Vu = DeclareVariable('V_u', 3500, 'lbs', 'Design ultimate shear demand per cable group (Appendix B Page 46)',  code_ref='Appendix B Page 46', input_type="number", min_value=0)
@@ -51,7 +51,7 @@ def create_calculation(updated_input={}):
 
     bonduncrc = DeclareVariable(r'\tau_{uncr,c}', 1670, 'psi', 'Characteristic anchor bond strength (ESR-3814)', input_type='number', min_value=0)
     bondcrc = DeclareVariable(r'\tau_{cr,c}', 1410, 'psi', 'Characteristic anchor bond strength - cracked (ESR-3814)', input_type='number', min_value=0)
-    
+
     Ha = DeclareVariable('h_{eff,a}', 5, 'in', 'Embedment depth of anchor', input_type='number', min_value=0)
 
     Hh = DeclareVariable('l_{dh}', 12, 'in', 'Hooked development length of anchor in wall cap')
@@ -70,8 +70,7 @@ def create_calculation(updated_input={}):
 
     if len(updated_input) > 0:
         for input_variable in DeclareVariable.instances:
-            new_value = updated_input.get(input_variable.name)
-            if new_value:
+            if new_value := updated_input.get(input_variable.name):
                 input_variable._set_value(new_value)
 
     ###   DEFINE CALCULATION, BODY HEADER, AND BODY TEXT   ###
@@ -87,7 +86,7 @@ def create_calculation(updated_input={}):
     aa = CalcVariable('A_a', PI*(db/2)**2, 'in^2', 'Area of steel anchor')
     atot = CalcVariable('A_{stot}', aa*Na, 'in^2', 'Total steel area of anchors')
 
-    
+
     BodyHeader('Steel Anchor', head_level=2)
     futa = CalcVariable('f_{uta}', MIN(1.9*Fsy, 90000), 'psi', code_ref='ACI 318-14 17.4.1.2, ESR-3814')
     Nsa = CalcVariable('N_{sa}', atot*futa, 'lbs', 'Nominal strength of anchor in tension')
@@ -104,18 +103,18 @@ def create_calculation(updated_input={}):
     Ldh = CalcVariable('L_{dh}', MAX(Ldha, Ldhb, Ldhc), 'in', 'Hooked development length of anchor bar' ,code_ref= 'ACI 318-14 25.4.3.1b')
     cldh = CheckVariable( Hh, '>=', Ldh, truestate="OK", falsestate="ERROR", result_check=True)
 
-    
+
     BodyHeader('Bond Strength', head_level=2)
 
     bonduncr = CalcVariable(r'\tau_{uncr}', bonduncrc*(Fce/2500)**0.15, 'psi', 'Adjusted anchor bond strength', code_ref="ESR-3814")
     bondcr = CalcVariable(r'\tau_{cr}', bondcrc*(Fce/2500)**0.15, 'psi', 'Adjusted anchor bond strength - cracked', code_ref="ESR-3814")
-    
+
 
     Yecna = CalcVariable(r'\psi_{ec,Na}', 1.0, '', 'Modification factor for eccentricity', code_ref='ACI 318-14 17.4.5.3')
     camin = CalcVariable('c_{a,min}', Tw / 2, 'in', 'Minimum edge distance of anchor bar')
     camax = CalcVariable('c_{a,max}', Tw / 2, 'in', 'Maximum edge distance of anchor bar')
     cna = CalcVariable('c_{Na}', 10*db*SQRT(bonduncr/1100), 'in', 'Projected maximum edge distance', 'ACI 318-14 Eq. 17.4.5.1d')
-    
+
 
     if camin.result() >= cna.result():
         CheckVariablesText(camin, '>=', cna)
@@ -139,7 +138,7 @@ def create_calculation(updated_input={}):
     Nba = CalcVariable('N_{ba}', bondcr*PI*db*Ha, 'lbs', 'Basic bond strength of single adhesive anchor in tension in cracked concrete')
     Anao = CalcVariable('A_{Nao}', 4*cna**2, 'in^2', 'Projected influence area of a single adhesive anchor', code_ref='ACI 318-14 17.4.5.1c')
     Ana = CalcVariable('A_{Na}', BRACKETS(camin + camax)*BRACKETS(Sa*Na), 'in^2', 'Projected influence area of the group of adhesive anchors', code_ref='ACI 318-14 17.4.5.1c')
-    
+
     Nag = CalcVariable('N_{ag}', Yecna*Yedna*Ycpna*Nba*Ana/Anao, 'lbs', 'Nominal bond strength of the anchor group', 'ACI 318-14 Eq. 17.4.5.1b')
     Phib = CalcVariable(r'\phi_{bond}', 0.65, description='Strength reduction factor for bond failure', code_ref='ACI 318-14 17.3.3')
     PNag = CalcVariable(r'\phi N_{ag}', Phib*Nag, 'lbs')
@@ -159,7 +158,7 @@ def create_calculation(updated_input={}):
     else:
         CheckVariablesText(camin, '<', hef15)
         Yedn = CalcVariable(r'\psi_{ed,N}', 0.7+0.3*camin/hef15, '', 'Modification factor for edge effects', code_ref='ACI 318-14 17.4.2.5b')
-    
+
     Ycn = CalcVariable(r'\psi_{c,N}', 1.0, '', 'Modification factor for uncracked sections', code_ref='ACI 318-14 17.4.2.6')
 
     if camin.result() >= cac.result():
@@ -171,7 +170,7 @@ def create_calculation(updated_input={}):
     else:
         CheckVariablesText(camin, '<', cac)
         Ycpn = CalcVariable(r'\psi_{cp,N}', 1.0, '', 'Modification factor to control splitting', code_ref='ACI 318-14 17.4.2.7b note')
-    
+
     kc = CalcVariable('k_c', 17, '', 'Post-installed anchor breakout factor', 'ACI 318-14 17.4.2.2')
     Nb = CalcVariable('N_{b}', kc*SQRT(Fce)*hef**1.5, 'lbs', 'Basic concrete breakout strength of single adhesive anchor in tension in cracked concrete', 'ACI 318-14 17.4.2.2a')
     Anco = CalcVariable('A_{Nco}', 9*hef**2, 'in^2', 'Projected concrete failure area of a single adhesive anchor', code_ref='ACI 318-14 17.4.2.1c')
@@ -195,7 +194,7 @@ def create_calculation(updated_input={}):
 
     BodyHeader('Pryout Strength', head_level=2)
     Ncpg = CalcVariable('N_{cpg}', MIN(Nag, Ncbg), 'lbs', 'Nominal unadjusted pryout strength for the anchor group', 'ACI 318-14 17.5.3.1')
-    
+
     kpclim = Variable('2.5', 2.5)
     if hef.result() >= 2.5:
         CheckVariablesText(hef, '>=', kpclim)
@@ -203,7 +202,7 @@ def create_calculation(updated_input={}):
     else:
         CheckVariablesText(hef, '<', kpclim)
         kcp = CalcVariable('k_{cp}', 1.0, '', 'Modification factor for concrete pryout', code_ref='ACI 318-14 17.5.3.1')
-    
+
     Vcp = CalcVariable('V_{cp}', kcp*Ncpg, 'lbs', 'Nominal adjusted pryout strength for the anchor group', 'ACI 318-14 Eq. 17.5.3.1b')
     Phicv = CalcVariable(r'\phi_{concV}', 0.70, description='Strength reduction factor for shear failure in concrete', code_ref='ACI 318-14 17.3.3')
     PVcp = CalcVariable(r'\phi V_{cp}', Phicv*Vcp, 'lbs')
@@ -225,7 +224,7 @@ def create_calculation(updated_input={}):
     le = CalcVariable('l_e', MIN(Ha, 8*db), 'in', 'Load bearing length of the anchor for shear', 'ACI 318-14 17.5.2.2')
     Vb1 = CalcVariable('V_{b1}', 7*(le/db)**0.2*SQRT(db)*SQRT(Fce)*camin**1.5, 'lbs', code_ref='ACI 318-14 Eq. 17.5.2.2a')
     Vb2 = CalcVariable('V_{b2}', 9*SQRT(Fce)* camin**1.5 , 'lbs', code_ref='ACI 318-14 Eq. 17.5.2.2b')
-    
+
 
 
     Vb = CalcVariable('V_b', MIN(Vb1, Vb2), 'lbs', 'Basic concrete breakout strength in shear of single anchor', 'ACI 318-14 17.5.2.2')
@@ -259,7 +258,7 @@ def create_calculation(updated_input={}):
         Limratio = CalcVariable('R_{comb,lim}', 1.2, '', 'Maximum allowed combined demand ratio')
         ccomb = CheckVariable(Combratio, '<=', Limratio, code_ref='ACI 318-14 Eq. 17.6.3' )
 
-    
+
     BodyHeader('Wall Cap Hoop Tension', head_level=1)
     BodyText('The new wall cap horizontal steel will be designed to take the entire hoop tension of the new dome structure created by outward shear force at the anchors.')
     Thu = CalcVariable('T_{uh}', Vu / Ww * Rt*ft_to_in, 'lbs', 'Hoop tension in wall cap')
@@ -304,7 +303,7 @@ def create_calculation(updated_input={}):
         Ptot = - 0.85 * fc_val * b_val * B1_val * c_assume
         esi = ec * (camax.result() - c_assume) / c_assume
         Ptot += atot.result() * Es_val * esi
-        
+
         if Ptot > tolerance:
             if c_last_change == 1: # last change was an decrease
                 c_change = c_change/1.5
@@ -354,11 +353,15 @@ def create_calculation(updated_input={}):
 
 
 
-    
 
 
 
 
-    calculation_sum = {'head': HeadCollection.head_instances, 'assum': AssumCollection.assum_instances,
-                       'setup': SetupCollection.setup_instances, 'calc': CalcCollection.calc_instances, 'foot': FootCollection.foot_instances}
-    return calculation_sum
+
+    return {
+        'head': HeadCollection.head_instances,
+        'assum': AssumCollection.assum_instances,
+        'setup': SetupCollection.setup_instances,
+        'calc': CalcCollection.calc_instances,
+        'foot': FootCollection.foot_instances,
+    }
