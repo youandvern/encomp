@@ -40,8 +40,7 @@ def create_calculation(updated_input={}):
 
     if len(updated_input)>0:
         for input_variable in DeclareVariable.instances + DeclareTable.instances:
-            new_value = updated_input.get(input_variable.name)
-            if new_value:
+            if new_value := updated_input.get(input_variable.name):
                 input_variable._set_value(new_value)
 
     ###   DEFINE CALCULATION, BODY HEADER, AND BODY TEXT   ###
@@ -108,8 +107,16 @@ def create_calculation(updated_input={}):
             c_solved = True
 
     c = CalcVariable('c', c_assume, 'in', 'Neutral axis depth required for section equilibrium', result_check=True)
-    bars_output = []
-    bars_output.append(['Bar #', 'A <sub>s</sub> (in<sup>2</sup>)', '&epsilon;<sub>s</sub>', 'f<sub>s</sub> (ksi)', 'y (in)'])
+    bars_output = [
+        [
+            'Bar #',
+            'A <sub>s</sub> (in<sup>2</sup>)',
+            '&epsilon;<sub>s</sub>',
+            'f<sub>s</sub> (ksi)',
+            'y (in)',
+        ]
+    ]
+
     et_max_val = 0
     bars_sum = 0
     i = 0
@@ -139,5 +146,10 @@ def create_calculation(updated_input={}):
     phi_mn = CalcVariable('\phi M_n', phi*Mn/ft_to_in, 'k-ft', 'Design moment capacity of beam section', result_check=True )
 
 
-    calculation_sum = {'head':HeadCollection.head_instances, 'assum': AssumCollection.assum_instances, 'setup':SetupCollection.setup_instances, 'calc':CalcCollection.calc_instances, 'foot':FootCollection.foot_instances}
-    return calculation_sum
+    return {
+        'head': HeadCollection.head_instances,
+        'assum': AssumCollection.assum_instances,
+        'setup': SetupCollection.setup_instances,
+        'calc': CalcCollection.calc_instances,
+        'foot': FootCollection.foot_instances,
+    }

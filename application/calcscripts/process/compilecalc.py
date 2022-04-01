@@ -45,7 +45,7 @@ def compile_calculation(compile_calc_path, compile_update_vals=False, compile_up
             description_text = item.description
             code_ref = item.code_ref
             if code_ref:
-                code_ref = "[" + code_ref + "]"
+                code_ref = f"[{code_ref}]"
             if item.__class__.__name__ =='BodyHeader':
                 calc_type = str(int(float(item.head_level)+1))
             elif item.__class__.__name__ =='CalcVariable':
@@ -69,7 +69,7 @@ def compile_calculation(compile_calc_path, compile_update_vals=False, compile_up
                 calc_type = 'Table'
                 name_only = item.name
                 symbolic_string = item.value[0] # headings
-                substituted_string = item.value[0:] # values
+                substituted_string = item.value[:]
                 result_unit = ''
             elif item.__class__.__name__ =='CheckVariable':
                 name_only = "Check  "

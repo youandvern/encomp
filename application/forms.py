@@ -19,8 +19,7 @@ class RegisterForm(FlaskForm):
     register_submit = SubmitField("Create Account")
 
     def validate_email(self, email):
-        user = User.objects(email=emailR.data).first()  # finds first occurance of email in all db emails
-        if user:  #if email is found in db:
+        if user := User.objects(email=emailR.data).first():
             raise ValidationError("Email is already registered.")
 
 class ProjectForm(FlaskForm):
@@ -36,10 +35,7 @@ class ChangeProjectForm(FlaskForm):
 class CalcForm(FlaskForm):
     def get_type_names():
         types = CalcType.objects().all()
-        names = []
-        for type in types:
-            names.append(type.type_name)
-        return names
+        return [type.type_name for type in types]
     calc_name = StringField("Calculation Name", validators=[DataRequired()])
     description = StringField("Calculation Description")
     calc_type = SelectField("Choose Calculation Type", choices=get_type_names(), validators=[DataRequired()])

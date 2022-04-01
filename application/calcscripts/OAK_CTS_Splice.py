@@ -33,8 +33,8 @@ def create_calculation(updated_input={}):
     Assumption("Tension splice type is Class B")
     Assumption("All concrete is normal-weight")
     Assumption("Post-installed reinforcing will be placed at the center of the wall")
-    
-        
+
+
 
     Tu = DeclareVariable('T_u', 23000, 'lbs', 'Design ultimate tensile demand at top of wall cap per cable group (Appendix B)', code_ref='Appendix B Page 46', input_type="number", min_value=0)
     Vu = DeclareVariable('V_u', 3500, 'lbs', 'Design ultimate shear demand at top of wall cap per cable group (Appendix B)',  code_ref='Appendix B Page 46', input_type="number", min_value=0)
@@ -50,14 +50,14 @@ def create_calculation(updated_input={}):
 
     Na = DeclareVariable("N_a", 8, "", 'Number of post-installed bars per cable group', input_type='number', min_value=1)
 
-    
+
 
     Da = DeclareVariable('D_a', reinforcement_bar_sizes[1], '', 'Post-installed bar size (eighth of an inch diameter)')
-                        
+
     Dae = DeclareVariable('D_{ae}', reinforcement_bar_sizes[1], '', 'Existing bar size (eighth of an inch diameter)')
 
     Sa = DeclareVariable('S_a', 8, 'in', 'Transverse center-to-center spacing of splice bars', input_type='number', min_value=0)
-    
+
     Sbpe = DeclareVariable("S_{b,p,e}", 2, "in", 'Closest spacing between post-installed bar and existing bar', input_type='number', min_value=0)
     cbp = DeclareVariable("c_{b,p}", 2, "in", 'Minimum center-to-edge distance of post-installed bars', input_type='number', min_value=0)
     cbe = DeclareVariable("c_{b,e}", 2, "in", 'Minimum center-to-edge distance of existing bars', input_type='number', min_value=0)
@@ -87,8 +87,7 @@ def create_calculation(updated_input={}):
 
     if len(updated_input) > 0:
         for input_variable in DeclareVariable.instances:
-            new_value = updated_input.get(input_variable.name)
-            if new_value:
+            if new_value := updated_input.get(input_variable.name):
                 input_variable._set_value(new_value)
 
     ###   DEFINE CALCULATION, BODY HEADER, AND BODY TEXT   ###
@@ -119,16 +118,16 @@ def create_calculation(updated_input={}):
 
     # Ldmin = CalcVariable('L_{d,min}', 12, 'in', 'Minimum allowable development length in tension', code_ref='ACI 318-14 25.4.2.1(b)')
 
-    
+
     BodyHeader('Post-installed reinforcement tension splice', head_level=2)
-    
+
     if Da.value <= 6:
         CheckVariablesText(Da, '<=', Variable('6', 6, ''))
         ccmin = CalcVariable('c_{c,min}', 1.1875, 'in', 'Minimum concrete cover', code_ref='ESR-3814 4.2.3')
     else:
         CheckVariablesText(Da, '>', Variable('6', 6, ''))
         ccmin = CalcVariable('c_{c,min}', 1.5625, 'in', 'Minimum concrete cover', code_ref='ESR-3814 4.2.3')
-    
+
     cbmin = CalcVariable('c_{b,min}', db/2+ccmin, 'in', 'Required minimum edge distance for post-installed reinforcing bars', code_ref='ESR-3814 4.2.3')
     CheckVariable( cbmin, '<=', cbp, truestate="OK", falsestate="ERROR", result_check=True)
 
@@ -157,14 +156,14 @@ def create_calculation(updated_input={}):
 
 
     BodyHeader('Existing reinforcement tension splice', head_level=2)
-    
+
     if Dae.value <= 6:
         CheckVariablesText(Dae, '<=', Variable('6', 6, ''))
         ccmine = CalcVariable('c_{c,min,e}', 1.1875, 'in', 'Minimum concrete cover', code_ref='ESR-3814 4.2.3')
     else:
         CheckVariablesText(Dae, '>', Variable('6', 6, ''))
         ccmine = CalcVariable('c_{c,min,e}', 1.5625, 'in', 'Minimum concrete cover', code_ref='ESR-3814 4.2.3')
-    
+
     cbmine = CalcVariable('c_{b,min,e}', dbe/2+ccmine, 'in', 'Required minimum edge distance for existing reinforcing bars', code_ref='ESR-3814 4.2.3')
     CheckVariable( cbmine, '<=', cbe, truestate="OK", falsestate="ERROR", result_check=True)
 
@@ -209,7 +208,7 @@ def create_calculation(updated_input={}):
     cpnmax = CheckVariable(Thu, '<=', PPnmax)
 
     BodyText('As a conservative design check, the joint and existing wall strength will be analyzed as if the shear force from the new dome anchors is transferred through the new connection rather than taken as a hoop force in the new wall cap. This shear would induce an out-of-plane moment on the previously unreinforced portion of the wall until the loads are distributed into the existing prestressing layer.')
-    
+
     BodyHeader('Shear Friction at Wall Cap Joint', head_level=2)
     Tsfv = CalcVariable('T_{sf,v}', Pntmax - Tu, 'lbs', 'Remaining tensile capacity of steel for shear strength', code_ref="ACI 318-14 22.9.4.6")
     Vnfl = CalcVariable('V_{nf,l}', Muj*Tsfv, 'lbs', 'Limiting nominal shear friction capacity at joint', code_ref='ACI 318-14 Eq. 22.9.4.2')
@@ -225,7 +224,7 @@ def create_calculation(updated_input={}):
         Vnmd = CalcVariable('V_{nm,d}', 0.2*Fcmin*Ac, 'lbs', code_ref='ACI 318-14 Table 22.9.4.4(d)')
         Vnme = CalcVariable('V_{nm,e}', 800*Ac, 'lbs', code_ref='ACI 318-14 Table 22.9.4.4(e)')
         Vnmax = CalcVariable('V_{nmax}', MIN(Vnmd, Vnme), 'lbs', code_ref='ACI 318-14 Table 22.9.4.4')
-    
+
     Vnf = CalcVariable('V_{nf}', MIN(Vnfl, Vnmax), 'lbs', 'Nominal shear friction capacity at joint', code_ref='ACI 318-14 22.9.4.4')
     Phiv = CalcVariable(r'\phi_{v}', 0.75, description='Strength reduction factor for shear strength', code_ref='ACI 318-14 Table 21.2.1')
     PVnf = CalcVariable(r'\phi V_{nf}', Phiv*Vnf, 'lbs', 'Design shear friction strength')
@@ -251,7 +250,7 @@ def create_calculation(updated_input={}):
     else:
         CheckVariablesText(Fce, '<=', fourksi)
         B1 = CalcVariable(r'\beta _1', 0.85, '', 'Equivalent rectangular compressive stress block depth ratio', code_ref='ACI 318-14 Table 22.2.2.4.3')
-    
+
     c = CalcVariable('c', a/B1, 'in', 'Neutral axis depth from compression face', code_ref='ACI 318-14 Eq. 22.2.2.4.1')
     ec_var = CalcVariable(r'\varepsilon _c', 0.003, '', 'Crushing strain of concrete', code_ref='ACI 318-14 Eq. 22.2.2.1')
     es = CalcVariable(r'\varepsilon _t', ec_var*BRACKETS(d-c)/c, '', 'Tensile strain in reinforcing steel at flexural failure', code_ref='ACI 318-14 22.2.1.2' )
@@ -277,11 +276,15 @@ def create_calculation(updated_input={}):
 
 
 
-    
 
 
 
 
-    calculation_sum = {'head': HeadCollection.head_instances, 'assum': AssumCollection.assum_instances,
-                       'setup': SetupCollection.setup_instances, 'calc': CalcCollection.calc_instances, 'foot': FootCollection.foot_instances}
-    return calculation_sum
+
+    return {
+        'head': HeadCollection.head_instances,
+        'assum': AssumCollection.assum_instances,
+        'setup': SetupCollection.setup_instances,
+        'calc': CalcCollection.calc_instances,
+        'foot': FootCollection.foot_instances,
+    }
