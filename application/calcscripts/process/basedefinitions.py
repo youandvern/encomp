@@ -51,7 +51,7 @@ class Assumption(AssumCollection):
 class DeclareVariable(Variable, SetupCollection):
     """ Declares a variable with a numeric value. """
     instances = []
-    def __init__(self, name, value=0, unit="", description="", code_ref = "", input_type = "text", num_step="any", min_value=None, max_value=None, input_options=None):
+    def __init__(self, name, value=0, unit="", description="", code_ref = "", input_type = "number", num_step="any", min_value=None, max_value=None, input_options=None):
         self.name=name
         self.value=value
         # self.Value=value
