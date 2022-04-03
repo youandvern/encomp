@@ -27,3 +27,5 @@ alum_rectangular_sizes = AlumShapesRectangular.objects().distinct(field="Name")
 alum_wf_sizes = AlumShapesWF.objects().distinct(field="Size")
 
 reinforcement_bar_sizes = ["3", "4", "5", "6", "7", "8", "9", "10", "11", "14", "18"]
+
+hss_load_applied_sides = ["ALL", "B-Side", "Ht-Side"]

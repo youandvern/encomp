@@ -260,27 +260,6 @@ def create_calculation(updated_input={}):
     phi_mn = CalcVariable(r'\phi M_n', phi*Mn, 'lb-in', 'Design moment capacity of wall section' )
     CheckVariable(Muv, '<=', phi_mn)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     return {
         'head': HeadCollection.head_instances,
         'assum': AssumCollection.assum_instances,
