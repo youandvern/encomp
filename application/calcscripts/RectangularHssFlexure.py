@@ -22,13 +22,13 @@ def create_calculation(updated_input=None):
 
     CalculationTitle('Rectangular HSS Flexural Design')
 
-    DescriptionHead("Simply supported member design in pure bending.")
+    DescriptionHead("Simply supported member design for flexure.")
 
     ##
 
-    Assumption("Members are in pure compression")
+    Assumption("Members are in pure flexure")
     Assumption("AISC manual of steel (14th ed.) controls member design")
-    Assumption("Torsional unbraced length does not exceed lateral unbraced length")
+    Assumption("Members are simply supported and unbraced between supports")
 
     Wu = DeclareVariable('w_u', 10, 'plf', 'Ultimate linear load on member')
 
