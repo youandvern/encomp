@@ -55,7 +55,7 @@ def create_calculation(updated_input=None):
     k_to_lb = Variable('1000 \ \mathrm{lbs/kip}', 1000, 'lbs/kip')
     ft_to_in = Variable('12 \ \mathrm{in/ft}', 12, 'in/ft')
 
-    BodyHeader('Member Properties', head_level=2)  # ###############################################
+    BodyHeader('Member Properties', head_level=1)  # ###############################################
     section = AISCSectionsRectangular.objects(AISC_name=size.value).first()
     Ag = CalcVariable('A_{g}', section.A, 'in^2')
     B = CalcVariable('B', section.B, 'in')
@@ -69,7 +69,8 @@ def create_calculation(updated_input=None):
     blt = CalcVariable('\mathrm{b/t}', section.bltdes, '')
     hlt = CalcVariable('\mathrm{h/t}', section.hltdes, '')
 
-    BodyHeader('Yielding', head_level=2)  # ###############################################
+    BodyHeader('Flexural Strength', head_level=1)
+    BodyHeader('Yielding', head_level=2)
     Mny = CalcVariable('M_{ny}', Fy * Zx, 'kip-in', 'Nominal plastic flexural capacity', code_ref='AISC Eq. F7-1')
 
     BodyHeader('Flange Local Buckling', head_level=2)
@@ -129,13 +130,13 @@ def create_calculation(updated_input=None):
         Mnwb = CalcVariable('M_{nwb}', 0, 'kip-in', 'Slender webs are not allowed in flexure',
                             code_ref='AISC Eq. F7-3')
 
-    BodyHeader('Member Demand vs. Capacity Check', head_level=2)
+    BodyHeader('Member Demand vs. Capacity Check', head_level=1)
     Mn = CalcVariable('M_n', MIN(Mny, Mnfb, Mnwb), 'kip-in', 'Nominal controlling flexural capacity')
     PMn = CalcVariable('\phi M_n', Pf * Mn / ft_to_in, 'kip-ft', 'Design member flexural capacity', result_check=True)
     Mu = CalcVariable('M_u', Wu * L ** 2 / (8 * k_to_lb), 'kip-ft', 'Beam moment demand')
     CheckVariable(Mu, '<=', PMn, truestate="OK", falsestate="ERROR", result_check=True)
 
-    BodyHeader('Member Deflection Check', head_level=2)
+    BodyHeader('Member Deflection Check', head_level=1)
     dallow = CalcVariable('\delta_{allow}', L * ft_to_in / dlim, 'in')
     delastic = CalcVariable('\delta_{elastic}', 5 * Wu * L ** 4 * ft_to_in ** 3 / (384 * Es * Ix * k_to_lb), 'in')
     CheckVariable(delastic, '<=', dallow)
