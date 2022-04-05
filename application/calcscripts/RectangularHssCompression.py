@@ -37,7 +37,7 @@ def create_calculation(updated_input=None):
                            input_options=rectangular_section_sizes)
 
     Fy = DeclareVariable('F_{y}', 36, 'ksi', 'Material yield stress')
-    Es = DeclareVariable('E', 29000, 'ksi', 'Modulus of Elasticity')
+    Es = DeclareVariable('E', 29000, 'ksi', 'Modulus of elasticity')
 
     Pc = DeclareVariable('\phi_c', 0.9, '', 'Resistance factor for compression')
 
