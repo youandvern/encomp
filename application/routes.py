@@ -1,6 +1,5 @@
 from application import application, db, mail
 from flask import render_template, request, json, jsonify, Response, redirect, flash, url_for, session, send_file
-from flask_cors import CORS, cross_origin
 from flask_mail import Message, Mail
 from werkzeug.utils import secure_filename
 
@@ -489,7 +488,6 @@ def concrete_beam_api():
 
 
 @application.route("/api/TrussGeometry", methods=["GET", "POST"])
-@cross_origin()
 def truss_geometry_api():
     if not (input_json := request.json):
         return "No input given"
@@ -499,7 +497,4 @@ def truss_geometry_api():
     n_web = input_json.get("nWeb", 1)
     truss = TrussGeometry(span, height, n_web)
 
-    return {
-        "nodes": truss.getNodesDict(),
-        "members": truss.getMembersDict()
-    }
+    return {"nodes": truss.getNodesDict(), "members": truss.getMembersDict()}
