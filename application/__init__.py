@@ -4,7 +4,6 @@ from config import Config
 from private import p_mail_config
 from flask_mongoengine import MongoEngine
 from flask_mail import Mail
-# import redis
 from flask_kvsession import KVSessionExtension
 from simplekv.memory import DictStore
 import os
