@@ -1,7 +1,10 @@
 from application import application, db, mail
 from flask import render_template, request, json, jsonify, Response, redirect, flash, url_for, session, send_file
+from flask_cors import CORS, cross_origin
 from flask_mail import Message, Mail
 from werkzeug.utils import secure_filename
+
+from application.calcscripts.TrussApi.TrussGeometry import TrussGeometry
 from application.models import User, Project, CalcInput, CalcType
 from application.forms import LoginForm, RegisterForm, ProjectForm, CalcForm, CalcTypeForm, ChangeProjectForm, ChangeCalcForm, ContactForm
 from application.mongo_query import getUserProjects, getProjCalcs, removeCalculationFromDB, deleteProject
@@ -482,4 +485,21 @@ def concrete_beam_api():
         for item in result_items
         if item.__class__.__name__ in ['CalcVariable', 'CalcTable']
         and item.result_check
+    }
+
+
+@application.route("/api/TrussGeometry", methods=["GET", "POST"])
+@cross_origin()
+def truss_geometry_api():
+    if not (input_json := request.json):
+        return "No input given"
+
+    span = input_json.get("span", 12)
+    height = input_json.get("height", 4)
+    n_web = input_json.get("nWeb", 1)
+    truss = TrussGeometry(span, height, n_web)
+
+    return {
+        "nodes": truss.getNodesDict(),
+        "members": truss.getMembersDict()
     }
