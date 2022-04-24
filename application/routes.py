@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from flask_cors import CORS, cross_origin
 
 from application.calcscripts.TrussApi.TrussGeometry import TrussGeometry
-from application.calcscripts.TrussApi.TrussAnalysis import TrussAnalysis
+from application.calcscripts.TrussApi.TrussAnalysisCalc import TrussAnalysis
 from application.models import User, Project, CalcInput, CalcType
 from application.forms import LoginForm, RegisterForm, ProjectForm, CalcForm, CalcTypeForm, ChangeProjectForm, ChangeCalcForm, ContactForm
 from application.mongo_query import getUserProjects, getProjCalcs, removeCalculationFromDB, deleteProject
@@ -492,7 +492,7 @@ def concrete_beam_api():
 
 
 @application.route("/api/TrussGeometry", methods=["GET", "POST"])
-@cross_origin()
+@cross_origin(origins="*")
 def truss_geometry_api():
     if not (input_json := request.json):
         return "No input given"
@@ -500,7 +500,8 @@ def truss_geometry_api():
     span = input_json.get("span", 12)
     height = input_json.get("height", 4)
     n_web = input_json.get("nWeb", 1)
-    truss = TrussGeometry(span, height, n_web)
+    truss_type = input_json.get("trussType", "PrattRoofTruss")
+    truss = TrussGeometry(span, height, n_web, truss_type)
 
     return {
         "nodes": truss.getNodesDict(),
@@ -511,7 +512,7 @@ def truss_geometry_api():
 
 
 @application.route("/api/TrussForces", methods=["GET", "POST"])
-@cross_origin()
+@cross_origin(origins="*")
 def truss_forces_api():
     if not (input_json := request.json):
         return "No input given"
@@ -519,8 +520,9 @@ def truss_forces_api():
     span = input_json.get("span", 12)
     height = input_json.get("height", 4)
     n_web = input_json.get("nWeb", 1)
+    truss_type = input_json.get("trussType", "PrattRoofTruss")
     forces = input_json.get("forces", [[0, 0, 0]])
-    truss = TrussAnalysis(span, height, n_web)
+    truss = TrussAnalysis(span, height, n_web, truss_type)
     truss.setNodeForces(forces)
     memberForces, memberForceHeaders = truss.getMemberForces()
 

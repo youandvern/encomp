@@ -2,7 +2,7 @@ import numpy as np
 from StructPy.Truss import Truss
 from StructPy.cross_sections import HSS
 from StructPy.materials import A992
-from TrussUtilities.Forces import Forces
+from TrussAnalysis.TrussUtilities.Forces import Forces
 from application.calcscripts.TrussApi.TrussGeometry import TrussGeometry
 
 
@@ -12,7 +12,7 @@ class TrussAnalysis(TrussGeometry):
     """
 
     def __init__(self, span, height, nVertWebsPerSide=1, trussType='PrattRoofTruss'):
-        super().__init__(span, height, nVertWebsPerSide)
+        super().__init__(span, height, nVertWebsPerSide, trussType)
         self.xsDefault = HSS(2, 1.75, 2, 1.75)
         self.materialDefault = A992()
         self.forces = Forces(self.truss.getNNodes())
@@ -36,5 +36,5 @@ class TrussAnalysis(TrussGeometry):
         memberForces = []
         for i in range(len(self.analysisTruss.members)):
             member = self.analysisTruss.members[i]
-            memberForces.append([i, member.SN.n, member.EN.n, member.axial])
-        return memberForces, ['Member ID', 'Start Node', 'End Node', 'Axial Force']
+            memberForces.append([i, member.SN.n, member.EN.n, member.length, member.axial])
+        return memberForces, ['Member ID', 'Start Node', 'End Node', 'Length', 'Axial Force']

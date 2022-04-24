@@ -1,4 +1,23 @@
-from PrattTrussGeometry.Geometry import Geometry
+from TrussAnalysis.Geometries import FinkRoofTruss, HoweBridgeTruss, HoweRoofTruss, PrattBridgeTruss, PrattRoofTruss, \
+    WarrenBridgeTruss
+
+
+def stringNameToTrussGeometryType(name):
+    match name:
+        case 'FinkRoofTruss':
+            return FinkRoofTruss.Geometry
+        case 'HoweBridgeTruss':
+            return HoweBridgeTruss.Geometry
+        case 'HoweRoofTruss':
+            return HoweRoofTruss.Geometry
+        case 'PrattBridgeTruss':
+            return PrattBridgeTruss.Geometry
+        case 'PrattRoofTruss':
+            return PrattRoofTruss.Geometry
+        case 'WarrenBridgeTruss':
+            return WarrenBridgeTruss.Geometry
+        case _:
+            return PrattRoofTruss.Geometry
 
 
 class TrussGeometry(object):
@@ -8,7 +27,7 @@ class TrussGeometry(object):
 
     def __init__(self, span, height, nVertWebsPerSide=1, trussType='PrattRoofTruss'):
         self.type = trussType
-        self.truss = Geometry(span, height, nVertWebsPerSide)
+        self.truss = stringNameToTrussGeometryType(trussType)(span, height, nVertWebsPerSide)
 
     def getNodesDict(self):
         nodes = self.truss.getNodes()
