@@ -3,21 +3,19 @@ from TrussAnalysis.Geometries import FinkRoofTruss, HoweBridgeTruss, HoweRoofTru
 
 
 def stringNameToTrussGeometryType(name):
-    match name:
-        case 'FinkRoofTruss':
-            return FinkRoofTruss.Geometry
-        case 'HoweBridgeTruss':
-            return HoweBridgeTruss.Geometry
-        case 'HoweRoofTruss':
-            return HoweRoofTruss.Geometry
-        case 'PrattBridgeTruss':
-            return PrattBridgeTruss.Geometry
-        case 'PrattRoofTruss':
-            return PrattRoofTruss.Geometry
-        case 'WarrenBridgeTruss':
-            return WarrenBridgeTruss.Geometry
-        case _:
-            return PrattRoofTruss.Geometry
+    if name == 'FinkRoofTruss':
+        return FinkRoofTruss.Geometry
+    if name == 'HoweBridgeTruss':
+        return HoweBridgeTruss.Geometry
+    if name == 'HoweRoofTruss':
+        return HoweRoofTruss.Geometry
+    if name == 'PrattBridgeTruss':
+        return PrattBridgeTruss.Geometry
+    if name == 'PrattRoofTruss':
+        return PrattRoofTruss.Geometry
+    if name == 'WarrenBridgeTruss':
+        return WarrenBridgeTruss.Geometry
+    return PrattRoofTruss.Geometry
 
 
 class TrussGeometry(object):
