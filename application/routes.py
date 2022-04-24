@@ -1,9 +1,13 @@
+import logging
+
 from application import application, db, mail
 from flask import render_template, request, json, jsonify, Response, redirect, flash, url_for, session, send_file
 from flask_mail import Message, Mail
 from werkzeug.utils import secure_filename
+from flask_cors import CORS, cross_origin
 
 from application.calcscripts.TrussApi.TrussGeometry import TrussGeometry
+from application.calcscripts.TrussApi.TrussAnalysisCalc import TrussAnalysis
 from application.models import User, Project, CalcInput, CalcType
 from application.forms import LoginForm, RegisterForm, ProjectForm, CalcForm, CalcTypeForm, ChangeProjectForm, ChangeCalcForm, ContactForm
 from application.mongo_query import getUserProjects, getProjCalcs, removeCalculationFromDB, deleteProject
@@ -488,6 +492,7 @@ def concrete_beam_api():
 
 
 @application.route("/api/TrussGeometry", methods=["GET", "POST"])
+@cross_origin(origins="*")
 def truss_geometry_api():
     if not (input_json := request.json):
         return "No input given"
@@ -495,6 +500,37 @@ def truss_geometry_api():
     span = input_json.get("span", 12)
     height = input_json.get("height", 4)
     n_web = input_json.get("nWeb", 1)
-    truss = TrussGeometry(span, height, n_web)
+    truss_type = input_json.get("trussType", "PrattRoofTruss")
+    truss = TrussGeometry(span, height, n_web, truss_type)
 
-    return {"nodes": truss.getNodesDict(), "members": truss.getMembersDict()}
+    return {
+        "nodes": truss.getNodesDict(),
+        "members": truss.getMembersDict(),
+        "topNodeIds": truss.truss.getTopNodesIndices(),
+        "botNodeIds": truss.truss.getBotNodesIndices()
+    }
+
+
+@application.route("/api/TrussForces", methods=["GET", "POST"])
+@cross_origin(origins="*")
+def truss_forces_api():
+    if not (input_json := request.json):
+        return "No input given"
+
+    span = input_json.get("span", 12)
+    height = input_json.get("height", 4)
+    n_web = input_json.get("nWeb", 1)
+    truss_type = input_json.get("trussType", "PrattRoofTruss")
+    forces = input_json.get("forces", [[0, 0, 0]])
+    truss = TrussAnalysis(span, height, n_web, truss_type)
+    truss.setNodeForces(forces)
+    memberForces, memberForceHeaders = truss.getMemberForces()
+
+    return {
+        "nodes": truss.getNodesDict(),
+        "members": truss.getMembersDict(),
+        "topNodeIds": truss.truss.getTopNodesIndices(),
+        "botNodeIds": truss.truss.getBotNodesIndices(),
+        "memberForces": memberForces,
+        "memberForcesHeaders": memberForceHeaders
+    }
