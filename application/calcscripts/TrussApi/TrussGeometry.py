@@ -40,7 +40,7 @@ class TrussGeometry(object):
         md = {}
         for i in range(len(members)):
             mem = members[i]
-            md[i] = {'start': mem.start, 'end': mem.end, 'type': str(mem.member_type)}
+            md[i] = {'start': mem.start, 'end': mem.end, 'type': mem.member_type.name}
         return md
 
     def getTruss(self):
