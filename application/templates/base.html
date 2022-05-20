@@ -1,83 +1,87 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Encomp Calculations</title>
-    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favEncomp2.png', version='1')}}" type="image/x-icon" />
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+    <link
+      rel="shortcut icon"
+      href="{{ url_for('static', filename='images/favEncomp2.png', version='1')}}"
+      type="image/x-icon"
+    />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,700;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet" />
 
     <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css',  version='313')}}"/>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/popup.css', version='260')}}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css',  version='315')}}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/popup.css', version='260')}}" />
     <script>
       MathJax = {
-        loader: {load: ['input/asciimath', 'output/chtml', 'ui/menu']},
+        loader: { load: ["input/asciimath", "output/chtml", "ui/menu"] },
       };
     </script>
-    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script
+      type="text/javascript"
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q2BBYVVRL9"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-      gtag('config', 'G-Q2BBYVVRL9');
+      gtag("config", "G-Q2BBYVVRL9");
     </script>
-</head>
-<body>
-<div class="page-wrapper">
-<div class="container-fluid text-center top-container" id="logo-container">
-  <div class="beside-logo">
-  </div>
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <div class="container-fluid text-center top-container" id="logo-container">
+        <div class="beside-logo"></div>
 
-  <div class="logo-container">
-    <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='images/ENCOMP.png', version='1')}}"></a>
-  </div>
+        <div class="logo-container">
+          <a href="{{ url_for('index') }}"
+            ><img src="{{ url_for('static', filename='images/ENCOMP.png', version='1')}}"
+          /></a>
+        </div>
 
-  <div class="beside-logo padded">
-    {% if session.get('username') %}
-    <p class='user_welcome'>Welcome, <span class="blue-text"> <b>{{ session.get('username') }}.</b></span> <br> <a class="small-text" href="{{url_for('logout') }}">Logout</a></p>
-    {% else %}
-    <span class='user_welcome'></span>
-    {% endif %}
-  </div>
-</div>
+        <div class="beside-logo padded">
+          {% if session.get('username') %}
+          <p class="user_welcome">
+            Welcome, <span class="blue-text"> <b>{{ session.get('username') }}.</b></span> <br />
+            <a class="small-text" href="{{url_for('logout') }}">Logout</a>
+          </p>
+          {% else %}
+          <span class="user_welcome"></span>
+          {% endif %}
+        </div>
+      </div>
 
-<div class="content-container">
-
-<div class="container">
-
-    {% include "includes/nav.html" %}
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
+      <div class="content-container">
+        <div class="container">
+          {% include "includes/nav.html" %} {% with messages =
+          get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message
+          in messages %}
           <div class="alert alert-{{category}}">
             <p>{{ message }}</p>
           </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-</div>
+          {% endfor %} {% endif %} {% endwith %}
+        </div>
 
-    <div class="base-block">
-    {% block content%}
+        <div class="base-block">{% block content%} {% endblock %}</div>
+      </div>
 
-    {% endblock %}
+      <div class="">{% include "includes/footer.html" %}</div>
     </div>
-</div>
 
-
-<div class="">
-  {% include "includes/footer.html" %}
-</div>
-
-</div>
-
-<script src = "static/js/active.js?202"></script>
-</body>
+    <script src="static/js/active.js?202"></script>
+  </body>
 </html>

@@ -1,102 +1,126 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <div class="container">
+  <div class="row">
+    <div class="col-md-12 text-center home-intro">
+      {% if session.get('username') %}
+      <h2>Let's get started.</h2>
+      <h4>
+        Welcome back, <span class="blue-text"> <b>{{ session.get('username') }}.</b></span>
+      </h4>
+      <br />
+      {% else %}
+      <br />
+      <h2>
+        Welcome to <span class="blue-text"><b>EnComp</b></span
+        >! Let's get started.
+      </h2>
+      <br />
 
-    <div class="row">
-        <div class="col-md-12 text-center home-intro">
-
-            {% if session.get('username') %}
-            <h2>Let's get started.</h2>
-            <h4>Welcome back, <span class="blue-text"> <b>{{ session.get('username') }}.</b></span></h4>
-            <br>
-            {% else %}
-            <br>
-            <h2> Welcome to <span class="blue-text"><b>EnComp</b></span>! Let's get started. </h2>
-            <br>
-
-            {% endif %}
-            <div class="new-feature">
-              <div class="new-feature-back"></div>
-              <div class="new-feature-text">
-                <h4 >Go see some our newest design tool and let us know what you think: </h4>
-                  <!--<h3><b><a href="https://concrete.encompapp.com/">Concrete Beam Designer</a></b></h3>-->
-                  <h3><b><a href="https://truss-analysis.encompapp.com/">Truss Analysis</a></b></h3>
-              </div>
-              
+      {% endif %}
+      <div class="new-feature">
+        <div class="new-feature-back"></div>
+        <div class="new-feature-text">
+          <h4>Go see some our newest design tools and let us know what you think:</h4>
+          <div class="new-feature-links">
+            <div class="new-feature-link-container">
+              <a href="https://truss-analysis.encompapp.com/" target="_blank">
+                <img
+                  src="{{ url_for('static', filename='images/truss_analysis_img.png', version='0')}}"
+                />
+                <h3><b>Truss Analysis</b></h3>
+              </a>
             </div>
-            
-            <br><br>
-
+            <div class="new-feature-link-container">
+              <a href="https://concrete.encompapp.com/" target="_blank">
+                <img
+                  src="{{ url_for('static', filename='images/concrete_beam_img.png', version='0')}}"
+                />
+                <h3><b>Concrete Beam Design</b></h3>
+              </a>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <br /><br />
     </div>
-
-
-<div class="index-video-pane">
-
-  <div class="text-overlay-box">
-    <div class="empty"></div>
-    <div class="text">
-      <h3 class="index-pane-text bold-font" id="index-pane-txt1">POWERFUL AND CLEAN DESIGN INTERFACE</h3>
-    </div>
-    <div class="empty"></div>
   </div>
 
-  <video class="index-pane" autoplay loop muted playsinline>
-    <source src="{{ url_for('static', filename='videos/EncompDesignInterfaceEdited.mp4', version='4')}}" type="video/mp4">
+  <div class="index-video-pane">
+    <div class="text-overlay-box">
+      <div class="empty"></div>
+      <div class="text">
+        <h3 class="index-pane-text bold-font" id="index-pane-txt1">
+          POWERFUL AND CLEAN DESIGN INTERFACE
+        </h3>
+      </div>
+      <div class="empty"></div>
+    </div>
+
+    <video class="index-pane" autoplay loop muted playsinline>
+      <source
+        src="{{ url_for('static', filename='videos/EncompDesignInterfaceEdited.mp4', version='4')}}"
+        type="video/mp4"
+      />
       Video showing design interface.
-  </video>
-</div>
+    </video>
+  </div>
 
-<div class="index-video-pane">
-
-  <video class="index-pane" autoplay loop muted playsinline>
-    <source src="{{ url_for('static', filename='videos/EncompCalcReportEdited.mp4', version='1')}}" type="video/mp4">
+  <div class="index-video-pane">
+    <video class="index-pane" autoplay loop muted playsinline>
+      <source
+        src="{{ url_for('static', filename='videos/EncompCalcReportEdited.mp4', version='1')}}"
+        type="video/mp4"
+      />
       Video showing calculation reports.
-  </video>
+    </video>
 
-  <div class="text-overlay-box">
-    <div class="empty"></div>
-    <div class="text">
-      <h3 class="index-pane-text bold-font" id="index-pane-txt2">DETAILED CALCULATION REPORTS</h3>
+    <div class="text-overlay-box">
+      <div class="empty"></div>
+      <div class="text">
+        <h3 class="index-pane-text bold-font" id="index-pane-txt2">DETAILED CALCULATION REPORTS</h3>
+      </div>
+      <div class="empty"></div>
     </div>
-    <div class="empty"></div>
-  </div>
-</div>
-
-<div class="index-video-pane">
-
-  <div class="text-overlay-box">
-    <div class="empty"></div>
-    <div class="text">
-      <h3 class="index-pane-text bold-font" id="index-pane-txt3">EASILY MANAGE YOUR PROJECTS</h3>
-    </div>
-    <div class="empty"></div>
   </div>
 
-  <video class="index-pane" autoplay loop muted playsinline>
-    <source src="{{ url_for('static', filename='videos/EncompProjectsEdited.mp4', version='1')}}" type="video/mp4">
+  <div class="index-video-pane">
+    <div class="text-overlay-box">
+      <div class="empty"></div>
+      <div class="text">
+        <h3 class="index-pane-text bold-font" id="index-pane-txt3">EASILY MANAGE YOUR PROJECTS</h3>
+      </div>
+      <div class="empty"></div>
+    </div>
+
+    <video class="index-pane" autoplay loop muted playsinline>
+      <source
+        src="{{ url_for('static', filename='videos/EncompProjectsEdited.mp4', version='1')}}"
+        type="video/mp4"
+      />
       Video showing project page interface.
-  </video>
-</div>
-
-
-<div class="index-video-pane">
-
-  <video class="index-pane" autoplay loop muted playsinline>
-    <source src="{{ url_for('static', filename='videos/EncompBuildCalcsEdited.mp4', version='1')}}" type="video/mp4">
-      Video showing calculation coding.
-  </video>
-
-  <div class="text-overlay-box">
-    <div class="empty"></div>
-    <div class="text">
-      <h3 class="index-pane-text bold-font" id="index-pane-txt4">CREATE THE CALCULATIONS YOU NEED</h3>
-    </div>
-    <div class="empty"></div>
+    </video>
   </div>
-</div>
 
+  <div class="index-video-pane">
+    <video class="index-pane" autoplay loop muted playsinline>
+      <source
+        src="{{ url_for('static', filename='videos/EncompBuildCalcsEdited.mp4', version='1')}}"
+        type="video/mp4"
+      />
+      Video showing calculation coding.
+    </video>
+
+    <div class="text-overlay-box">
+      <div class="empty"></div>
+      <div class="text">
+        <h3 class="index-pane-text bold-font" id="index-pane-txt4">
+          CREATE THE CALCULATIONS YOU NEED
+        </h3>
+      </div>
+      <div class="empty"></div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
