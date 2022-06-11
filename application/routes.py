@@ -522,9 +522,9 @@ def truss_forces_api():
     n_web = input_json.get("nWeb", 1)
     truss_type = input_json.get("trussType", "PrattRoofTruss")
     forces = input_json.get("forces", [[0, 0, 0]])
-    e_mod = input_json.get("eMod", 1000)
-    a_cross = input_json.get("aCross", 1)
-    truss = TrussAnalysis(span, height, n_web, trussType=truss_type)
+    e_mod = input_json.get("eMod", {"top": 1000, "bot": 1000, "web": 1000})
+    a_cross = input_json.get("aCross", {"top": 1, "bot": 1, "web": 1})
+    truss = TrussAnalysis(span, height, n_web, trussType=truss_type, eMod=e_mod, aCross=a_cross)
     truss.setNodeForces(forces)
     memberForces, memberForceHeaders, displacements = truss.getStructureResults()
 

@@ -1,5 +1,6 @@
 import numpy as np
 from StructPy.Truss import Truss
+from TrussAnalysis.TrussUtilities.MemberType import MemberType
 from StructPy.cross_sections import generalSection
 from StructPy.materials import Custom
 from TrussAnalysis.TrussUtilities.Forces import Forces
@@ -11,8 +12,20 @@ class TrussAnalysis(TrussGeometry):
     Class to generate truss geometry and analysis from simple inputs
     """
 
-    def __init__(self, span, height, nVertWebsPerSide=1, trussType='PrattRoofTruss', eMod=1000, aCross=1):
+    def __init__(self, span, height, nVertWebsPerSide=1, trussType='PrattRoofTruss', eMod=None, aCross=None):
         super().__init__(span, height, nVertWebsPerSide, trussType)
+        if aCross is None:
+            aCross = {"top": 1, "bot": 1, "web": 1}
+        if eMod is None:
+            eMod = {"top": 1000, "bot": 1000, "web": 1000}
+        self.xsMemberType = {MemberType.topChord: generalSection(1, 1, aCross.get("top")),
+                             MemberType.botChord: generalSection(1, 1, aCross.get("bot")),
+                             MemberType.diaWeb: generalSection(1, 1, aCross.get("web")),
+                             MemberType.vertWeb: generalSection(1, 1, aCross.get("web"))}
+        self.materialMemberType = {MemberType.topChord: Custom(1, eMod.get("top")),
+                                   MemberType.botChord: Custom(1, eMod.get("bot")),
+                                   MemberType.diaWeb: Custom(1, eMod.get("web")),
+                                   MemberType.vertWeb: Custom(1, eMod.get("web"))}
         self.xsDefault = generalSection(1, 1, 1)
         self.materialDefault = Custom(1000, 10)
         self.forces = Forces(self.truss.getNNodes())
@@ -23,7 +36,9 @@ class TrussAnalysis(TrussGeometry):
         for node in self.truss.getNodes():
             self.analysisTruss.addNode(node.x, node.y, fixity=node.fixity)
         for mem in self.truss.getMembers():
-            self.analysisTruss.addMember(mem.start, mem.end)
+            xs = self.xsMemberType.get(mem.member_type)
+            mat = self.materialMemberType.get(mem.member_type)
+            self.analysisTruss.addMember(mem.start, mem.end, cross=xs, material=mat)
 
     def setNodeForces(self, forceArray=None):
         if forceArray is None:
