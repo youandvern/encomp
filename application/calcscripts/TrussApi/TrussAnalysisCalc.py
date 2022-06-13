@@ -22,10 +22,10 @@ class TrussAnalysis(TrussGeometry):
                              MemberType.botChord: generalSection(1, 1, aCross.get("bot")),
                              MemberType.diaWeb: generalSection(1, 1, aCross.get("web")),
                              MemberType.vertWeb: generalSection(1, 1, aCross.get("web"))}
-        self.materialMemberType = {MemberType.topChord: Custom(1, eMod.get("top")),
-                                   MemberType.botChord: Custom(1, eMod.get("bot")),
-                                   MemberType.diaWeb: Custom(1, eMod.get("web")),
-                                   MemberType.vertWeb: Custom(1, eMod.get("web"))}
+        self.materialMemberType = {MemberType.topChord: Custom(eMod.get("top"), 1),
+                                   MemberType.botChord: Custom(eMod.get("bot"), 1),
+                                   MemberType.diaWeb: Custom(eMod.get("web"), 1),
+                                   MemberType.vertWeb: Custom(eMod.get("web"), 1)}
         self.xsDefault = generalSection(1, 1, 1)
         self.materialDefault = Custom(1000, 10)
         self.forces = Forces(self.truss.getNNodes())
