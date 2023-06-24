@@ -79,6 +79,7 @@ def compile_calculation(compile_calc_path, compile_update_vals=False, compile_up
             elif item.__class__.__name__ =='CheckVariablesText':
                 symbolic_string = item.strSymbolic()
 
+            #                                       0                   1               2       3           4           5                   6               7
             html_strings['calc'].append([item.__class__.__name__, description_text, code_ref, calc_type, name_only, symbolic_string, substituted_string, result_unit])
 
     return {"html_strings": html_strings, 'all_items':totallist}, calc_errors
